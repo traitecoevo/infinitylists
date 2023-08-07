@@ -25,7 +25,8 @@ places <- list(
 ui <- fluidPage(
   selectizeInput("place", "Choose a place:", choices = names(places), multiple = FALSE),
   selectizeInput("taxa", "Choose a taxa:", choices = unique(observations$taxa), multiple = FALSE),
-  DTOutput("table")
+  DTOutput("table"),
+  leafletOutput("map")
 )
 
 server <- function(input, output) {
@@ -42,6 +43,12 @@ server <- function(input, output) {
   
   output$table <- renderDT({
     datatable(filtered_data())
+  })
+  
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      addMarkers(data = filtered_data(), ~long, ~lat, popup = ~species)
   })
 }
 
