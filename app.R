@@ -21,6 +21,14 @@ places <- list(
   "PlaceA" = matrix(c(-99, -99, -104, -104, -99,39, 44, 44, 39, 39), ncol=2),
   "PlaceB" = matrix(c(-101, -101, -105, -105, -101,42, 45, 45, 42, 42), ncol=2)
 )
+  
+#  ,
+#  "PlaceC" = st_geometry(st_read("places/wategora-reserve-survey-area-approximate-boundaries.kml"))
+#)
+
+
+
+
 
 ui <- fluidPage(
   selectizeInput("place", "Choose a place:", choices = names(places), multiple = FALSE),
@@ -48,7 +56,8 @@ server <- function(input, output) {
   output$map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
-      addMarkers(data = filtered_data(), ~long, ~lat, popup = ~species)
+      addMarkers(data = filtered_data(), ~long, ~lat, popup = ~species) %>%
+      addPolygons(lng = places[[input$place]][, 1], lat = places[[input$place]][, 2], color = "red")
   })
 }
 
