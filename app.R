@@ -3,18 +3,18 @@ library(DT)
 library(leaflet)
 library(sf)
 library(dplyr)
+library(data.table)
 
-# Sample data
-# This would typically be read from an external file
-# observations <- read.csv("observations.csv")
-observations <- data.frame(
-  taxa = c("PlantA", "PlantA", "PlantA", "PlantA", "PlantA", "PlantA", "PlantA"),
-  species = c("Species1", "Species2", "Species3", "Species4", "Species5", "Species6", "Species7"),
-  voucher_type = c("Voucher1", "Voucher2", "Voucher1", "Voucher2", "Voucher1", "Voucher2", "Voucher1"),
-  collection_date = as.Date(c("2020-01-01", "2021-01-01", "2019-01-01", "2020-01-05", "2021-03-01", "2022-01-01", "2022-03-01")),
-  lat = c(-33.9, -33.86583, -33.86583, -33.86583, -33.865, -33.867, -33.86583),
-  long = c(151.0106, 151.0113, 151.0113, 151.0106, 151.0106, 151.03, 151.01)
-)
+ala<-data.table::fread("ala_nsw_inat_avh.csv")
+ala$taxa<-stringr::word(ala$species,1,1)
+ala$voucher_type<-case_when(ala$basisOfRecord=="PRESERVED_SPECIMEN" ~ "Collection",
+                            TRUE ~ "Photograph")
+ala$lat<-ala$decimalLatitude
+ala$long<-ala$decimalLongitude
+ala$year<-year(ala$eventDate)
+
+
+
 
 # Mockup list of places with their polygons (these would be real polygons in practice)
 places <- list(
@@ -27,22 +27,27 @@ places <- list(
 
 
 ui <- fluidPage(
-  selectizeInput("place", "Choose a place:", choices = names(places), multiple = FALSE),
-  selectizeInput("taxa", "Choose a taxa:", choices = unique(observations$taxa), multiple = FALSE),
+  selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places)),
+  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = sort(unique(ala$taxa))),
   DTOutput("table"),
   leafletOutput("map")
 )
 
-server <- function(input, output) {
+server <- function(input, output,session) {
+  
+  # Update the 'taxa' input choices based on user typing
   filtered_data <- reactive({
+    req(input$taxa) 
     # Filter observations by selected taxa
-    data <- observations[observations$taxa == input$taxa, ]
-    
+    data <- ala[ala$taxa == input$taxa, ]
     # Check if data is within selected place polygon
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
     dplyr::tibble(data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ]) %>%
-      dplyr::group_by(taxa) %>% dplyr::mutate(n=dplyr::n()) %>% dplyr::arrange(max(collection_date)) %>% dplyr::slice(1)
+      dplyr::select(taxa,species,year,voucher_type,long,lat,references) %>%
+      dplyr::arrange(species,year) %>%
+      dplyr::group_by(species,voucher_type) %>%
+      dplyr::summarize(year=max(year),n=n(),long=long[1],lat=lat[1])
   })
   
   output$table <- renderDT({
@@ -50,11 +55,13 @@ server <- function(input, output) {
   })
   
   output$map <- renderLeaflet({
+    place_polygon <- places[[input$place]]
     leaflet() %>%
       addTiles() %>%
-      addMarkers(data = filtered_data(), ~long, ~lat, popup = ~species) %>%
+      addMarkers(data = filtered_data(), ~long, ~lat,group = ~species, popup = ~species) %>%
       addPolygons(data = place_polygon, color = "red")
   })
 }
+
 
 shinyApp(ui = ui, server = server)
