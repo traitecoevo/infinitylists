@@ -42,10 +42,10 @@ server <- function(input, output,session) {
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
     dplyr::tibble(data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ]) %>%
-      dplyr::select(taxa,species,year,voucher_type,long,lat,references) %>%
+      dplyr::select(taxa,species,year,voucher_type,long,lat,voucher_location) %>%
       dplyr::arrange(species,year) %>%
       dplyr::group_by(species,voucher_type) %>%
-      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),long=long[1],lat=lat[1],references=references[1])
+      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),long=long[1],lat=lat[1],voucher_location=voucher_location[1])
   })
   
   output$table <- renderDT({
