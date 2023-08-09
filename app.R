@@ -53,11 +53,18 @@ server <- function(input, output,session) {
   })
   
   output$map <- renderLeaflet({
+    species_colors <- colorFactor(palette = "Set1", domain = filtered_data()$voucher_type)
+    
     place_polygon <- places[[input$place]]
     leaflet() %>%
       addTiles() %>%
-      addMarkers(data = filtered_data(), ~long, ~lat, popup = ~species) %>%
-      addPolygons(data = place_polygon, color = "red")
+      addCircleMarkers(data = filtered_data(), ~long, ~lat,
+                      popup = ~species,
+                      color = ~species_colors(voucher_type), 
+                      fill = TRUE, 
+                      fillOpacity = 0.8, 
+                      radius = 6) %>%
+      addPolygons(data = place_polygon, color = "red") 
   })
 }
 

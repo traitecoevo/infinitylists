@@ -6,7 +6,7 @@ ala_dl<-list.files("ala_data/records-2023-08-07/",full.names = TRUE)
 read_in_and_subset<-function(path){
   read_csv(path) %>%
     select(species,decimalLatitude,decimalLongitude,eventDate,datasetName,
-           coordinateUncertaintyInMeters,basisOfRecord,references)
+           coordinateUncertaintyInMeters,basisOfRecord,references,institutionCode)
 }
 
 all_ss<-map_df(ala_dl,read_in_and_subset)
@@ -18,13 +18,13 @@ all_ss<-map_df(ala_dl,read_in_and_subset)
 datasets_of_interest<-c("Australia's Virtual Herbarium","iNaturalist observations","iNaturalist research-grade observations")
 all_ss %>%
   select(species,decimalLatitude,decimalLongitude,eventDate,datasetName,
-         coordinateUncertaintyInMeters,basisOfRecord,references) %>%
+         coordinateUncertaintyInMeters,basisOfRecord,references,institutionCode) %>%
   filter(basisOfRecord=="PRESERVED_SPECIMEN" | datasetName %in% datasets_of_interest) %>%
   filter(is.na(coordinateUncertaintyInMeters) | coordinateUncertaintyInMeters<=1000) %>%
   filter(!is.na(decimalLatitude) & !is.na(species))-> ala_inat_avh
 
 ala_inat_avh$voucher_location<-case_when(!is.na(ala_inat_avh$references) ~ ala_inat_avh$references,
-                                         TRUE ~ ala_inat_avh$datasetName)
+                                         TRUE ~ ala_inat_avh$institutionCode)
 
 
 ala_inat_avh$taxa<-stringr::word(ala_inat_avh$species,1,1)
