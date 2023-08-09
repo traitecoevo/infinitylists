@@ -45,7 +45,7 @@ server <- function(input, output,session) {
       dplyr::select(taxa,species,year,voucher_type,long,lat,references) %>%
       dplyr::arrange(species,year) %>%
       dplyr::group_by(species,voucher_type) %>%
-      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),long=long[1],lat=lat[1])
+      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),long=long[1],lat=lat[1],references=references[1])
   })
   
   output$table <- renderDT({
