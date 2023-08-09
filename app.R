@@ -45,15 +45,19 @@ server <- function(input, output,session) {
       dplyr::select(taxa,species,year,voucher_type,long,lat,voucher_location) %>%
       dplyr::arrange(species,year) %>%
       dplyr::group_by(species,voucher_type) %>%
-      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),long=long[1],lat=lat[1],voucher_location=voucher_location[1])
+      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),
+                       long=long[1],lat=lat[1],
+                       voucher_location=
+                         case_when(grepl("https",voucher_location[1]) ~ paste0("<a href='",voucher_location[1],"'>",voucher_location[1],"</a>"),
+                                         TRUE ~ voucher_location[1]))
   })
   
   output$table <- renderDT({
-    datatable(filtered_data())
+    datatable(filtered_data(),escape = FALSE)
   })
   
   output$map <- renderLeaflet({
-    species_colors <- colorFactor(palette = "Set1", domain = filtered_data()$voucher_type)
+    species_colors <- colorFactor(palette = "Set2", domain = filtered_data()$voucher_type)
     
     place_polygon <- places[[input$place]]
     leaflet() %>%
