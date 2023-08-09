@@ -23,6 +23,8 @@ all_ss %>%
   filter(is.na(coordinateUncertaintyInMeters) | coordinateUncertaintyInMeters<=1000) %>%
   filter(!is.na(decimalLatitude) & !is.na(species))-> ala_inat_avh
 
+ala_inat_avh$voucher_location<-case_when(!is.na(ala_inat_avh$references) ~ ala_inat_avh$references,
+                                         TRUE ~ ala_inat_avh$datasetName)
 
 
 ala_inat_avh$taxa<-stringr::word(ala_inat_avh$species,1,1)
@@ -34,7 +36,7 @@ ala_inat_avh$year<-year(ala_inat_avh$eventDate)
 
 #trying to get file as small as possible
 ala_inat_avh %>%
-  select(taxa,species,year,lat,long,voucher_type,references) %>%
+  select(taxa,species,year,lat,long,voucher_type,voucher_location) %>%
   filter(!is.na(taxa)&!is.na(species)&!is.na(year)&!is.na(lat)&!is.na(long)&!is.na(voucher_type)) %>%
   filter(year>1800) %>%
   write_csv("ala_nsw_inat_avh.csv")
