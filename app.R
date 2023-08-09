@@ -62,12 +62,9 @@ server <- function(input, output,session) {
     place_polygon <- places[[input$place]]
     leaflet() %>%
       addTiles() %>%
-      addCircleMarkers(data = filtered_data(), ~long, ~lat,
-                      popup = ~species,
-                      color = ~species_colors(voucher_type), 
-                      fill = TRUE, 
-                      fillOpacity = 0.8, 
-                      radius = 6) %>%
+      addMarkers(data = filtered_data(), ~long, ~lat,
+                      popup = paste(filtered_data()$species,filtered_data()$voucher_type)
+                    ) %>%
       addPolygons(data = place_polygon, color = "red") 
   })
 }
