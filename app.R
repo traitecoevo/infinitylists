@@ -6,15 +6,6 @@ library(dplyr)
 library(data.table)
 
 ala<-data.table::fread("ala_nsw_inat_avh.csv")
-ala$taxa<-stringr::word(ala$species,1,1)
-ala$voucher_type<-case_when(ala$basisOfRecord=="PRESERVED_SPECIMEN" ~ "Collection",
-                            TRUE ~ "Photograph")
-ala$lat<-ala$decimalLatitude
-ala$long<-ala$decimalLongitude
-ala$year<-year(ala$eventDate)
-
-
-
 
 # Mockup list of places with their polygons (these would be real polygons in practice)
 places <- list(
@@ -29,10 +20,16 @@ places <- list(
 
 ui <- fluidPage(
   selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places)),
-  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = sort(unique(ala$taxa))),
+  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = sort(unique(ala$taxa)),selected = "Acacia",
+                 options = list(
+                   placeholder = "e.g Acacia",
+                   create = TRUE,
+                   maxOptions = 50L
+                 )),
   DTOutput("table"),
   leafletOutput("map")
 )
+
 
 server <- function(input, output,session) {
   
@@ -48,7 +45,7 @@ server <- function(input, output,session) {
       dplyr::select(taxa,species,year,voucher_type,long,lat,references) %>%
       dplyr::arrange(species,year) %>%
       dplyr::group_by(species,voucher_type) %>%
-      dplyr::summarize(year=max(year),n=n(),long=long[1],lat=lat[1])
+      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),long=long[1],lat=lat[1])
   })
   
   output$table <- renderDT({
