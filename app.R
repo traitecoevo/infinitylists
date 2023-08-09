@@ -45,10 +45,10 @@ server <- function(input, output,session) {
       dplyr::select(taxa,species,year,voucher_type,long,lat,voucher_location) %>%
       dplyr::arrange(species,year) %>%
       dplyr::group_by(species,voucher_type) %>%
-      dplyr::summarize(year=max(year,na.rm=TRUE),n=n(),
+      dplyr::summarize(`Most Recent Obs.`=max(year,na.rm=TRUE),n=n(),
                        long=long[1],lat=lat[1],
                        voucher_location=
-                         case_when(grepl("https",voucher_location[1]) ~ paste0("<a href='",voucher_location[1],"'>",voucher_location[1],"</a>"),
+                         case_when(grepl("https",voucher_location[1]) ~ paste0("<a href='",voucher_location[1],"'>","iNat","</a>"),
                                          TRUE ~ voucher_location[1]))
   })
   
