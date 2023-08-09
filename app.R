@@ -18,12 +18,13 @@ ala$year<-year(ala$eventDate)
 
 # Mockup list of places with their polygons (these would be real polygons in practice)
 places <- list(
- "Duck1" = st_geometry(st_read("places/wategora-reserve-survey-area-approximate-boundaries.kml", crs = 4326)),
- "Duck2" = st_geometry(st_read("places/wategora-reserve-survey-area-approximate-boundaries.kml", crs = 4326))
+ "Duck River" = st_geometry(st_read("places/wategora-reserve-survey-area-approximate-boundaries.kml", crs = 4326)),
+ "Fowlers" = st_simplify(st_geometry(st_read("places/fowlers.kml", crs = 4326)), dTolerance = 0.01)
  )
 
+# plot(places[["Fowlers"]])
 
-
+# class(places[["Fowlers"]])
 
 
 ui <- fluidPage(
@@ -58,7 +59,7 @@ server <- function(input, output,session) {
     place_polygon <- places[[input$place]]
     leaflet() %>%
       addTiles() %>%
-      addMarkers(data = filtered_data(), ~long, ~lat,group = ~species, popup = ~species) %>%
+      addMarkers(data = filtered_data(), ~long, ~lat, popup = ~species) %>%
       addPolygons(data = place_polygon, color = "red")
   })
 }
