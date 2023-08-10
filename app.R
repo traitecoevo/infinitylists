@@ -10,7 +10,8 @@ ala<-data.table::fread("ala_nsw_inat_avh.csv")
 # Mockup list of places with their polygons (these would be real polygons in practice)
 places <- list(
  "Duck River" = st_geometry(st_read("places/wategora-reserve-survey-area-approximate-boundaries.kml", crs = 4326)),
- "Fowlers Gap UNSW" = st_simplify(st_geometry(st_read("places/fowlers.kml", crs = 4326)), dTolerance = 0.01)
+ "Fowlers Gap UNSW" = st_simplify(st_geometry(st_read("places/fowlers.kml", crs = 4326)), dTolerance = 0.01),
+ "Smiths Lake and Vicinity" = st_geometry(st_read("places/unsw-smith-lake-field-station-and-vicinity.kml", crs = 4326))
  )
 
 # plot(places[["Fowlers"]])
