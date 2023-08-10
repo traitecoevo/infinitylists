@@ -10,7 +10,7 @@ ala<-data.table::fread("ala_nsw_inat_avh.csv")
 # Mockup list of places with their polygons (these would be real polygons in practice)
 places <- list(
  "Duck River" = st_geometry(st_read("places/wategora-reserve-survey-area-approximate-boundaries.kml", crs = 4326)),
- "Fowlers" = st_simplify(st_geometry(st_read("places/fowlers.kml", crs = 4326)), dTolerance = 0.01)
+ "Fowlers Gap UNSW" = st_simplify(st_geometry(st_read("places/fowlers.kml", crs = 4326)), dTolerance = 0.01)
  )
 
 # plot(places[["Fowlers"]])
@@ -19,8 +19,8 @@ places <- list(
 
 
 ui <- fluidPage(
-  selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places)),
-  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = sort(unique(ala$taxa)),selected = "Acacia",
+  selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places),selected = "Fowlers Gap UNSW"),
+  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = sort(unique(ala$taxa)),selected = "Sida",
                  options = list(
                    placeholder = "e.g Acacia",
                    create = TRUE,
@@ -58,10 +58,12 @@ server <- function(input, output,session) {
   
   output$map <- renderLeaflet({
     species_colors <- colorFactor(palette = "Set2", domain = filtered_data()$voucher_type)
+    url <- "https://cloud.google.com/maps-platform/terms"
+    link_text <- "Google Maps Platform Terms"
     
     place_polygon <- places[[input$place]]
     leaflet() %>%
-      addTiles() %>%
+      addTiles(urlTemplate ="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",attribution=paste0('<a href="', url, '">', link_text, '</a>')) %>%
       addMarkers(data = filtered_data(), ~long, ~lat,
                       popup = paste(filtered_data()$species,filtered_data()$voucher_type)
                     ) %>%
