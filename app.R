@@ -34,6 +34,8 @@ ui <- fluidPage(
 
 server <- function(input, output,session) {
   
+  
+  
   # Update the 'taxa' input choices based on user typing
   filtered_data <- reactive({
     req(input$taxa) 
@@ -53,6 +55,21 @@ server <- function(input, output,session) {
                                          TRUE ~ voucher_location[1]))
   })
   
+  
+filter_inputs<-reactive({  
+  place_polygon <- places[[input$place]]
+  ss<-dplyr::filter(ala,lat<st_bbox(place_polygon)$ymax&lat>st_bbox(place_polygon)$ymin & long<st_bbox(place_polygon)$xmax& long>st_bbox(place_polygon)$xmin)
+  shiny::observe({
+    updateSelectInput(session,
+                      "taxa",
+                      choices = sort(unique(ss$taxa))
+                      
+    )
+  })
+})
+  
+  
+  
   output$table <- renderDT({
     datatable(filtered_data(),escape = FALSE)
   })
@@ -63,6 +80,7 @@ server <- function(input, output,session) {
     link_text <- "Google Maps Platform Terms"
     
     place_polygon <- places[[input$place]]
+    filter_inputs()
     leaflet() %>%
       addTiles(urlTemplate ="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",attribution=paste0('<a href="', url, '">', link_text, '</a>')) %>%
       addMarkers(data = filtered_data(), ~long, ~lat,
