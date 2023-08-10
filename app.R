@@ -7,21 +7,16 @@ library(data.table)
 
 ala<-data.table::fread("ala_nsw_inat_avh.csv")
 
-# Mockup list of places with their polygons (these would be real polygons in practice)
+#  list of places with their polygons (kmls need to be valid polygons)
 places <- list(
  "Duck River" = st_geometry(st_read("places/wategora-reserve-survey-area-approximate-boundaries.kml", crs = 4326)),
  "Fowlers Gap UNSW" = st_simplify(st_geometry(st_read("places/fowlers.kml", crs = 4326)), dTolerance = 0.01),
  "Smiths Lake and Vicinity" = st_geometry(st_read("places/unsw-smith-lake-field-station-and-vicinity.kml", crs = 4326))
  )
 
-# plot(places[["Fowlers"]])
-
-# class(places[["Fowlers"]])
-
-
 ui <- fluidPage(
   selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places),selected = "Fowlers Gap UNSW"),
-  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = c("Acacia","Eucalyptus","Sida"),selected = "Sida",
+  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = c("Acacia","Eucalyptus","Sida"),selected = "Sida", #  only genera work at the moment
                  options = list(
                    placeholder = "e.g Acacia",
                    create = TRUE,
@@ -35,14 +30,13 @@ ui <- fluidPage(
 server <- function(input, output,session) {
   
   
-  # Update the 'taxa' input choices based on user typing
   filtered_data <- reactive({
-    #req(input$taxa) 
     # Filter observations by selected taxa
     data <- ala[ala$taxa == input$taxa, ]
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
-    dplyr::tibble(data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ]) %>% # Check if data is within selected place polygon
+    # Check if data is within selected place polygon
+    dplyr::tibble(data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ]) %>%
       dplyr::select(taxa,species,year,voucher_type,long,lat,voucher_location) %>%
       dplyr::arrange(species,year) %>%
       dplyr::group_by(species,voucher_type) %>%
@@ -76,7 +70,7 @@ filter_inputs<-reactive({
   output$map <- renderLeaflet({
     species_colors <- colorFactor(palette = "Set2", domain = filtered_data()$voucher_type)
     url <- "https://cloud.google.com/maps-platform/terms"
-    link_text <- "Google Maps Platform Terms"
+    link_text <- "Google Maps"
     place_polygon <- places[[input$place]]
     filter_inputs()
     leaflet() %>%
