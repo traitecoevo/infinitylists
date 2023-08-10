@@ -21,11 +21,11 @@ places <- list(
 
 ui <- fluidPage(
   selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places),selected = "Fowlers Gap UNSW"),
-  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = sort(unique(ala$taxa)),selected = "Sida",
+  selectizeInput(inputId="taxa", label ="Choose a taxa:", choices = c("Acacia","Eucalyptus","Sida"),selected = "Sida",
                  options = list(
                    placeholder = "e.g Acacia",
                    create = TRUE,
-                   maxOptions = 50L
+                   maxOptions = 500L
                  )),
   DTOutput("table"),
   leafletOutput("map")
@@ -35,16 +35,14 @@ ui <- fluidPage(
 server <- function(input, output,session) {
   
   
-  
   # Update the 'taxa' input choices based on user typing
   filtered_data <- reactive({
-    req(input$taxa) 
+    #req(input$taxa) 
     # Filter observations by selected taxa
     data <- ala[ala$taxa == input$taxa, ]
-    # Check if data is within selected place polygon
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
-    dplyr::tibble(data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ]) %>%
+    dplyr::tibble(data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ]) %>% # Check if data is within selected place polygon
       dplyr::select(taxa,species,year,voucher_type,long,lat,voucher_location) %>%
       dplyr::arrange(species,year) %>%
       dplyr::group_by(species,voucher_type) %>%
@@ -55,16 +53,17 @@ server <- function(input, output,session) {
                                          TRUE ~ voucher_location[1]))
   })
   
-  
+
+#this updates the taxa input to have only genera observed within the bounding box of the place selected.  
+#it is called by the map which only executes if the place changes.  
 filter_inputs<-reactive({  
   place_polygon <- places[[input$place]]
   ss<-dplyr::filter(ala,lat<st_bbox(place_polygon)$ymax&lat>st_bbox(place_polygon)$ymin & long<st_bbox(place_polygon)$xmax& long>st_bbox(place_polygon)$xmin)
   shiny::observe({
-    updateSelectInput(session,
+    updateSelectizeInput(session,
                       "taxa",
-                      choices = sort(unique(ss$taxa))
-                      
-    )
+                      choices = sort(unique(ss$taxa)),
+                                     server = TRUE)
   })
 })
   
@@ -78,7 +77,6 @@ filter_inputs<-reactive({
     species_colors <- colorFactor(palette = "Set2", domain = filtered_data()$voucher_type)
     url <- "https://cloud.google.com/maps-platform/terms"
     link_text <- "Google Maps Platform Terms"
-    
     place_polygon <- places[[input$place]]
     filter_inputs()
     leaflet() %>%
