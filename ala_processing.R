@@ -36,8 +36,8 @@ ala_inat_avh$long<-ala_inat_avh$decimalLongitude
 ala_inat_avh$collectionDate<-lubridate::ymd(word(ala_inat_avh$eventDate,1,1))
 lu<-native_anywhere_in_australia(unique(ala_inat_avh$species[stringi::stri_count_words(ala_inat_avh$species)==2]))
 ala_inat_avh<-left_join(ala_inat_avh,lu)
-ala_inat_avh$native_anywhere_in_aus<-case_when(ala_inat_avh$native_anywhere_in_aus=="considered native to Australia by APC" ~ "Native (APC)",
-                                               ala_inat_avh$native_anywhere_in_aus=="not considered native to Australia by APC" ~ "Introduced (APC)",
+ala_inat_avh$native_anywhere_in_aus<-case_when(ala_inat_avh$native_anywhere_in_aus=="considered native to Australia by APC" ~ "Native",
+                                               ala_inat_avh$native_anywhere_in_aus=="not considered native to Australia by APC" ~ "Introduced",
                                                TRUE ~ "unknown") 
 
 #trying to get file as small as possible
@@ -52,9 +52,9 @@ ala_inat_avh %>%
 #ala<-read_csv("ala_nsw_inat_avh.csv")
 
 
-read_in_and_filter<-function(path){
-  read_csv(path) %>%
-    filter(basisOfRecord=="PRESERVED_SPECIMEN" | datasetName %in% datasets_of_interest)
-}
-
-all_filt<-map(ala_dl,read_in_and_filter)
+# read_in_and_filter<-function(path){
+#   read_csv(path) %>%
+#     filter(basisOfRecord=="PRESERVED_SPECIMEN" | datasetName %in% datasets_of_interest)
+# }
+# 
+# all_filt<-map(ala_dl[[1]],read_in_and_filter)
