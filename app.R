@@ -66,7 +66,7 @@ filter_inputs<-reactive({
   shiny::observe({
     updateSelectizeInput(session,
                       "genus",
-                      choices = c(sort(unique(ss$genus)),"All"),
+                      choices = c("All",sort(unique(ss$genus))),
                                      server = TRUE)
   })
 })
