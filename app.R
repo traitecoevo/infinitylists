@@ -19,7 +19,7 @@ places <- list(
 
 ui <- fluidPage(
   selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places),selected = "Fowlers Gap UNSW"),
-  selectizeInput(inputId="genus", label ="Choose a genus: (you can also select All, but it's slow so be patient)", choices = c("All","Eucalyptus"),selected = "Eucalyptus", #  only genera work at the moment
+  selectizeInput(inputId="genus", label ="Choose a genus: (you can also select All, but it's slow so be patient)", choices = "Eucalyptus", #  only genera work at the moment
                  options = list(
                    placeholder = "e.g Acacia",
                    create = TRUE,
@@ -66,7 +66,7 @@ filter_inputs<-reactive({
   shiny::observe({
     updateSelectizeInput(session,
                       "genus",
-                      choices = c("All",sort(unique(ss$genus))),
+                      choices = c("Eucalyptus","All",sort(unique(ss$genus))),
                                      server = TRUE)
   })
 })
