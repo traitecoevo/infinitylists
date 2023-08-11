@@ -6,6 +6,9 @@ library(dplyr)
 library(data.table)
 
 ala<-data.table::fread("ala_nsw_inat_avh.csv")
+ala$native<-case_when(ala$native_anywhere_in_aus=="Native (APC)" ~ "Native",
+                                               ala$native_anywhere_in_aus=="Introduced (APC)" ~ "Introduced",
+                                               TRUE ~ "unknown") 
 
 #  list of places with their polygons (kmls need to be valid polygons)
 places <- list(
@@ -16,7 +19,7 @@ places <- list(
 
 ui <- fluidPage(
   selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places),selected = "Fowlers Gap UNSW"),
-  selectizeInput(inputId="genus", label ="Choose a genus:", choices = c("Acacia","Eucalyptus","Sida"),selected = "Sida", #  only genera work at the moment
+  selectizeInput(inputId="genus", label ="Choose a genus: (you can also select All, but it's slow so be patient)", choices = c("All","Eucalyptus"),selected = "Eucalyptus", #  only genera work at the moment
                  options = list(
                    placeholder = "e.g Acacia",
                    create = TRUE,
@@ -33,13 +36,17 @@ server <- function(input, output,session) {
   
   filtered_data <- reactive({
     # Filter observations by selected genus
+    if (input$genus!="All"){
     data <- ala[ala$genus == input$genus, ]
+    }
+    else{
+    data <- ala
+    }
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
     # Check if data is within selected place polygon
-    dplyr::tibble(data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ]) %>%
-      dplyr::select(genus,species,collectionDate,voucher_type,long,lat,voucher_location,recordedBy,native=native_anywhere_in_aus) %>%
-      dplyr::arrange(species,collectionDate) %>%
+    data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] %>%
+      dplyr::tibble() %>%
       dplyr::group_by(species,voucher_type) %>%
       dplyr::summarize(`Most Recent Obs.`=max(collectionDate,na.rm=TRUE),n=n(),
                        long=long[1],lat=lat[1],
@@ -59,7 +66,7 @@ filter_inputs<-reactive({
   shiny::observe({
     updateSelectizeInput(session,
                       "genus",
-                      choices = sort(unique(ss$genus)),
+                      choices = c(sort(unique(ss$genus)),"All"),
                                      server = TRUE)
   })
 })
