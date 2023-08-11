@@ -4,6 +4,8 @@ library(leaflet)
 library(sf)
 library(dplyr)
 library(data.table)
+library(shinybusy)
+
 
 ala<-data.table::fread("ala_nsw_inat_avh.csv")
 ala$native<-case_when(ala$native_anywhere_in_aus=="Native (APC)" ~ "Native",
@@ -18,12 +20,11 @@ places <- list(
  )
 
 ui <- fluidPage(
+  add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
   selectizeInput(inputId="place", label ="Choose a place:", choices =  names(places),selected = "Fowlers Gap UNSW"),
-  selectizeInput(inputId="genus", label ="Choose a genus: (you can also select All, but it's slow so be patient)", choices = "Eucalyptus", #  only genera work at the moment
+  selectizeInput(inputId="genus", label ="Choose a genus: (you can also select All, but it's slow so be patient)", choices = "Eucalyptus", selected="Eucalyptus",#  only genera work at the moment
                  options = list(
-                   placeholder = "e.g Acacia",
-                   create = TRUE,
-                   maxOptions = 500L
+                   maxOptions = 200L
                  )),
   DTOutput("table"),
   downloadButton('downloadData', 'Download CSV'),
@@ -66,6 +67,7 @@ filter_inputs<-reactive({
   shiny::observe({
     updateSelectizeInput(session,
                       "genus",
+                      selected="Eucalyptus",
                       choices = c("Eucalyptus","All",sort(unique(ss$genus))),
                                      server = TRUE)
   })
