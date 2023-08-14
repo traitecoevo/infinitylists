@@ -56,7 +56,7 @@ ui <- fluidPage(
     choices = "Eucalyptus",
     selected = "Eucalyptus",
     #  only genera work at the moment
-    options = list(maxOptions = 200L)
+    options = list(maxOptions = 300L)
   ),
   DTOutput("table"),
   downloadButton('downloadData', 'Download CSV'),
@@ -97,9 +97,9 @@ server <- function(input, output, session) {
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
     # Check if data is within selected place polygon
-    data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] %>%
-      dplyr::tibble() %>%
-      dplyr::group_by(species, voucher_type) %>%
+    zzz<-data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] %>%
+      dplyr::tibble()
+      dplyr::group_by(zzz,species, voucher_type) %>%
       dplyr::summarize(
         `Most recent obs.` = max(collectionDate, na.rm = TRUE),
         n = n(),
