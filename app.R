@@ -6,8 +6,7 @@ library(dplyr)
 library(data.table)
 library(shinybusy)
 library(shinythemes)
-
-
+options(dplyr.summarise.inform = FALSE)
 
 ala <- data.table::fread("ala_nsw_inat_avh.csv")
 ala$native <-
@@ -26,9 +25,9 @@ places <- list(
       quiet = TRUE
     )
   ),
-  "Fowlers Gap UNSW" = st_simplify(st_geometry(
+  "Fowlers Gap UNSW" = st_simplify(st_zm(st_geometry(
     st_read("places/fowlers.kml", crs = 4326,
-            quiet = TRUE)
+            quiet = TRUE), drop = TRUE, what = "ZM")
   ), dTolerance = 0.01),
   "Smiths Lake and Vicinity" = st_geometry(
     st_read(
