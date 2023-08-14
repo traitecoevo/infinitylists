@@ -13,10 +13,12 @@ ala$native <-
   case_when(
     ala$native_anywhere_in_aus == "Native (APC)" ~ "Native",
     ala$native_anywhere_in_aus == "Introduced (APC)" ~ "Introduced",
-    TRUE ~ "unknown"
-  )
+    TRUE ~ "Unknown"
+  ) #move to ala.processing.R
 
 #  list of places with their polygons (kmls need to be valid polygons)
+#  if this becomes 1000s we'll need to re-write this section to load on demand 
+#  since this will slow down app loading
 places <- list(
   "Wategora Reserve" = st_geometry(
     st_read(
@@ -68,14 +70,8 @@ server <- function(input, output, session) {
   #it is called by the map which only executes if the place changes.
   observeEvent(input$place, {
     place_polygon <- places[[input$place]]
-    ss <-
-      dplyr::filter(
-        ala,
-        lat < st_bbox(place_polygon)$ymax &
-          lat > st_bbox(place_polygon)$ymin &
-          long < st_bbox(place_polygon)$xmax &
-          long > st_bbox(place_polygon)$xmin
-      )
+    ss <- ala[lat < st_bbox(place_polygon)$ymax & lat > st_bbox(place_polygon)$ymin & 
+                long < st_bbox(place_polygon)$xmax & long > st_bbox(place_polygon)$xmin] #trying out data.table for speed
     updateSelectizeInput(
       session,
       "genus",
@@ -96,23 +92,25 @@ server <- function(input, output, session) {
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
     # Check if data is within selected place polygon
-    zzz<-data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] %>%
-      dplyr::tibble()
-      dplyr::group_by(zzz,species, voucher_type) %>%
-      dplyr::summarize(
+    point_polygon_intersection <- data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] 
+    point_polygon_intersection <- as.data.table(point_polygon_intersection)
+    
+    result <- point_polygon_intersection[
+      , .(
         `Most recent obs.` = max(collectionDate, na.rm = TRUE),
-        n = n(),
+        n = .N,
         long = long[1],
         lat = lat[1],
-        `Voucher location` =
-          case_when(
-            grepl("https", voucher_location[1]) ~ paste0("<a href='", voucher_location[1], "'>", "iNat", "</a>"),
-            TRUE ~ voucher_location[1]
-          ),
+        `Voucher location` = ifelse(
+          grepl("https", voucher_location[1]), 
+          paste0("<a href='", voucher_location[1], "'>", "iNat", "</a>"), 
+          voucher_location[1]
+        ),
         `observed by` = recordedBy[1],
-        native = native[1],
-      ) %>%
-      rename(`Voucher type` = voucher_type)
+        native = native[1]
+      ), 
+      by = .(species, voucher_type)
+    ][, `Voucher type` := voucher_type]
   })
   
   
@@ -124,7 +122,7 @@ server <- function(input, output, session) {
     datatable(
       filtered_data(),
       escape = FALSE,
-      options = list(searching = TRUE, pageLength = 15)
+      options = list(searching = TRUE, pageLength = 5)
     )
   })
   
