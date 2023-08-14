@@ -19,7 +19,7 @@ ala$native <-
 
 #  list of places with their polygons (kmls need to be valid polygons)
 places <- list(
-  "Duck River" = st_geometry(
+  "Wategora Reserve" = st_geometry(
     st_read(
       "places/wategora-reserve-survey-area-approximate-boundaries.kml",
       crs = 4326,
@@ -42,7 +42,7 @@ places <- list(
 
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
-  titlePanel("The Infinity of Lists: an Interactive Guide to the NSW Flora"),
+  titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
   add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
   selectizeInput(
     inputId = "place",
