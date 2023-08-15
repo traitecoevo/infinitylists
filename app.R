@@ -102,7 +102,7 @@ server <- function(input, output, session) {
         lat = lat[1],
         `Voucher location` = ifelse(
           grepl("https", voucher_location[1]), 
-          paste0("<a href='", voucher_location[1], "'>", "iNat", "</a>"), 
+          paste0("<a href='", voucher_location[1], "' target='_blank'>", "iNat", "</a>"), 
           voucher_location[1]
         ),
         `observed by` = recordedBy[1],
@@ -111,11 +111,6 @@ server <- function(input, output, session) {
       by = .(species, voucher_type)
     ][, `Voucher type` := voucher_type]
   })
-  
-  
-  
-  
-  
   
   output$table <- renderDT({
     datatable(
