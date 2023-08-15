@@ -19,25 +19,15 @@ ala$native <-
 #  list of places with their polygons (kmls need to be valid polygons)
 #  if this becomes 1000s we'll need to re-write this section to load on demand 
 #  since this will slow down app loading
+load_place <- function(path) {
+  geom <- st_read(path, crs = 4326, quiet = TRUE)
+  st_geometry(geom)
+}
+
 places <- list(
-  "Wategora Reserve" = st_geometry(
-    st_read(
-      "places/wategora-reserve-survey-area-approximate-boundaries.kml",
-      crs = 4326,
-      quiet = TRUE
-    )
-  ),
-  "Fowlers Gap UNSW" = st_simplify(st_zm(st_geometry(
-    st_read("places/fowlers.kml", crs = 4326,
-            quiet = TRUE), drop = TRUE, what = "ZM")
-  ), dTolerance = 0.01),
-  "Smiths Lake and Vicinity" = st_geometry(
-    st_read(
-      "places/unsw-smith-lake-field-station-and-vicinity.kml",
-      crs = 4326,
-      quiet = TRUE
-    )
-  )
+  "Wategora Reserve" = load_place("places/wategora-reserve-survey-area-approximate-boundaries.kml"),
+  "Fowlers Gap UNSW" = st_simplify(st_zm(load_place("places/fowlers.kml"), drop = TRUE, what = "ZM"), dTolerance = 0.01), #problems with the kml
+  "Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml")
 )
 
 
@@ -68,15 +58,20 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   #this updates the taxa input to have only genera observed within the bounding box of the place selected.
   #it is called by the map which only executes if the place changes.
-  observeEvent(input$place, {
-    place_polygon <- places[[input$place]]
+  update_genus_choices <- function(place) {
+    place_polygon <- places[[place]]
     ss <- ala[lat < st_bbox(place_polygon)$ymax & lat > st_bbox(place_polygon)$ymin & 
-                long < st_bbox(place_polygon)$xmax & long > st_bbox(place_polygon)$xmin] #trying out data.table for speed
+                long < st_bbox(place_polygon)$xmax & long > st_bbox(place_polygon)$xmin]
+    choices = c("Eucalyptus", "All", sort(unique(ss$genus)))
+    return(choices)
+  }
+  
+  observeEvent(input$place, {
     updateSelectizeInput(
       session,
       "genus",
       selected = "Eucalyptus",
-      choices = c("Eucalyptus", "All", sort(unique(ss$genus))),
+      choices = update_genus_choices(input$place),
       server = FALSE
     )
   })
