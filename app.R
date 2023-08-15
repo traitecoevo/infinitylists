@@ -95,9 +95,14 @@ server <- function(input, output, session) {
     point_polygon_intersection <- data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] 
     point_polygon_intersection <- as.data.table(point_polygon_intersection)
     
-    result <- point_polygon_intersection[
+    result <- point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
+    result <- result[
       , .(
-        `Most recent obs.` = max(collectionDate, na.rm = TRUE),
+        `Most recent obs.` = {
+          tmp <- max(as.integer(collectionDate), na.rm = TRUE)
+          formatted_date <- if (is.infinite(tmp)) as.Date(NA) else as.Date(tmp, origin="1970-01-01")
+          format(formatted_date, "%e-%b-%Y")
+        },
         n = .N,
         long = long[1],
         lat = lat[1],
