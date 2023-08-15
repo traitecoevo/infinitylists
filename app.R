@@ -99,9 +99,8 @@ server <- function(input, output, session) {
     result <- result[
       , .(
         `Most recent obs.` = {
-          tmp <- max(as.integer(collectionDate), na.rm = TRUE)
-          formatted_date <- if (is.infinite(tmp)) as.Date(NA) else as.Date(tmp, origin="1970-01-01")
-          format(formatted_date, "%e-%b-%Y")
+          first_date <- first(collectionDate)
+          if (is.na(first_date)) as.character(NA) else format(as.Date(first_date), "%e-%b-%Y")
         },
         n = .N,
         long = long[1],
