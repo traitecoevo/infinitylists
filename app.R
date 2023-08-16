@@ -131,7 +131,7 @@ server <- function(input, output, session) {
           voucher_location[1]
         ),
         `Observed by` = recordedBy[1],
-        Native = native[1]
+        `Native?` = native[1]
       ), 
       by = .(Species, `Voucher type`)
     ]
