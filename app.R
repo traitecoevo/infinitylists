@@ -1,3 +1,6 @@
+# ----------------------
+# Load Libraries
+# ----------------------
 library(shiny)
 library(DT)
 library(leaflet)
@@ -8,64 +11,90 @@ library(shinybusy)
 library(shinythemes)
 options(dplyr.summarise.inform = FALSE)
 
+# ----------------------
+# Data Preparation
+# ----------------------
 ala <- data.table::fread("ala_nsw_inat_avh.csv")
-ala$native <-
-  case_when(
-    ala$native_anywhere_in_aus == "Native (APC)" ~ "Native",
-    ala$native_anywhere_in_aus == "Introduced (APC)" ~ "Introduced",
-    TRUE ~ "Unknown"
-  ) #move to ala.processing.R
+ala$native <- case_when(
+  ala$native_anywhere_in_aus == "Native (APC)" ~ "Native",
+  ala$native_anywhere_in_aus == "Introduced (APC)" ~ "Introduced",
+  TRUE ~ "Unknown"
+)
 
-#  list of places with their polygons (kmls need to be valid polygons)
-#  if this becomes 1000s we'll need to re-write this section to load on demand 
-#  since this will slow down app loading
 load_place <- function(path) {
-  geom <- st_read(path, crs = 4326, quiet = TRUE)
-  st_geometry(geom)
+  tryCatch({
+    geom <- st_read(path, crs = 4326, quiet = TRUE)
+    return(st_geometry(geom))
+  }, error = function(e) {
+    showNotification(paste("Error loading KML:", e$message), type = "error")
+    return(NULL)
+  })
 }
 
 places <- list(
   "Wategora Reserve" = load_place("places/wategora-reserve-survey-area-approximate-boundaries.kml"),
-  "Fowlers Gap UNSW" = st_simplify(st_zm(load_place("places/fowlers.kml"), drop = TRUE, what = "ZM"), dTolerance = 0.01), #problems with the kml
+  "Fowlers Gap UNSW" = st_simplify(st_zm(load_place("places/fowlers.kml"), drop = TRUE, what = "ZM"), dTolerance = 0.01),
   "Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml")
 )
 
-
+# ----------------------
+# UI
+# ----------------------
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
   titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
   add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-  selectizeInput(
-    inputId = "place",
-    label = "Choose a place:",
-    choices =  names(places),
-    selected = "Fowlers Gap UNSW"
-  ),
-  selectizeInput(
-    inputId = "genus",
-    label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-    choices = "Eucalyptus",
-    selected = "Eucalyptus",
-    #  only genera work at the moment
-    options = list(maxOptions = 300L)
-  ),
+  
+  selectizeInput(inputId = "place", label = "Choose a preloaded place:", choices = names(places), selected = "Fowlers Gap UNSW"),
+  fileInput("uploadKML", "Or upload your own KML (within NSW only)", accept = c(".kml")),
+  selectizeInput(inputId = "genus", label = "Choose a genus: (you can also select All, but it's slow so be patient)", choices = "Eucalyptus", selected = "Eucalyptus", options = list(maxOptions = 300L)),
+  
   DTOutput("table"),
   downloadButton('downloadData', 'Download CSV'),
   leafletOutput("map")
 )
 
+# ----------------------
+# Server
+# ----------------------
+
 
 server <- function(input, output, session) {
-  #this updates the taxa input to have only genera observed within the bounding box of the place selected.
-  #it is called by the map which only executes if the place changes.
+  
+  # Function to update genus choices based on selected place
   update_genus_choices <- function(place) {
     place_polygon <- places[[place]]
+    
+    if (is.null(place_polygon)) {
+      showNotification("Selected place data is not available.", type = "error")
+      return(NULL)
+    }
+    
     ss <- ala[lat < st_bbox(place_polygon)$ymax & lat > st_bbox(place_polygon)$ymin & 
                 long < st_bbox(place_polygon)$xmax & long > st_bbox(place_polygon)$xmin]
     choices = c("Eucalyptus", "All", sort(unique(ss$genus)))
     return(choices)
   }
   
+  # Observer to handle uploaded KML files
+  observe({
+    inFile <- input$uploadKML
+    if (is.null(inFile)) return(NULL)
+    
+    uploaded_place <- tryCatch({
+      load_place(inFile$datapath)
+    }, error = function(e) {
+      showNotification(paste("Error processing KML:", e$message), type = "error")
+      return(NULL)
+    })
+    
+    if (!is.null(uploaded_place)) {
+      places[[inFile$name]] <<- uploaded_place
+      updateSelectizeInput(session, "place", choices = names(places), selected = inFile$name, server = FALSE)
+    }
+  })
+  
+  # Observer to update genus input based on the selected place
   observeEvent(input$place, {
     updateSelectizeInput(
       session,
@@ -76,17 +105,11 @@ server <- function(input, output, session) {
     )
   })
   
+  # Reactive expression to get filtered data
   filtered_data <- reactive({
-    # Filter observations by selected genus
-    if (input$genus != "All") {
-      data <- ala[ala$genus == input$genus, ]
-    }
-    else{
-      data <- ala
-    }
+    data <- if(input$genus != "All") ala[ala$genus == input$genus, ] else ala
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
-    # Check if data is within selected place polygon
     point_polygon_intersection <- data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] 
     point_polygon_intersection <- as.data.table(point_polygon_intersection)
     
@@ -112,6 +135,7 @@ server <- function(input, output, session) {
     ][, `Voucher type` := voucher_type]
   })
   
+  # Render data table
   output$table <- renderDT({
     datatable(
       filtered_data(),
@@ -120,6 +144,7 @@ server <- function(input, output, session) {
     )
   })
   
+  # Handle CSV download
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("data-", Sys.Date(), ".csv", sep = "")
@@ -129,6 +154,7 @@ server <- function(input, output, session) {
     }
   )
   
+  # Render Leaflet map
   output$map <- renderLeaflet({
     url <- "https://cloud.google.com/maps-platform/terms"
     link_text <- "Google Maps"
@@ -147,6 +173,7 @@ server <- function(input, output, session) {
       addPolygons(data = place_polygon, color = "red")
   })
 }
+
 
 
 shinyApp(ui = ui, server = server)
