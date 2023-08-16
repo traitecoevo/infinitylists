@@ -172,7 +172,7 @@ server <- function(input, output, session) {
     )
   })
   
-  # Reactive expression to get filtered data
+  # Reactive expression to intersect data
   intersect_data <- reactive({
     data <-
       if (input$genus != "All")
@@ -189,6 +189,7 @@ server <- function(input, output, session) {
     point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
   })
    
+  # Reactive expression to summarize and filter data
   filtered_data<- reactive({ 
     result<-intersect_data()
     if (nrow(result) == 0) {
