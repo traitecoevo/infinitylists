@@ -46,12 +46,12 @@ places <- list(
   "Wategora Reserve" = load_place(
     "places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
-  "Fowlers Gap UNSW" = st_simplify(st_zm(
+  "Fowlers Gap, UNSW" = st_simplify(st_zm(
     load_place("places/fowlers.kml"),
     drop = TRUE,
     what = "ZM"
   ), dTolerance = 0.01),
-  "Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml")
+  "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml")
 )
 
 # ----------------------
@@ -66,7 +66,7 @@ ui <-
       inputId = "place",
       label = "Choose a preloaded place:",
       choices = names(places),
-      selected = "Fowlers Gap UNSW"
+      selected = "Fowlers Gap, UNSW"
     ),
     fileInput(
       "uploadKML",
@@ -152,7 +152,7 @@ server <- function(input, output, session) {
     photographic_species <- length(unique(photographic$species))
     
     
-    paste("There have been", total_species, "species in this genus observed within this polygon, with", collections_count, 
+    paste("There have been", total_species, "species in", input$genus, "observed within", input$place, "with", collections_count, 
           "collections of", collections_species, "species and", photographic_count, 
           "photographic records of", photographic_species, "species.")
   })
@@ -262,7 +262,7 @@ server <- function(input, output, session) {
         data = filtered_data(),
         ~ Long,
         ~ Lat,
-        popup = paste(filtered_data()$species, filtered_data()$`Voucher type`)
+        popup = paste(filtered_data()$Species, filtered_data()$`Voucher type`)
       ) %>%
       addPolygons(data = place_polygon, color = "red")
   })
