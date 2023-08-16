@@ -152,24 +152,7 @@ server <- function(input, output, session) {
     point_polygon_intersection <-
       as.data.table(point_polygon_intersection)
     
-<<<<<<< HEAD
     result <- point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
-    result <- result[
-      , .(
-        N = .N,
-        `Most recent obs.` = {
-          first_date <- first(collectionDate)
-          if (is.na(first_date)) as.character(NA) else format(as.Date(first_date), "%e-%b-%Y")
-        },
-        Long = long[1],
-        Lat = lat[1],
-        `Voucher location` = ifelse(
-          grepl("https", voucher_location[1]), 
-          paste0("<a href='", voucher_location[1], "' target='_blank'>", "iNat", "</a>"), 
-          voucher_location[1]
-=======
-    result <-
-      point_polygon_intersection[order(species, voucher_type,-as.integer(collectionDate))]
     result <- result[, .(
       `Most recent obs.` = {
         first_date <- first(collectionDate)
@@ -189,7 +172,6 @@ server <- function(input, output, session) {
           "' target='_blank'>",
           "iNat",
           "</a>"
->>>>>>> ca4e2b8 (left justify)
         ),
         voucher_location[1]
       ),
