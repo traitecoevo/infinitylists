@@ -62,50 +62,68 @@ ui <-
     theme = shinytheme("cosmo"),
     titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-    sidebarLayout(
-      sidebarPanel(
-        radioButtons("inputType", "Input method:", 
-                     choices = list("Preloaded Place" = "preloaded", 
-                                    "Upload KML" = "upload"),
-                     selected = "preloaded", inline = TRUE),
-        
-        conditionalPanel(
-          condition = "input.inputType == 'preloaded'",
-          selectizeInput(
-            inputId = "place",
-            label = "Choose a preloaded place:",
-            choices = names(places),
-            selected = "Fowlers Gap, UNSW"
-          )
-        ),
-        
-        conditionalPanel(
-          condition = "input.inputType == 'upload'",
-          fileInput(
-            "uploadKML",
-            "Upload your own KML (within NSW only)",
-            accept = c(".kml")
-          )
-        ),
-        
-        selectizeInput(
-          inputId = "genus",
-          label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-          choices = "Eucalyptus",
-          selected = "Eucalyptus",
-          options = list(maxOptions = 300L)
-        ),
-        
-        downloadButton('downloadData', 'Download CSV')
-      ),
-      mainPanel(
-        textOutput("statsOutput"),
-        tags$br(),
-        DTOutput("table"),
-        leafletOutput("map")
+    
+    radioButtons("inputType", "Input method:", 
+                 choices = list("Preloaded Place" = "preloaded", 
+                                "Upload KML" = "upload"),
+                 selected = "preloaded", inline = TRUE),
+    
+    conditionalPanel(
+      condition = "input.inputType == 'preloaded'",
+      selectizeInput(
+        inputId = "place",
+        label = "Choose a preloaded place:",
+        choices = names(places),
+        selected = "Fowlers Gap, UNSW"
       )
-    )
+    ),
+    
+    conditionalPanel(
+      condition = "input.inputType == 'upload'",
+      fileInput(
+        "uploadKML",
+        "Upload your own KML (within NSW only)",
+        accept = c(".kml")
+      )
+    ),
+    
+    radioButtons("taxonOfInterest", "Taxon of interest:", 
+                 choices = list("Genus" = "genus", 
+                                "Family" = "family"),
+                 selected = "genus", inline = TRUE),
+    
+    conditionalPanel(
+      condition = "input.taxonOfInterest == 'genus'",
+      selectizeInput(
+        inputId = "taxa_genus",
+        label = "Choose a genus: (you can also select All, but it's slow so be patient)",
+        choices = "Eucalyptus",
+        selected = "Eucalyptus",
+        options = list(maxOptions = 300L)
+      )
+    ),
+    
+    conditionalPanel(
+      condition = "input.taxonOfInterest == 'family'",
+      selectizeInput(
+        inputId = "taxa_family",
+        label = "Choose a family: (you can also select All, but it's slow so be patient)",
+        choices = "Myrtaceae",
+        selected = "Myrtaceae",
+        options = list(maxOptions = 300L)
+      )
+    ),
+    
+    downloadButton('downloadData', 'Download CSV'),
+    tags$br(),
+    textOutput("statsOutput"),
+    tags$br(),
+    DTOutput("table"),
+    leafletOutput("map")
   )
+
+    
+  
 
 # ----------------------
 # Server
@@ -116,12 +134,6 @@ server <- function(input, output, session) {
   # Function to update genus choices based on selected place
   update_genus_choices <- function(place) {
     place_polygon <- places[[place]]
-    
-    if (is.null(place_polygon)) {
-      showNotification("Selected place data is not available.", type = "error")
-      return(NULL)
-    }
-    
     ss <-
       ala[lat < st_bbox(place_polygon)$ymax &
             lat > st_bbox(place_polygon)$ymin &
@@ -130,6 +142,18 @@ server <- function(input, output, session) {
     choices = c("Eucalyptus", "All", sort(unique(ss$genus)))
     return(choices)
   }
+  
+  update_family_choices <- function(place) {
+    place_polygon <- places[[place]]
+    ss <-
+      ala[lat < st_bbox(place_polygon)$ymax &
+            lat > st_bbox(place_polygon)$ymin &
+            long < st_bbox(place_polygon)$xmax &
+            long > st_bbox(place_polygon)$xmin]
+    choices = c("Myrtaceae", "All", sort(unique(ss$family)))
+    return(choices)
+  }
+  
   
   # Observer to handle uploaded KML files
   observe({
@@ -171,7 +195,7 @@ server <- function(input, output, session) {
     photographic_species <- length(unique(photographic$species))
     
     
-    paste("There have been", total_species, "species in", input$genus, "observed within", input$place, "with", collections_count, 
+    paste("There have been", total_species, "species observed within", input$place, "with", collections_count, 
           "collections of", collections_species, "species and", photographic_count, 
           "photographic records of", photographic_species, "species.")
   })
@@ -180,32 +204,46 @@ server <- function(input, output, session) {
     stats_text()
   })
   
+  
   # Observer to update genus input based on the selected place
-  observeEvent(input$place, {
-    updateSelectizeInput(
-      session,
-      "genus",
-      selected = "Eucalyptus",
-      choices = update_genus_choices(input$place),
-      server = FALSE
-    )
+  observeEvent(reactiveValuesToList(input)[c("place", "taxonOfInterest")], {
+    if (input$taxonOfInterest == "genus") {
+        updateSelectizeInput(
+          session,
+          "taxa_genus",
+          selected = "Eucalyptus",
+          choices = update_genus_choices(input$place),
+          server = FALSE
+        )
+    } else if (input$taxonOfInterest == "family") {
+        updateSelectizeInput(
+          session,
+          "taxa_family",
+          choices = update_family_choices(input$place),
+          selected = "Myrtaceae",
+          server = FALSE
+        )
+    }
   })
   
   # Reactive expression to intersect data
   intersect_data <- reactive({
-    data <-
-      if (input$genus != "All")
-        ala[ala$genus == input$genus,]
-    else
-      ala
-    place_polygon <- places[[input$place]]
-    points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
-    point_polygon_intersection <-
-      data[st_intersects(points, place_polygon, sparse = FALSE)[, 1],]
-    point_polygon_intersection <-
-      as.data.table(point_polygon_intersection)
-    
-    point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
+      if (input$taxonOfInterest == "genus") {
+        data <- ala[genus == input$taxa_genus,]
+      } else if (input$taxonOfInterest == "family") {
+        data <- ala[family == input$taxa_family,]
+      } else {
+        data <- ala
+      }
+      
+      place_polygon <- places[[input$place]]
+      points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
+      point_polygon_intersection <-
+        data[st_intersects(points, place_polygon, sparse = FALSE)[, 1],]
+      point_polygon_intersection <-
+        as.data.table(point_polygon_intersection)
+      
+      point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
   })
    
   # Reactive expression to summarize and filter data
@@ -286,6 +324,9 @@ server <- function(input, output, session) {
       addPolygons(data = place_polygon, color = "red")
   })
 }
+
+
+
 
 
 
