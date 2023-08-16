@@ -191,6 +191,9 @@ server <- function(input, output, session) {
    
   filtered_data<- reactive({ 
     result<-intersect_data()
+    if (nrow(result) == 0) {
+      return(data.table(Species = character(0), `Voucher type` = character(0), `Most recent obs.` = character(0), N = integer(0), Long = numeric(0), Lat = numeric(0), `Voucher location` = character(0), `Observed by` = character(0), Native = character(0)))
+    }
     result <- result[, .(
       N = .N,
       `Most recent obs.` = {
