@@ -106,8 +106,8 @@ ui <-
       )),
     conditionalPanel(
       condition = "input.inputType == 'choose'",
-      textInput("latitude", "Latitude", "-33.8688"),       # default: Sydney latitude
-      textInput("longitude", "Longitude", "151.2093"),     # default: Sydney longitude
+      numericInput("latitude", "Latitude", value = -33.8688, min = -90, max = 90),  # default: Sydney latitude
+      numericInput("longitude", "Longitude", value = 151.2093, min = -180, max = 180),  # default: Sydney longitude
       sliderInput("radius_m", "Radius (m)", min = 10, max = 10000, value = 5000, step = 10)
     ),
     
@@ -222,12 +222,21 @@ server <- function(input, output, session) {
   
   intersect_data <- reactive({
     if (input$taxonOfInterest == "genus") {
-      data <- ala[genus == input$taxa_genus,]
+      if (input$taxa_genus == "All") {
+        data <- ala  # if "all" is selected, don't filter
+      } else {
+        data <- ala[genus == input$taxa_genus,]
+      }
     } else if (input$taxonOfInterest == "family") {
-      data <- ala[family == input$taxa_family,]
+      if (input$taxa_family == "All") {
+        data <- ala  # if "all" is selected, don't filter
+      } else {
+        data <- ala[family == input$taxa_family,]
+      }
     } else {
       data <- ala
     }
+    
     
     place_polygon <- selected_polygon() # Use the reactive polygon 
     
@@ -249,11 +258,11 @@ server <- function(input, output, session) {
     
     collections <- data[data$`Voucher type` == "Collection"]
     collections_count <- nrow(collections)
-    collections_species <- length(unique(collections$species))
+    collections_species <- length(unique(collections$Species))
     
     photographic <- data[data$`Voucher type` == "Photograph",]
     photographic_count <- nrow(photographic)
-    photographic_species <- length(unique(photographic$species))
+    photographic_species <- length(unique(photographic$Species))
     
     
     paste("There have been", total_species, "species observed with", collections_count, 
