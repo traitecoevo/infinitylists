@@ -15,6 +15,11 @@ options(dplyr.summarise.inform = FALSE)
 # Data Preparation
 # ----------------------
 ala <- data.table::fread("ala_nsw_inat_avh.csv")
+
+#
+# this section:
+# move to ala_processing.R
+#
 ala$native <- case_when(
   ala$native_anywhere_in_aus == "Native (APC)" ~ "Native",
   ala$native_anywhere_in_aus == "Introduced (APC)" ~ "Introduced",
@@ -22,6 +27,10 @@ ala$native <- case_when(
 )
 ala$`Voucher type` <- ala$voucher_type
 ala$Species <- ala$species
+#
+
+
+
 
 load_place <- function(path) {
   tryCatch({
@@ -135,11 +144,11 @@ server <- function(input, output, session) {
     total_species <- length(unique(data$Species))
     
     collections <- data[data$`Voucher type` == "Collection"]
-    collections_count<-nrow(collections)
+    collections_count <- nrow(collections)
     collections_species <- length(unique(collections$species))
     
     photographic <- data[data$`Voucher type` == "Photograph",]
-    photographic_count<-nrow(photographic)
+    photographic_count <- nrow(photographic)
     photographic_species <- length(unique(photographic$species))
     
     
