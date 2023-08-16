@@ -154,6 +154,7 @@ server <- function(input, output, session) {
     
     result <- point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
     result <- result[, .(
+      N = .N,
       `Most recent obs.` = {
         first_date <- first(collectionDate)
         if (is.na(first_date))
@@ -161,7 +162,6 @@ server <- function(input, output, session) {
         else
           format(as.Date(first_date), "%e-%b-%Y")
       },
-      N = .N,
       Long = long[1],
       Lat = lat[1],
       `Voucher location` = ifelse(
