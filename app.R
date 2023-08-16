@@ -53,7 +53,6 @@ ui <-
     theme = shinytheme("cosmo"),
     titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-    
     selectizeInput(
       inputId = "place",
       label = "Choose a preloaded place:",
@@ -73,6 +72,8 @@ ui <-
       options = list(maxOptions = 300L)
     ),
     
+    textOutput("statsOutput"),
+    tags$br(),
     DTOutput("table"),
     downloadButton('downloadData', 'Download CSV'),
     leafletOutput("map")
@@ -125,6 +126,27 @@ server <- function(input, output, session) {
         server = FALSE
       )
     }
+  })
+  
+  
+  stats_text <- reactive({
+    data <- filtered_data()
+    
+    total_species <- length(unique(data$Species))
+    
+    collections_species <- sum(data$`Voucher type` == "Collection")
+    collections_count <- nrow(data[data$`Voucher type` == "Collection",])
+    
+    photographic_species <- sum(data$`Voucher type` == "Photograph")
+    photographic_count <- nrow(data[data$`Voucher type` == "Photograph",])
+    
+    paste("There have been", total_species, "species in this genus observed within this polygon, with", collections_count, 
+          "collections of", collections_species, "species and", photographic_count, 
+          "photographic records of", photographic_species, "species.")
+  })
+  
+  output$statsOutput <- renderText({
+    stats_text()
   })
   
   # Observer to update genus input based on the selected place
@@ -188,7 +210,7 @@ server <- function(input, output, session) {
       escape = FALSE,
       options = list(
         searching = TRUE,
-        pageLength = 5,
+        pageLength = 25,
         columnDefs = list(list(
           className = 'dt-left', targets = '_all'
         ))
