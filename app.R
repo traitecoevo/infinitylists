@@ -20,6 +20,8 @@ ala$native <- case_when(
   ala$native_anywhere_in_aus == "Introduced (APC)" ~ "Introduced",
   TRUE ~ "Unknown"
 )
+ala$`Voucher type`<-ala$voucher_type
+ala$Species<-ala$species
 
 load_place <- function(path) {
   tryCatch({
@@ -40,7 +42,8 @@ places <- list(
 # ----------------------
 # UI
 # ----------------------
-ui <- fluidPage(
+ui <- 
+  fluidPage(
   theme = shinytheme("cosmo"),
   titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
   add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
@@ -51,8 +54,7 @@ ui <- fluidPage(
   
   DTOutput("table"),
   downloadButton('downloadData', 'Download CSV'),
-  leafletOutput("map")
-)
+  leafletOutput("map"))
 
 # ----------------------
 # Server
@@ -120,19 +122,19 @@ server <- function(input, output, session) {
           first_date <- first(collectionDate)
           if (is.na(first_date)) as.character(NA) else format(as.Date(first_date), "%e-%b-%Y")
         },
-        n = .N,
-        long = long[1],
-        lat = lat[1],
+        N = .N,
+        Long = long[1],
+        Lat = lat[1],
         `Voucher location` = ifelse(
           grepl("https", voucher_location[1]), 
           paste0("<a href='", voucher_location[1], "' target='_blank'>", "iNat", "</a>"), 
           voucher_location[1]
         ),
-        `observed by` = recordedBy[1],
-        native = native[1]
+        `Observed by` = recordedBy[1],
+        Native = native[1]
       ), 
-      by = .(species, voucher_type)
-    ][, `Voucher type` := voucher_type]
+      by = .(Species, `Voucher type`)
+    ]
   })
   
   # Render data table
@@ -166,8 +168,8 @@ server <- function(input, output, session) {
       ) %>%
       addMarkers(
         data = filtered_data(),
-        ~ long,
-        ~ lat,
+        ~ Long,
+        ~ Lat,
         popup = paste(filtered_data()$species, filtered_data()$`Voucher type`)
       ) %>%
       addPolygons(data = place_polygon, color = "red")
