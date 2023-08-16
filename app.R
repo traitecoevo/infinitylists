@@ -108,7 +108,7 @@ ui <-
       condition = "input.inputType == 'choose'",
       numericInput("latitude", "Latitude", value = -33.8688, min = -90, max = 90),  # default: Sydney latitude
       numericInput("longitude", "Longitude", value = 151.2093, min = -180, max = 180),  # default: Sydney longitude
-      sliderInput("radius_m", "Radius (m)", min = 10, max = 10000, value = 5000, step = 10)
+      sliderInput("radius_m", "Radius (m)", min = 100, max = 10000, value = 5000, step = 100)
     ),
     
     radioButtons("taxonOfInterest", "Taxon of interest:", 
