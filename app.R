@@ -57,35 +57,54 @@ places <- list(
 # ----------------------
 # UI
 # ----------------------
-ui <-
+ui <- 
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-    selectizeInput(
-      inputId = "place",
-      label = "Choose a preloaded place:",
-      choices = names(places),
-      selected = "Fowlers Gap, UNSW"
-    ),
-    fileInput(
-      "uploadKML",
-      "Or upload your own KML (within NSW only)",
-      accept = c(".kml")
-    ),
-    selectizeInput(
-      inputId = "genus",
-      label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-      choices = "Eucalyptus",
-      selected = "Eucalyptus",
-      options = list(maxOptions = 300L)
-    ),
-    
-    textOutput("statsOutput"),
-    tags$br(),
-    DTOutput("table"),
-    downloadButton('downloadData', 'Download CSV'),
-    leafletOutput("map")
+    sidebarLayout(
+      sidebarPanel(
+        radioButtons("inputType", "Input method:", 
+                     choices = list("Preloaded Place" = "preloaded", 
+                                    "Upload KML" = "upload"),
+                     selected = "preloaded", inline = TRUE),
+        
+        conditionalPanel(
+          condition = "input.inputType == 'preloaded'",
+          selectizeInput(
+            inputId = "place",
+            label = "Choose a preloaded place:",
+            choices = names(places),
+            selected = "Fowlers Gap, UNSW"
+          )
+        ),
+        
+        conditionalPanel(
+          condition = "input.inputType == 'upload'",
+          fileInput(
+            "uploadKML",
+            "Upload your own KML (within NSW only)",
+            accept = c(".kml")
+          )
+        ),
+        
+        selectizeInput(
+          inputId = "genus",
+          label = "Choose a genus: (you can also select All, but it's slow so be patient)",
+          choices = "Eucalyptus",
+          selected = "Eucalyptus",
+          options = list(maxOptions = 300L)
+        ),
+        
+        downloadButton('downloadData', 'Download CSV')
+      ),
+      mainPanel(
+        textOutput("statsOutput"),
+        tags$br(),
+        DTOutput("table"),
+        leafletOutput("map")
+      )
+    )
   )
 
 # ----------------------
