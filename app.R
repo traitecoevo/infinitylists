@@ -20,8 +20,8 @@ ala$native <- case_when(
   ala$native_anywhere_in_aus == "Introduced (APC)" ~ "Introduced",
   TRUE ~ "Unknown"
 )
-ala$`Voucher type`<-ala$voucher_type
-ala$Species<-ala$species
+ala$`Voucher type` <- ala$voucher_type
+ala$Species <- ala$species
 
 load_place <- function(path) {
   tryCatch({
@@ -34,27 +34,49 @@ load_place <- function(path) {
 }
 
 places <- list(
-  "Wategora Reserve" = load_place("places/wategora-reserve-survey-area-approximate-boundaries.kml"),
-  "Fowlers Gap UNSW" = st_simplify(st_zm(load_place("places/fowlers.kml"), drop = TRUE, what = "ZM"), dTolerance = 0.01),
+  "Wategora Reserve" = load_place(
+    "places/wategora-reserve-survey-area-approximate-boundaries.kml"
+  ),
+  "Fowlers Gap UNSW" = st_simplify(st_zm(
+    load_place("places/fowlers.kml"),
+    drop = TRUE,
+    what = "ZM"
+  ), dTolerance = 0.01),
   "Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml")
 )
 
 # ----------------------
 # UI
 # ----------------------
-ui <- 
+ui <-
   fluidPage(
-  theme = shinytheme("cosmo"),
-  titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
-  add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-  
-  selectizeInput(inputId = "place", label = "Choose a preloaded place:", choices = names(places), selected = "Fowlers Gap UNSW"),
-  fileInput("uploadKML", "Or upload your own KML (within NSW only)", accept = c(".kml")),
-  selectizeInput(inputId = "genus", label = "Choose a genus: (you can also select All, but it's slow so be patient)", choices = "Eucalyptus", selected = "Eucalyptus", options = list(maxOptions = 300L)),
-  
-  DTOutput("table"),
-  downloadButton('downloadData', 'Download CSV'),
-  leafletOutput("map"))
+    theme = shinytheme("cosmo"),
+    titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
+    add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
+    
+    selectizeInput(
+      inputId = "place",
+      label = "Choose a preloaded place:",
+      choices = names(places),
+      selected = "Fowlers Gap UNSW"
+    ),
+    fileInput(
+      "uploadKML",
+      "Or upload your own KML (within NSW only)",
+      accept = c(".kml")
+    ),
+    selectizeInput(
+      inputId = "genus",
+      label = "Choose a genus: (you can also select All, but it's slow so be patient)",
+      choices = "Eucalyptus",
+      selected = "Eucalyptus",
+      options = list(maxOptions = 300L)
+    ),
+    
+    DTOutput("table"),
+    downloadButton('downloadData', 'Download CSV'),
+    leafletOutput("map")
+  )
 
 # ----------------------
 # Server
@@ -62,7 +84,6 @@ ui <-
 
 
 server <- function(input, output, session) {
-  
   # Function to update genus choices based on selected place
   update_genus_choices <- function(place) {
     place_polygon <- places[[place]]
@@ -72,8 +93,11 @@ server <- function(input, output, session) {
       return(NULL)
     }
     
-    ss <- ala[lat < st_bbox(place_polygon)$ymax & lat > st_bbox(place_polygon)$ymin & 
-                long < st_bbox(place_polygon)$xmax & long > st_bbox(place_polygon)$xmin]
+    ss <-
+      ala[lat < st_bbox(place_polygon)$ymax &
+            lat > st_bbox(place_polygon)$ymin &
+            long < st_bbox(place_polygon)$xmax &
+            long > st_bbox(place_polygon)$xmin]
     choices = c("Eucalyptus", "All", sort(unique(ss$genus)))
     return(choices)
   }
@@ -81,7 +105,8 @@ server <- function(input, output, session) {
   # Observer to handle uploaded KML files
   observe({
     inFile <- input$uploadKML
-    if (is.null(inFile)) return(NULL)
+    if (is.null(inFile))
+      return(NULL)
     
     uploaded_place <- tryCatch({
       load_place(inFile$datapath)
@@ -92,7 +117,13 @@ server <- function(input, output, session) {
     
     if (!is.null(uploaded_place)) {
       places[[inFile$name]] <<- uploaded_place
-      updateSelectizeInput(session, "place", choices = names(places), selected = inFile$name, server = FALSE)
+      updateSelectizeInput(
+        session,
+        "place",
+        choices = names(places),
+        selected = inFile$name,
+        server = FALSE
+      )
     }
   })
   
@@ -109,12 +140,19 @@ server <- function(input, output, session) {
   
   # Reactive expression to get filtered data
   filtered_data <- reactive({
-    data <- if(input$genus != "All") ala[ala$genus == input$genus, ] else ala
+    data <-
+      if (input$genus != "All")
+        ala[ala$genus == input$genus,]
+    else
+      ala
     place_polygon <- places[[input$place]]
     points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
-    point_polygon_intersection <- data[st_intersects(points, place_polygon, sparse = FALSE)[, 1], ] 
-    point_polygon_intersection <- as.data.table(point_polygon_intersection)
+    point_polygon_intersection <-
+      data[st_intersects(points, place_polygon, sparse = FALSE)[, 1],]
+    point_polygon_intersection <-
+      as.data.table(point_polygon_intersection)
     
+<<<<<<< HEAD
     result <- point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
     result <- result[
       , .(
@@ -129,12 +167,36 @@ server <- function(input, output, session) {
           grepl("https", voucher_location[1]), 
           paste0("<a href='", voucher_location[1], "' target='_blank'>", "iNat", "</a>"), 
           voucher_location[1]
+=======
+    result <-
+      point_polygon_intersection[order(species, voucher_type,-as.integer(collectionDate))]
+    result <- result[, .(
+      `Most recent obs.` = {
+        first_date <- first(collectionDate)
+        if (is.na(first_date))
+          as.character(NA)
+        else
+          format(as.Date(first_date), "%e-%b-%Y")
+      },
+      N = .N,
+      Long = long[1],
+      Lat = lat[1],
+      `Voucher location` = ifelse(
+        grepl("https", voucher_location[1]),
+        paste0(
+          "<a href='",
+          voucher_location[1],
+          "' target='_blank'>",
+          "iNat",
+          "</a>"
+>>>>>>> ca4e2b8 (left justify)
         ),
-        `Observed by` = recordedBy[1],
-        `Native?` = native[1]
-      ), 
-      by = .(Species, `Voucher type`)
-    ]
+        voucher_location[1]
+      ),
+      `Observed by` = recordedBy[1],
+      `Native?` = native[1]
+    ),
+    by = .(Species, `Voucher type`)]
   })
   
   # Render data table
@@ -142,7 +204,13 @@ server <- function(input, output, session) {
     datatable(
       filtered_data(),
       escape = FALSE,
-      options = list(searching = TRUE, pageLength = 5)
+      options = list(
+        searching = TRUE,
+        pageLength = 5,
+        columnDefs = list(list(
+          className = 'dt-left', targets = '_all'
+        ))
+      )
     )
   })
   
