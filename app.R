@@ -42,6 +42,24 @@ load_place <- function(path) {
   })
 }
 
+create_circle_polygon <- function(lat, long, radius_m) {
+  # Create a point in a geographical coordinate system (WGS 84)
+  pt <- st_point(c(long, lat))
+  pt <- st_sfc(pt, crs = 4326)  # Assign WGS 84 CRS
+  
+  # Transform the point to Pseudo Mercator for buffering
+  pt_transformed <- st_transform(pt, 3857)
+  
+  # Create a buffer around the transformed point
+  circle <- st_buffer(pt_transformed, radius_m)
+  
+  # Transform back to WGS 84
+  circle <- st_transform(circle, 4326)
+  
+  return(circle)
+}
+
+
 places <- list(
   "Wategora Reserve" = load_place(
     "places/wategora-reserve-survey-area-approximate-boundaries.kml"
@@ -65,7 +83,8 @@ ui <-
     
     radioButtons("inputType", "Input method:", 
                  choices = list("Preloaded Place" = "preloaded", 
-                                "Upload KML" = "upload"),
+                                "Upload KML" = "upload",
+                                "Choose a place in NSW" = "choose"),
                  selected = "preloaded", inline = TRUE),
     
     conditionalPanel(
@@ -84,7 +103,12 @@ ui <-
         "uploadKML",
         "Upload your own KML (within NSW only)",
         accept = c(".kml")
-      )
+      )),
+    conditionalPanel(
+      condition = "input.inputType == 'choose'",
+      textInput("latitude", "Latitude", "-33.8688"),       # default: Sydney latitude
+      textInput("longitude", "Longitude", "151.2093"),     # default: Sydney longitude
+      sliderInput("radius_m", "Radius (m)", min = 100, max = 100000, value = 10000, step = 100)
     ),
     
     radioButtons("taxonOfInterest", "Taxon of interest:", 
@@ -181,6 +205,43 @@ server <- function(input, output, session) {
   })
   
   
+  selected_polygon <- reactive({
+    if (input$inputType == "preloaded") {
+      return(places[[input$place]])
+    } else if (input$inputType == "choose") {
+      lat <- as.numeric(input$latitude)
+      long <- as.numeric(input$longitude)
+      radius_m <- as.numeric(input$radius_m)
+      return(create_circle_polygon(lat, long, radius_m))
+    } else if (input$inputType == "upload" && !is.null(places[[input$place]])) {
+      return(places[[input$place]])
+    } else {
+      return(NULL)
+    }
+  })
+  
+  intersect_data <- reactive({
+    if (input$taxonOfInterest == "genus") {
+      data <- ala[genus == input$taxa_genus,]
+    } else if (input$taxonOfInterest == "family") {
+      data <- ala[family == input$taxa_family,]
+    } else {
+      data <- ala
+    }
+    
+    place_polygon <- selected_polygon() # Use the reactive polygon 
+    
+    if (is.null(place_polygon)) return(data.table())
+    
+    points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
+    point_polygon_intersection <-
+      data[st_intersects(points, place_polygon, sparse = FALSE)[, 1],]
+    point_polygon_intersection <-
+      as.data.table(point_polygon_intersection)
+    
+    point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
+  })
+  
   stats_text <- reactive({
     data <- intersect_data()
     
@@ -195,7 +256,7 @@ server <- function(input, output, session) {
     photographic_species <- length(unique(photographic$species))
     
     
-    paste("There have been", total_species, "species observed within", input$place, "with", collections_count, 
+    paste("There have been", total_species, "species observed with", collections_count, 
           "collections of", collections_species, "species and", photographic_count, 
           "photographic records of", photographic_species, "species.")
   })
@@ -224,26 +285,6 @@ server <- function(input, output, session) {
           server = FALSE
         )
     }
-  })
-  
-  # Reactive expression to intersect data
-  intersect_data <- reactive({
-      if (input$taxonOfInterest == "genus") {
-        data <- ala[genus == input$taxa_genus,]
-      } else if (input$taxonOfInterest == "family") {
-        data <- ala[family == input$taxa_family,]
-      } else {
-        data <- ala
-      }
-      
-      place_polygon <- places[[input$place]]
-      points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
-      point_polygon_intersection <-
-        data[st_intersects(points, place_polygon, sparse = FALSE)[, 1],]
-      point_polygon_intersection <-
-        as.data.table(point_polygon_intersection)
-      
-      point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
   })
    
   # Reactive expression to summarize and filter data
@@ -309,7 +350,7 @@ server <- function(input, output, session) {
   output$map <- renderLeaflet({
     url <- "https://cloud.google.com/maps-platform/terms"
     link_text <- "Google Maps"
-    place_polygon <- places[[input$place]]
+    place_polygon <- selected_polygon() # Use the reactive polygon 
     leaflet() %>%
       addTiles(
         urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
@@ -323,9 +364,8 @@ server <- function(input, output, session) {
       ) %>%
       addPolygons(data = place_polygon, color = "red")
   })
+
 }
-
-
 
 
 
