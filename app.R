@@ -130,15 +130,18 @@ server <- function(input, output, session) {
   
   
   stats_text <- reactive({
-    data <- filtered_data()
+    data <- intersect_data()
     
     total_species <- length(unique(data$Species))
     
-    collections_species <- sum(data$`Voucher type` == "Collection")
-    collections_count <- nrow(data[data$`Voucher type` == "Collection",])
+    collections <- data[data$`Voucher type` == "Collection"]
+    collections_count<-nrow(collections)
+    collections_species <- length(unique(collections$species))
     
-    photographic_species <- sum(data$`Voucher type` == "Photograph")
-    photographic_count <- nrow(data[data$`Voucher type` == "Photograph",])
+    photographic <- data[data$`Voucher type` == "Photograph",]
+    photographic_count<-nrow(photographic)
+    photographic_species <- length(unique(photographic$species))
+    
     
     paste("There have been", total_species, "species in this genus observed within this polygon, with", collections_count, 
           "collections of", collections_species, "species and", photographic_count, 
@@ -161,7 +164,7 @@ server <- function(input, output, session) {
   })
   
   # Reactive expression to get filtered data
-  filtered_data <- reactive({
+  intersect_data <- reactive({
     data <-
       if (input$genus != "All")
         ala[ala$genus == input$genus,]
@@ -174,7 +177,11 @@ server <- function(input, output, session) {
     point_polygon_intersection <-
       as.data.table(point_polygon_intersection)
     
-    result <- point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
+    point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
+  })
+   
+  filtered_data<- reactive({ 
+    result<-intersect_data()
     result <- result[, .(
       N = .N,
       `Most recent obs.` = {
