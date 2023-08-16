@@ -267,16 +267,13 @@ server <- function(input, output, session) {
   
   
   # Observer to update genus input based on the selected place
-  observeEvent(reactiveValuesToList(input)[c("place", "taxonOfInterest")], {
-    if (input$taxonOfInterest == "genus") {
+  observeEvent(input$place, {
         updateSelectizeInput(
           session,
           "taxa_genus",
           selected = "Eucalyptus",
           choices = update_genus_choices(input$place),
-          server = FALSE
-        )
-    } else if (input$taxonOfInterest == "family") {
+          server = FALSE)
         updateSelectizeInput(
           session,
           "taxa_family",
@@ -284,7 +281,6 @@ server <- function(input, output, session) {
           selected = "Myrtaceae",
           server = FALSE
         )
-    }
   })
    
   # Reactive expression to summarize and filter data
