@@ -106,8 +106,9 @@ ui <-
       )),
     conditionalPanel(
       condition = "input.inputType == 'choose'",
-      numericInput("latitude", "Latitude", value = -33.8688, min = -90, max = 90),  # default: Sydney latitude
-      numericInput("longitude", "Longitude", value = 151.2093, min = -180, max = 180),  # default: Sydney longitude
+      numericInput("latitude", "Latitude", value = -33.8688, min = -39, max = -27),  # default: Sydney latitude
+      numericInput("longitude", "Longitude", value = 151.2093, min = 139, max = 165),  # default: Sydney longitude
+      verbatimTextOutput("warning"),
       selectInput(
         inputId = "radiusChoice",
         label = "Choose a radius:",
@@ -117,7 +118,8 @@ ui <-
                     "2km" = 2000,
                     "5km" = 5000,
                     "10km" = 10000,
-                    "50km" = 50000)
+                    "50km" = 50000),
+        selected = 5000
       )
     ),
     
@@ -214,6 +216,36 @@ server <- function(input, output, session) {
     }
   })
   
+  observe({
+    lat_out_of_range <- input$latitude < -39 || input$latitude > -27
+    lon_out_of_range <- input$longitude < 139 || input$longitude > 165
+    
+    lat_is_empty <- is.null(input$latitude) || is.na(input$latitude)
+    lon_is_empty <- is.null(input$longitude) || is.na(input$longitude)
+    
+    if (lat_out_of_range || lon_out_of_range || lat_is_empty || lon_is_empty) {
+      # Initialize a warning message
+      warning_msg <- ""
+      
+      # Update the warning message based on which values are out of range
+      if (lat_out_of_range || lat_is_empty) {
+        warning_msg <- paste0(warning_msg, "Entered latitude is out of the allowed range. Please enter a value between -39 and -27.\n")
+        # Reset the latitude value to the default
+        #updateNumericInput(session, "latitude", value = -33.8688)
+      }
+      if (lon_out_of_range || lon_is_empty) {
+        warning_msg <- paste0(warning_msg, "Entered longitude is out of the allowed range. Please enter a value between 139 and 165.")
+        # Reset the longitude value to the default
+        # updateNumericInput(session, "longitude", value = 151.2093)
+      }
+      
+      # Display the warning to the user
+      output$warning <- renderText(warning_msg)
+    } else {
+      # If the values are okay, don't display any warning
+      output$warning <- renderText("")
+    }
+  })
   
   selected_polygon <- reactive({
     if (input$inputType == "preloaded") {
@@ -357,7 +389,7 @@ server <- function(input, output, session) {
       paste("data-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      data<-filtered_data()
+      data <- filtered_data()
       data$`Voucher location`<-gsub("<a href='","",data$`Voucher location`)
       data$`Voucher location`<-gsub("' target='_blank'>iNat</a>","",data$`Voucher location`)
       write.csv(data, file, row.names = FALSE)
