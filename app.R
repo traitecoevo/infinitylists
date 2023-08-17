@@ -108,7 +108,17 @@ ui <-
       condition = "input.inputType == 'choose'",
       numericInput("latitude", "Latitude", value = -33.8688, min = -90, max = 90),  # default: Sydney latitude
       numericInput("longitude", "Longitude", value = 151.2093, min = -180, max = 180),  # default: Sydney longitude
-      sliderInput("radius_m", "Radius (m)", min = 100, max = 10000, value = 5000, step = 100)
+      selectInput(
+        inputId = "radiusChoice",
+        label = "Choose a radius:",
+        choices = c("100m" = 100,
+                    "500m" = 500,
+                    "1km" = 1000,
+                    "2km" = 2000,
+                    "5km" = 5000,
+                    "10km" = 10000,
+                    "50km" = 50000)
+      )
     ),
     
     radioButtons("taxonOfInterest", "Taxon of interest:", 
@@ -211,7 +221,7 @@ server <- function(input, output, session) {
     } else if (input$inputType == "choose") {
       lat <- as.numeric(input$latitude)
       long <- as.numeric(input$longitude)
-      radius_m <- as.numeric(input$radius_m)
+      radius_m <- as.numeric(input$radiusChoice)
       return(create_circle_polygon(lat, long, radius_m))
     } else if (input$inputType == "upload" && !is.null(places[[input$place]])) {
       return(places[[input$place]])
@@ -347,7 +357,10 @@ server <- function(input, output, session) {
       paste("data-", Sys.Date(), ".csv", sep = "")
     },
     content = function(file) {
-      write.csv(filtered_data(), file, row.names = FALSE)
+      data<-filtered_data()
+      data$`Voucher location`<-gsub("<a href='","",data$`Voucher location`)
+      data$`Voucher location`<-gsub("' target='_blank'>iNat</a>","",data$`Voucher location`)
+      write.csv(data, file, row.names = FALSE)
     }
   )
   
