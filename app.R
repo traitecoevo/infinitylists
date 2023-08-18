@@ -69,7 +69,8 @@ places <- list(
     drop = TRUE,
     what = "ZM"
   ), dTolerance = 0.01),
-  "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml")
+  "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml"),
+  "Australian Botanic Garden Mount Annan" = load_place("places/mt-annan-australian-botanic-garden.kml")
 )
 
 # ----------------------
