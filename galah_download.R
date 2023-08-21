@@ -110,6 +110,7 @@ NSW_plants_cleaned |>
   summarise(n = n()) |> 
   filter(n == 1)
 
+# Fixing date formats
 NSW_plants_cleaned |> 
   data.table() |> 
   filter(`Recorded by` == "Falster, Daniel") |> 
@@ -128,10 +129,9 @@ ala <- open_csv_dataset(here("ala_nsw_inat_avh.csv")) |> collect()
 
 skim(ala)
 
-ala |> 
-  group_by(species, voucher_type) |> 
-  summarise(n = n()) |> 
-  filter(n == 1)
+# Check what differs between ala and galah
+setdiff(unique(NSW_plants_cleaned$Species), unique(ala$species))
+setdiff(unique(ala$species), unique(NSW_plants_cleaned$Species))
 
 ala |>
   mutate(year = year(collectionDate)) |>
