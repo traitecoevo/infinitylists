@@ -30,7 +30,7 @@ write_parquet(NSW_plants, paste0("data/NSW_plants_", Sys.Date()))
 
 ## Processing 
 # Not read into memory
-NSW_plants <- open_dataset(sources = "data/NSW_plants_2023-08-21", format = "parquet") 
+NSW_plants <- open_dataset(sources = here("ala_data/NSW_plants_2023-08-21"), format = "parquet") 
 
 # Summary of BoR
 NSW_plants |> 
@@ -75,8 +75,7 @@ NSW_plants_renamed <- NSW_plants_vouchervars |>
 
 # Reformat date
 NSW_plants_tzdate  <- NSW_plants_renamed |> 
-  mutate(collectionDate = ymd_hms(eventDate),
-         year = year(collectionDate))
+  mutate(collectionDate = ymd_hms(eventDate) |> with_tz())
 
 # Create native variable
 lu <- NSW_plants_tzdate |> 
@@ -107,16 +106,22 @@ clean_names("title")
 ### Checking
 ## Check for every taxon there is collection and photograph
 NSW_plants_cleaned |> 
-  group_by(species, voucher_type) |> 
+  group_by(Species, `Voucher Type`) |> 
   summarise(n = n()) |> 
   filter(n == 1)
 
 NSW_plants_cleaned |> 
-  select(species, voucher_type, collection_date) |> 
-  arrange(species, voucher_type, collection_date) |> 
-  tail()
+  data.table() |> 
+  filter(`Recorded by` == "Falster, Daniel") |> 
+  select(Species, `Voucher Type`, `Collection Date`) |> 
+  arrange(Species, `Voucher Type`, `Collection Date`)  |> 
+  group_by(Species) |> 
+  summarise(first = first(`Collection Date`)) |> 
+  mutate(date = format(first, "%d-%b-%Y"))
 
 skim(NSW_plants_cleaned)
+
+NSW_plants_cleaned |> View()
 
 ## Read in WC's version
 ala <- open_csv_dataset(here("ala_nsw_inat_avh.csv")) |> collect()
