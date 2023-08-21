@@ -7,6 +7,8 @@ library(leaflet)
 library(sf)
 library(dplyr)
 library(data.table)
+library(lubridate)
+library(arrow)
 library(shinybusy)
 library(shinythemes)
 options(dplyr.summarise.inform = FALSE)
@@ -14,23 +16,7 @@ options(dplyr.summarise.inform = FALSE)
 # ----------------------
 # Data Preparation
 # ----------------------
-ala <- data.table::fread("ala_nsw_inat_avh.csv")
-
-#
-# this section:
-# move to ala_processing.R
-#
-ala$native <- case_when(
-  ala$native_anywhere_in_aus == "Native (APC)" ~ "Native",
-  ala$native_anywhere_in_aus == "Introduced (APC)" ~ "Introduced",
-  TRUE ~ "Unknown"
-)
-ala$`Voucher type` <- ala$voucher_type
-ala$Species <- ala$species
-#
-
-
-
+ala <- read_parquet("data/NSW_plants_cleaned2023-08-21") |> data.table()
 
 load_place <- function(path) {
   tryCatch({
@@ -173,22 +159,22 @@ server <- function(input, output, session) {
   update_genus_choices <- function(place) {
     place_polygon <- places[[place]]
     ss <-
-      ala[lat < st_bbox(place_polygon)$ymax &
-            lat > st_bbox(place_polygon)$ymin &
-            long < st_bbox(place_polygon)$xmax &
-            long > st_bbox(place_polygon)$xmin]
-    choices = c("Eucalyptus", "All", sort(unique(ss$genus)))
+      ala[Lat < st_bbox(place_polygon)$ymax &
+            Lat > st_bbox(place_polygon)$ymin &
+            Long < st_bbox(place_polygon)$xmax &
+            Long > st_bbox(place_polygon)$xmin]
+    choices = c("Eucalyptus", "All", sort(unique(ss$Genus)))
     return(choices)
   }
   
   update_family_choices <- function(place) {
     place_polygon <- places[[place]]
     ss <-
-      ala[lat < st_bbox(place_polygon)$ymax &
-            lat > st_bbox(place_polygon)$ymin &
-            long < st_bbox(place_polygon)$xmax &
-            long > st_bbox(place_polygon)$xmin]
-    choices = c("Myrtaceae", "All", sort(unique(ss$family)))
+      ala[Lat < st_bbox(place_polygon)$ymax &
+            Lat > st_bbox(place_polygon)$ymin &
+            Long < st_bbox(place_polygon)$xmax &
+            Long > st_bbox(place_polygon)$xmin]
+    choices = c("Myrtaceae", "All", sort(unique(ss$Family)))
     return(choices)
   }
   
@@ -269,13 +255,13 @@ server <- function(input, output, session) {
       if (input$taxa_genus == "All") {
         data <- ala  # if "all" is selected, don't filter
       } else {
-        data <- ala[genus == input$taxa_genus,]
+        data <- ala[Genus == input$taxa_genus,]
       }
     } else if (input$taxonOfInterest == "family") {
       if (input$taxa_family == "All") {
         data <- ala  # if "all" is selected, don't filter
       } else {
-        data <- ala[family == input$taxa_family,]
+        data <- ala[Family == input$taxa_family,]
       }
     } else {
       data <- ala
@@ -286,13 +272,13 @@ server <- function(input, output, session) {
     
     if (is.null(place_polygon)) return(data.table())
     
-    points <- st_as_sf(data, coords = c("long", "lat"), crs = 4326)
+    points <- st_as_sf(data, coords = c("Long", "Lat"), crs = 4326)
     point_polygon_intersection <-
       data[st_intersects(points, place_polygon, sparse = FALSE)[, 1],]
     point_polygon_intersection <-
       as.data.table(point_polygon_intersection)
     
-    point_polygon_intersection[order(species, voucher_type, -as.integer(collectionDate))]
+    point_polygon_intersection[order(Species, `Voucher Type`, -as.integer(`Collection Date`))]
   })
   
   stats_text <- reactive({
@@ -300,11 +286,11 @@ server <- function(input, output, session) {
     
     total_species <- length(unique(data$Species))
     
-    collections <- data[data$`Voucher type` == "Collection"]
+    collections <- data[data$`Voucher Type` == "Collection"]
     collections_count <- nrow(collections)
     collections_species <- length(unique(collections$Species))
     
-    photographic <- data[data$`Voucher type` == "Photograph",]
+    photographic <- data[data$`Voucher Type` == "Photograph",]
     photographic_count <- nrow(photographic)
     photographic_species <- length(unique(photographic$Species))
     
@@ -340,34 +326,35 @@ server <- function(input, output, session) {
   filtered_data<- reactive({ 
     result<-intersect_data()
     if (nrow(result) == 0) {
-      return(data.table(Species = character(0), `Voucher type` = character(0), `Most recent obs.` = character(0), N = integer(0), Long = numeric(0), Lat = numeric(0), `Voucher location` = character(0), `Observed by` = character(0), Native = character(0)))
+      return(data.table(Species = character(0), `Voucher Type` = character(0), `Most recent obs.` = character(0), N = integer(0), Long = numeric(0), Lat = numeric(0), `Voucher location` = character(0), `Observed by` = character(0), Native = character(0)))
     }
     result <- result[, .(
       N = .N,
       `Most recent obs.` = {
-        first_date <- first(collectionDate)
+        first_date <- first(`Collection Date`)
         if (is.na(first_date))
           as.character(NA)
         else
-          format(as.Date(first_date), "%e-%b-%Y")
+          format(first_date, "%d-%b-%Y")
+      
       },
-      Long = long[1],
-      Lat = lat[1],
-      `Voucher location` = ifelse(
-        grepl("https", voucher_location[1]),
+      Long = Long[1],
+      Lat = Lat[1],
+      `Voucher Location` = ifelse(
+        grepl("https", `Voucher Location`[1]),
         paste0(
           "<a href='",
-          voucher_location[1],
+          `Voucher Location`[1],
           "' target='_blank'>",
           "iNat",
           "</a>"
         ),
-        voucher_location[1]
+        `Voucher Location`[1]
       ),
-      `Observed by` = recordedBy[1],
-      `Native?` = native[1]
+      `Observed by` = `Recorded by`[1],
+      `Native?` = `Native Anywhere in Aus`[1]
     ),
-    by = .(Species, `Voucher type`)]
+    by = .(Species, `Voucher Type`)]
   })
   
   # Render data table
@@ -392,8 +379,8 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       data <- filtered_data()
-      data$`Voucher location`<-gsub("<a href='","",data$`Voucher location`)
-      data$`Voucher location`<-gsub("' target='_blank'>iNat</a>","",data$`Voucher location`)
+      data$`Voucher Location`<-gsub("<a href='","",data$`Voucher Location`)
+      data$`Voucher Location`<-gsub("' target='_blank'>iNat</a>","",data$`Voucher Location`)
       write.csv(data, file, row.names = FALSE)
     }
   )
@@ -412,7 +399,7 @@ server <- function(input, output, session) {
         data = filtered_data(),
         ~ Long,
         ~ Lat,
-        popup = paste(filtered_data()$Species, filtered_data()$`Voucher type`)
+        popup = paste(filtered_data()$Species, filtered_data()$`Voucher Type`)
       ) %>%
       addPolygons(data = place_polygon, color = "red")
   })
