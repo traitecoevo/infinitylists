@@ -130,8 +130,11 @@ ala <- open_csv_dataset(here("ala_nsw_inat_avh.csv")) |> collect()
 skim(ala)
 
 # Check what differs between ala and galah
-setdiff(unique(NSW_plants_cleaned$Species), unique(ala$species))
-setdiff(unique(ala$species), unique(NSW_plants_cleaned$Species))
+setdiff(unique(NSW_plants_cleaned$Species), unique(ala$species)) # Taxa in galah but not in ala
+setdiff(unique(ala$species), unique(NSW_plants_cleaned$Species)) # Taxa in ala but not in galah 
+
+# Genus spec. taxa
+stringr::str_subset(unique(NSW_plants_cleaned$Species), "spec.$")
 
 ala |>
   mutate(year = year(collectionDate)) |>
