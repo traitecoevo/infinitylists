@@ -14,10 +14,12 @@ galah_config(email = Sys.getenv("ALA_EMAIL"),
 NSW_plants <- 
   galah_call() |> 
   galah_identify("Plantae") |> 
+  galah_apply_profile("CSDM") |> 
   galah_filter(stateProvince == "New South Wales", 
                species != "",
                decimalLatitude != "",
-               year >= 1923) |> 
+               year >= 1923,
+               basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")) |> 
   galah_select(recordID, species, genus,family,
                decimalLatitude,decimalLongitude,coordinateUncertaintyInMeters,
                eventDate,datasetName,basisOfRecord,
@@ -26,16 +28,12 @@ NSW_plants <-
    #atlas_counts()
 
 # Save massive download before processing
-write_parquet(NSW_plants, paste0("data/NSW_plants_", Sys.Date()))
+# TODO: This could be an optional step for reproducibility reasons
+# write_parquet(NSW_plants, paste0("ala_data/NSW_plants_", Sys.Date(), ".parquet"))
 
 ## Processing 
 # Not read into memory
-NSW_plants <- open_dataset(sources = "data/NSW_plants_2023-08-21", format = "parquet") 
-
-# Summary of BoR
-NSW_plants |> 
-  pull(basisOfRecord) |> 
-  tabyl()
+# NSW_plants <- open_dataset(sources = here("ala_data/NSW_plants_2023-08-21"), format = "parquet") 
 
 ### Narrowing dataset to what we want 
 datasets_of_interest <- c("Australia's Virtual Herbarium","iNaturalist observations","iNaturalist research-grade observations")
@@ -43,17 +41,9 @@ datasets_of_interest <- c("Australia's Virtual Herbarium","iNaturalist observati
 NSW_plants_targetrecords  <- NSW_plants |>
   filter(basisOfRecord == "PRESERVED_SPECIMEN" | datasetName %in% datasets_of_interest,
          is.na(coordinateUncertaintyInMeters) | coordinateUncertaintyInMeters <=1000,
-         !is.na(eventDate)) 
+         !is.na(eventDate)) |> 
+  filter(!str_detect(species,"spec.$")) # Exclude genus level taxon "spec." 
 
-# Checking number of rows
-NSW_plants_targetrecords |> nrow()
-
-# Summary of BoR - We can request these types in query 
-# TODO: galah_filter(basisOfRecord == c("HUMAN_OBSERVATION" "PRESERVED_SPECIMEN"))
-NSW_plants_targetrecords |> 
-    pull(basisOfRecord) |> 
-    tabyl()
-  
 # Create new voucher variables
 NSW_plants_vouchervars <- NSW_plants_targetrecords |> 
   mutate(voucher_location = case_when(!is.na(references) ~ references,
@@ -62,21 +52,14 @@ NSW_plants_vouchervars <- NSW_plants_targetrecords |>
                                   TRUE ~ "Photograph") 
   )
 
-# Summary of voucher type 
-NSW_plants_vouchervars |> 
-  pull(voucher_type) |> 
-  tabyl()
-
 # Rename and clean names variables
 NSW_plants_renamed <- NSW_plants_vouchervars |> 
   rename(lat = decimalLatitude,
-         long = decimalLongitude) |> 
-  collect() # Here we are finally reading data into memory because the downstream steps require passing to other packages
+         long = decimalLongitude) 
 
 # Reformat date
 NSW_plants_tzdate  <- NSW_plants_renamed |> 
-  mutate(collectionDate = ymd_hms(eventDate),
-         year = year(collectionDate))
+  mutate(collectionDate = ymd_hms(eventDate) |> with_tz())
 
 # Create native variable
 lu <- NSW_plants_tzdate |> 
@@ -92,7 +75,7 @@ NSW_plants_native <- left_join(NSW_plants_tzdate,lu) |>
                                                TRUE ~ "unknown") 
   )
 
-# Subset
+# Subset for app
 NSW_plants_cleaned <- NSW_plants_native |>
   select(species:family, collectionDate,
          lat,long,
@@ -103,40 +86,5 @@ NSW_plants_cleaned <- NSW_plants_native |>
           collectionDate, family) |> 
 clean_names("title")
 
-
-### Checking
-## Check for every taxon there is collection and photograph
-NSW_plants_cleaned |> 
-  group_by(species, voucher_type) |> 
-  summarise(n = n()) |> 
-  filter(n == 1)
-
-NSW_plants_cleaned |> 
-  select(species, voucher_type, collection_date) |> 
-  arrange(species, voucher_type, collection_date) |> 
-  tail()
-
-skim(NSW_plants_cleaned)
-
-## Read in WC's version
-ala <- open_csv_dataset(here("ala_nsw_inat_avh.csv")) |> collect()
-
-skim(ala)
-
-ala |> 
-  group_by(species, voucher_type) |> 
-  summarise(n = n()) |> 
-  filter(n == 1)
-
-ala |>
-  mutate(year = year(collectionDate)) |>
-  filter(year >= 1923) |>
-  drop_na(year, species, lat) |>
-  nrow()
-
-ala |> 
-  pull(voucher_type) |> 
-  tabyl()
-
 ### Saving
-write_parquet(NSW_plants_cleaned, paste0("data/NSW_plants_cleaned", Sys.Date()))
+write_parquet(NSW_plants_cleaned, paste0("infinity-app/data/NSW_plants_cleaned", Sys.Date(), ".parquet"))
