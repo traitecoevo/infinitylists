@@ -16,7 +16,7 @@ options(dplyr.summarise.inform = FALSE)
 # ----------------------
 # Data Preparation
 # ----------------------
-ala <- read_parquet("data/NSW_plants_cleaned2023-08-21") |> data.table()
+ala <- read_parquet("data/NSW_plants_cleaned2023-08-22.parquet") |> data.table()
 
 load_place <- function(path) {
   tryCatch({
