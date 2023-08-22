@@ -1,0 +1,15 @@
+Package: infinitylists
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    c(
+  person(given = "Thomas", family = "Mesaglio", role = c("aut", "cre", "cph"), email = "XXXXX@unsw.edu.au", comment = c(ORCID = "XXXX-XXXX-XXXX-XXXX")),
+  person(given = "Will", family = "Cornwell", role = c("aut", "ctb"), email = "w.cornwell@unsw.edu.au", comment = c(ORCID = "0000-0003-4080-4073")),
+  person(given = "Fonti", family = "Kar", role = c("aut", "ctb"), email = "f.kar@unsw.edu.au", comment = c(ORCID = "0000-0002-2760-3974"))
+    )
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
