@@ -64,11 +64,7 @@ places <- list(
   "Wategora Reserve" = load_place(
     "places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
-  "Fowlers Gap, UNSW" = st_simplify(st_zm(
-    load_place("places/fowlers.kml"),
-    drop = TRUE,
-    what = "ZM"
-  ), dTolerance = 0.01),
+  "Fowlers Gap, UNSW" = load_place("places/fowlers2.kml"),
   "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml"),
   "Australian Botanic Garden Mount Annan" = load_place("places/mt-annan-australian-botanic-garden.kml"),
   "Grants Beach Walking Trail" = load_place("places/grants-beach-walking-trail.kml")
