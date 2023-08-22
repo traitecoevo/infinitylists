@@ -77,7 +77,7 @@ NSW_plants_native <- left_join(NSW_plants_tzdate,lu) |>
   )
 
 # Subset for app
-NSW_plants_cleaned <- NSW_plants_native |>
+ala <-NSW_plants_native |>
   select(species:family, collectionDate,
          lat,long,
          voucher_type, voucher_location,
@@ -85,11 +85,8 @@ NSW_plants_cleaned <- NSW_plants_native |>
   drop_na(genus, species, lat, long, 
           voucher_type, voucher_location, recordedBy,
           collectionDate, family) |> 
-  clean_names("title")
+  clean_names("title") |> 
+  data.table()
 
 ### Saving
-write_parquet(NSW_plants_cleaned, paste0("infinity-app/data/NSW_plants_cleaned", Sys.Date(), ".parquet"))
-
-ala <- read_parquet("infinity-app/data/NSW_plants_cleaned2023-08-22.parquet") |> data.table()
-
 usethis::use_data(ala, overwrite = TRUE)
