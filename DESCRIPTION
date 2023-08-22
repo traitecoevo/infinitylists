@@ -4,8 +4,8 @@ Version: 0.0.0.9000
 Authors@R: 
     c(
   person(given = "Thomas", family = "Mesaglio", role = c("aut", "cre", "cph"), email = "thomasmesaglio@gmail.com", comment = c(ORCID = "0000-0002-1096-6066")),
-  person(given = "Will", family = "Cornwell", role = c("aut", "ctb"), email = "w.cornwell@unsw.edu.au", comment = c(ORCID = "0000-0003-4080-4073")),
-  person(given = "Fonti", family = "Kar", role = c("aut", "ctb"), email = "f.kar@unsw.edu.au", comment = c(ORCID = "0000-0002-2760-3974"))
+  person(given = "Will", family = "Cornwell", role = c("aut"), email = "w.cornwell@unsw.edu.au", comment = c(ORCID = "0000-0003-4080-4073")),
+  person(given = "Fonti", family = "Kar", role = c("aut"), email = "f.kar@unsw.edu.au", comment = c(ORCID = "0000-0002-2760-3974"))
     )
 Description: This shiny-based application allows users to extract plant occurrence data from the Atlas of Living Australia and generate a species list for any defined area in New South Wales. All records associated with either a physical voucher (stored in Australian herbaria) or a photographic voucher (stored in iNaturalist) are extracted. For each species within the defined area, the application will return voucher type, number of vouchers, date of the most recent voucher, spatial coordinates, voucher location, and the voucher collector. Records are displayed both in a table and on a map, and are downloadable as a CSV. 
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
