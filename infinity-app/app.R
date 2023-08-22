@@ -16,7 +16,10 @@ options(dplyr.summarise.inform = FALSE)
 # ----------------------
 # Data Preparation
 # ----------------------
-ala <- read_parquet("data/NSW_plants_cleaned2023-08-22.parquet") |> data.table()
+ala <- read_parquet("data/NSW-Lepidoptera2023-08-22.parquet") |> data.table()
+min_lat<- -50
+#most_common_genus<-table(ala$genus)
+
 
 load_place <- function(path) {
   tryCatch({
@@ -90,7 +93,7 @@ ui <-
       )),
     conditionalPanel(
       condition = "input.inputType == 'choose'",
-      numericInput("latitude", "Latitude", value = -33.8688, min = -39, max = -27),  # default: Sydney latitude
+      numericInput("latitude", "Latitude", value = -33.8688, min = min_lat, max = -27),  # default: Sydney latitude
       numericInput("longitude", "Longitude", value = 151.2093, min = 139, max = 165),  # default: Sydney longitude
       verbatimTextOutput("warning"),
       selectInput(
@@ -201,7 +204,7 @@ server <- function(input, output, session) {
   })
   
   observe({
-    lat_out_of_range <- input$latitude < -39 || input$latitude > -27
+    lat_out_of_range <- input$latitude < min_lat || input$latitude > -27
     lon_out_of_range <- input$longitude < 139 || input$longitude > 165
     
     lat_is_empty <- is.null(input$latitude) || is.na(input$latitude)
@@ -213,7 +216,7 @@ server <- function(input, output, session) {
       
       # Update the warning message based on which values are out of range
       if (lat_out_of_range || lat_is_empty) {
-        warning_msg <- paste0(warning_msg, "Entered latitude is out of the allowed range. Please enter a value between -39 and -27.\n")
+        warning_msg <- paste0(warning_msg, "Entered latitude is out of the allowed range. Please enter a value between -50 and -27.\n")
         # Reset the latitude value to the default
         #updateNumericInput(session, "latitude", value = -33.8688)
       }
@@ -347,8 +350,7 @@ server <- function(input, output, session) {
         ),
         `Voucher Location`[1]
       ),
-      `Observed by` = `Recorded by`[1],
-      `Native?` = `Native Anywhere in Aus`[1]
+      `Observed by` = `Recorded by`[1]
     ),
     by = .(Species, `Voucher Type`)]
   })
