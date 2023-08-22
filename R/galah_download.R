@@ -10,10 +10,12 @@ library(skimr)
 galah_config(email = Sys.getenv("ALA_EMAIL"),
              atlas = "Australia")
 
+taxa<-"Lepidoptera"
+
 # Formulate query and download
 NSW_plants <- 
   galah_call() |> 
-  galah_identify("Plantae") |> 
+  galah_identify(taxa) |> 
   galah_apply_profile("CSDM") |> 
   galah_filter(stateProvince == "New South Wales", 
                species != "",
@@ -57,34 +59,36 @@ NSW_plants_renamed <- NSW_plants_vouchervars |>
   rename(lat = decimalLatitude,
          long = decimalLongitude) 
 
+
+
 # Reformat date
-NSW_plants_tzdate  <- NSW_plants_renamed |> 
-  mutate(collectionDate = ymd_hms(eventDate) |> with_tz())
-
-# Create native variable
-lu <- NSW_plants_tzdate |> 
-  mutate(num_words_species = stringi::stri_count_words(species)) |>  # Count the number of words in species
-  filter(num_words_species == 2) |> # Include the binomials only
-  pull(species) |> 
-  unique() |> # Filter the unique species
-  native_anywhere_in_australia() # Determine if species is native in Aus or not
-
-NSW_plants_native <- left_join(NSW_plants_tzdate,lu) |> 
-  mutate(native_anywhere_in_aus = case_when(native_anywhere_in_aus=="considered native to Australia by APC" ~ "Native",
-                                            native_anywhere_in_aus=="not considered native to Australia by APC" ~ "Introduced",
-                                               TRUE ~ "unknown") 
+NSW_plants_tzdate <- NSW_plants_renamed |> 
+  mutate(
+    collectionDate = ymd_hms(eventDate, tz = "UTC", quiet = TRUE),
+    collectionDate = if_else(is.na(collectionDate), ymd(eventDate, tz = "UTC", quiet = TRUE), collectionDate)
   )
 
+# Create native variable
+# lu <- NSW_plants_tzdate |> 
+#   mutate(num_words_species = stringi::stri_count_words(species)) |>  # Count the number of words in species
+#   filter(num_words_species == 2) |> # Include the binomials only
+#   pull(species) |> 
+#   unique() |> # Filter the unique species
+#   native_anywhere_in_australia() # Determine if species is native in Aus or not
+# 
+# NSW_plants_native <- left_join(NSW_plants_tzdate,lu) |> 
+#   mutate(native_anywhere_in_aus = case_when(native_anywhere_in_aus=="considered native to Australia by APC" ~ "Native",
+#                                             native_anywhere_in_aus=="not considered native to Australia by APC" ~ "Introduced",
+#                                                TRUE ~ "unknown") 
+#   )
+
 # Subset for app
-NSW_plants_cleaned <- NSW_plants_native |>
+NSW_plants_cleaned <- NSW_plants_tzdate |>
   select(species:family, collectionDate,
          lat,long,
          voucher_type, voucher_location,
-         recordedBy,native_anywhere_in_aus)|>
-  drop_na(genus, species, lat, long, 
-          voucher_type, voucher_location, recordedBy,
-          collectionDate, family) |> 
+         recordedBy) |> 
 clean_names("title")
 
 ### Saving
-write_parquet(NSW_plants_cleaned, paste0("infinity-app/data/NSW_plants_cleaned", Sys.Date(), ".parquet"))
+write_parquet(NSW_plants_cleaned, paste0("infinity-app/data/NSW-", taxa,Sys.Date(), ".parquet"))
