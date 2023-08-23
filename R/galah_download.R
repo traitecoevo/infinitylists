@@ -7,8 +7,8 @@ library(APCalign)
 library(skimr)
 
 # Configure galah
-galah_config(email = Sys.getenv("ALA_EMAIL"),
-             atlas = "Australia")
+#galah_config(email = Sys.getenv("ALA_EMAIL"),
+#             atlas = "Australia")
 
 taxa<-"Lepidoptera"
 
