@@ -16,10 +16,24 @@ options(dplyr.summarise.inform = FALSE)
 # ----------------------
 # Data Preparation
 # ----------------------
-ala <- read_parquet("data/NSW-Lepidoptera2023-08-23.parquet") |> data.table()
-min_lat<- -50
-most_common_genus <- names(sort(table(ala$Genus),decreasing = T)[1])
-most_common_family <- names(sort(table(ala$Family),decreasing = T)[1])
+
+files_in_directory <- list.files(path = "data/")
+
+#  ala <-read_parquet(paste0("data/", files_in_directory[1])) %>% data.table()
+#           
+# 
+# # Initialize the variables
+# if (nrow(ala) > 0) {
+#   most_common_genus <- names(sort(table(ala$Genus), decreasing = TRUE)[1])
+#   most_common_family <- names(sort(table(ala$Family), decreasing = TRUE)[1])
+# } else {
+#   most_common_genus <- NULL
+#   most_common_family <- NULL
+# }
+
+min_lat <- -50
+# ala <- read_parquet("data/NSW-Fungi2023-08-23.parquet") |> data.table()
+
 
 load_place <- function(path) {
   tryCatch({
@@ -67,7 +81,7 @@ ui <-
     theme = shinytheme("cosmo"),
     titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Biodiversity"),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-    
+    selectInput("ala_path", "Choose a file:", choices = files_in_directory),
     radioButtons("inputType", "Input method:", 
                  choices = list("Preloaded Place" = "preloaded", 
                                 "Upload KML" = "upload",
@@ -154,11 +168,13 @@ ui <-
 
 
 server <- function(input, output, session) {
+  
   # Function to update genus choices based on selected place
   update_genus_choices <- function(place) {
     place_polygon <- places[[place]]
+    most_common_genus <- names(sort(table(ala_data()$Genus), decreasing = TRUE)[1])
     ss <-
-      ala[Lat < st_bbox(place_polygon)$ymax &
+      ala_data()[Lat < st_bbox(place_polygon)$ymax &
             Lat > st_bbox(place_polygon)$ymin &
             Long < st_bbox(place_polygon)$xmax &
             Long > st_bbox(place_polygon)$xmin]
@@ -168,8 +184,9 @@ server <- function(input, output, session) {
   
   update_family_choices <- function(place) {
     place_polygon <- places[[place]]
+    most_common_family <- names(sort(table(ala_data()$Family), decreasing = TRUE)[1])
     ss <-
-      ala[Lat < st_bbox(place_polygon)$ymax &
+      ala_data()[Lat < st_bbox(place_polygon)$ymax &
             Lat > st_bbox(place_polygon)$ymin &
             Long < st_bbox(place_polygon)$xmax &
             Long > st_bbox(place_polygon)$xmin]
@@ -204,6 +221,7 @@ server <- function(input, output, session) {
   })
   
   observe({
+    
     lat_out_of_range <- input$latitude < min_lat || input$latitude > -27
     lon_out_of_range <- input$longitude < 139 || input$longitude > 165
     
@@ -234,6 +252,7 @@ server <- function(input, output, session) {
     }
   })
   
+  
   selected_polygon <- reactive({
     if (input$inputType == "preloaded") {
       return(places[[input$place]])
@@ -252,18 +271,18 @@ server <- function(input, output, session) {
   intersect_data <- reactive({
     if (input$taxonOfInterest == "genus") {
       if (input$taxa_genus == "All") {
-        data <- ala  # if "all" is selected, don't filter
+        data <- ala_data()  # if "all" is selected, don't filter
       } else {
-        data <- ala[Genus == input$taxa_genus,]
+        data <- ala_data()[Genus == input$taxa_genus,]
       }
     } else if (input$taxonOfInterest == "family") {
       if (input$taxa_family == "All") {
-        data <- ala  # if "all" is selected, don't filter
+        data <- ala_data()  # if "all" is selected, don't filter
       } else {
-        data <- ala[Family == input$taxa_family,]
+        data <- ala_data()[Family == input$taxa_family,]
       }
     } else {
-      data <- ala
+      data <- ala_data()
     }
     
     
@@ -304,22 +323,40 @@ server <- function(input, output, session) {
   })
   
   
-  # Observer to update genus input based on the selected place
-  observeEvent(input$place, {
-        updateSelectizeInput(
-          session,
-          "taxa_genus",
-          selected = most_common_genus,
-          choices = update_genus_choices(input$place),
-          server = FALSE)
-        updateSelectizeInput(
-          session,
-          "taxa_family",
-          choices = update_family_choices(input$place),
-          selected = most_common_family,
-          server = FALSE
-        )
+  ala_data <- reactive({
+    read_parquet(paste0("data/", input$ala_path)) %>% data.table()
   })
+  
+  # A reactive to combine your two inputs
+  combined_input <- reactive({
+    list(place = input$place, ala_path = input$ala_path)
+  })
+  
+  # Observe changes in the combined input
+  observeEvent(combined_input(), {
+    
+    # Directly get the data from the ala_data reactive
+    current_ala <- ala_data()
+    
+    most_common_genus <- names(sort(table(current_ala$Genus), decreasing = TRUE)[1])
+    most_common_family <- names(sort(table(current_ala$Family), decreasing = TRUE)[1])
+    
+    updateSelectizeInput(
+      session,
+      "taxa_genus",
+      selected = most_common_genus,
+      choices = update_genus_choices(input$place),
+      server = FALSE)
+    
+    updateSelectizeInput(
+      session,
+      "taxa_family",
+      choices = update_family_choices(input$place),
+      selected = most_common_family,
+      server = FALSE
+    )
+  })
+
    
   # Reactive expression to summarize and filter data
   filtered_data<- reactive({ 
