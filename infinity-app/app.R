@@ -16,10 +16,10 @@ options(dplyr.summarise.inform = FALSE)
 # ----------------------
 # Data Preparation
 # ----------------------
-ala <- read_parquet("data/NSW-Lepidoptera2023-08-22.parquet") |> data.table()
+ala <- read_parquet("data/NSW-Lepidoptera2023-08-23.parquet") |> data.table()
 min_lat<- -50
-#most_common_genus<-table(ala$genus)
-
+most_common_genus <- names(sort(table(ala$Genus),decreasing = T)[1])
+most_common_family <- names(sort(table(ala$Family),decreasing = T)[1])
 
 load_place <- function(path) {
   tryCatch({
@@ -65,7 +65,7 @@ places <- list(
 ui <- 
   fluidPage(
     theme = shinytheme("cosmo"),
-    titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
+    titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Biodiversity"),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
     
     radioButtons("inputType", "Input method:", 
@@ -120,8 +120,8 @@ ui <-
       selectizeInput(
         inputId = "taxa_genus",
         label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-        choices = "Eucalyptus",
-        selected = "Eucalyptus",
+        choices = most_common_genus,
+        selected = most_common_genus,
         options = list(maxOptions = 300L)
       )
     ),
@@ -131,8 +131,8 @@ ui <-
       selectizeInput(
         inputId = "taxa_family",
         label = "Choose a family: (you can also select All, but it's slow so be patient)",
-        choices = "Myrtaceae",
-        selected = "Myrtaceae",
+        choices = most_common_family,
+        selected = most_common_family,
         options = list(maxOptions = 300L)
       )
     ),
@@ -162,7 +162,7 @@ server <- function(input, output, session) {
             Lat > st_bbox(place_polygon)$ymin &
             Long < st_bbox(place_polygon)$xmax &
             Long > st_bbox(place_polygon)$xmin]
-    choices = c("Eucalyptus", "All", sort(unique(ss$Genus)))
+    choices = c(most_common_genus, "All", sort(unique(ss$Genus)))
     return(choices)
   }
   
@@ -173,7 +173,7 @@ server <- function(input, output, session) {
             Lat > st_bbox(place_polygon)$ymin &
             Long < st_bbox(place_polygon)$xmax &
             Long > st_bbox(place_polygon)$xmin]
-    choices = c("Myrtaceae", "All", sort(unique(ss$Family)))
+    choices = c(most_common_family, "All", sort(unique(ss$Family)))
     return(choices)
   }
   
@@ -309,14 +309,14 @@ server <- function(input, output, session) {
         updateSelectizeInput(
           session,
           "taxa_genus",
-          selected = "Eucalyptus",
+          selected = most_common_genus,
           choices = update_genus_choices(input$place),
           server = FALSE)
         updateSelectizeInput(
           session,
           "taxa_family",
           choices = update_family_choices(input$place),
-          selected = "Myrtaceae",
+          selected = most_common_family,
           server = FALSE
         )
   })
