@@ -134,8 +134,8 @@ ui <-
       selectizeInput(
         inputId = "taxa_genus",
         label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-        choices = most_common_genus,
-        selected = most_common_genus,
+        choices = "All",
+        selected = "All",
         options = list(maxOptions = 300L)
       )
     ),
@@ -145,8 +145,8 @@ ui <-
       selectizeInput(
         inputId = "taxa_family",
         label = "Choose a family: (you can also select All, but it's slow so be patient)",
-        choices = most_common_family,
-        selected = most_common_family,
+        choices = "All",
+        selected = "All",
         options = list(maxOptions = 300L)
       )
     ),
