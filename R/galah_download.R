@@ -1,6 +1,6 @@
 
 
-# Libraries should be loaded outside of the function
+# Libraries
 library(galah)
 library(tidyverse)
 library(janitor)
@@ -9,7 +9,7 @@ library(here)
 library(APCalign)
 library(skimr)
 
-download_ala_obs <- function(taxa = "Lepidoptera", state = "New South Wales", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa = "Plantae", state = "New South Wales", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
   NSW_obs <- retrieve_data(taxa, state)
@@ -26,7 +26,7 @@ retrieve_data <- function(taxa, state) {
     galah_identify(taxa) |>
     galah_apply_profile("CSDM") |>
     galah_filter(
-      stateProvince == state,
+      #stateProvince == state,
       species != "",
       decimalLatitude != "",
       year >= 1923,
@@ -77,4 +77,4 @@ save_data <- function(data, taxa, output_dir) {
 
 
 
-download_ala_obs(taxa="Mollusca")
+download_ala_obs()
