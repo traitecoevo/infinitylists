@@ -364,15 +364,15 @@ server <- function(input, output, session) {
   
   
   ala_data <- reactive({
-    long_buffer <- 0.578
-    lat_buffer <- 0.45
+    long_buffer <- 0.578 #50 km approx
+    lat_buffer <- 0.45 #50 km approx
     place_polygon <- selected_polygon()
     open_dataset(paste0("data/", input$ala_path)) |> 
       filter(Lat< st_bbox(place_polygon)$ymax + lat_buffer & 
              Lat > st_bbox(place_polygon)$ymin - lat_buffer&
              Long < st_bbox(place_polygon)$xmax + long_buffer & 
              Long > st_bbox(place_polygon)$xmin - long_buffer) |> 
-      collect() |> data.table() #add filtering to bounding box plus buffer here
+      collect() |> data.table() 
   })
   
   # A reactive to combine your two inputs
