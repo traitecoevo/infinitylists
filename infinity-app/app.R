@@ -111,7 +111,7 @@ ui <-
     radioButtons("inputType", "Input method:", 
                  choices = list("Preloaded Place" = "preloaded", 
                                 "Upload KML" = "upload",
-                                "Choose a place in NSW" = "choose"),
+                                "Choose a place in Australia" = "choose"),
                  selected = "preloaded", inline = TRUE),
     
     conditionalPanel(
@@ -128,7 +128,7 @@ ui <-
       condition = "input.inputType == 'upload'",
       fileInput(
         "uploadKML",
-        "Upload your own KML (within NSW only)",
+        "Upload your own KML",
         accept = c(".kml")
       )),
     conditionalPanel(
@@ -332,7 +332,8 @@ server <- function(input, output, session) {
       as.data.table(point_polygon_intersection)
     
     point_polygon_buffer_intersection$`in target area`<-case_when(
-      point_polygon_buffer_intersection$Species %in% point_polygon_intersection$Species ~ "in target",
+      paste0(point_polygon_buffer_intersection$Species, point_polygon_buffer_intersection$`Voucher Type`) %in% 
+        paste0(point_polygon_intersection$Species, point_polygon_intersection$`Voucher Type`) ~ "in target",
       TRUE ~ "only in buffer"
     )
     
@@ -414,7 +415,8 @@ server <- function(input, output, session) {
     }
     
     # Sort the data by 'in target area' and 'Collection Date'
-    result <- result[order(`in target area` != "in target", `Collection Date`)]
+    result <- result[order(`in target area` == "in target", -`Collection Date`)]
+    
     
     result <- result[, .(
       `in target area` = `in target area`[1],
