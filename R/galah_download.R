@@ -9,10 +9,10 @@ library(here)
 library(APCalign)
 library(skimr)
 
-download_ala_obs <- function(taxa = "Plantae", state = "New South Wales", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa = "Plantae", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
-  NSW_obs <- retrieve_data(taxa, state)
+  NSW_obs <- retrieve_data(taxa)
   
   # 2. Filtering and processing
   NSW_cleaned <- process_data(NSW_obs)
@@ -21,7 +21,7 @@ download_ala_obs <- function(taxa = "Plantae", state = "New South Wales", output
   save_data(NSW_cleaned, taxa, output_dir)
 }
 
-retrieve_data <- function(taxa, state) {
+retrieve_data <- function(taxa) {
   galah_call() |> 
     galah_identify(taxa) |>
     galah_apply_profile("CSDM") |>
@@ -71,7 +71,7 @@ process_data <- function(data) {
 save_data <- function(data, taxa, output_dir) {
   write_parquet(
     data,
-    paste0(output_dir, "NSW-", taxa, "-", Sys.Date(), ".parquet")
+    paste0(output_dir, "Australia-", taxa, "-", Sys.Date(), ".parquet")
   )
 }
 
