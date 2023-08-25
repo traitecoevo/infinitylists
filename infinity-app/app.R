@@ -179,14 +179,15 @@ ui <-
     selectInput(
       inputId = "buffer_size",
       label = "Choose a buffer:",
-      choices = c("100m" = 100,
+      choices = c("0m (ie. no buffer)" = 0,
+                  "100m" = 100,
                   "500m" = 500,
                   "1km" = 1000,
                   "2km" = 2000,
                   "5km" = 5000,
                   "10km" = 10000,
                   "50km" = 50000),
-      selected = 5000
+      selected = 0
     ),
     downloadButton('downloadData', 'Download CSV'),
     tags$br(),
