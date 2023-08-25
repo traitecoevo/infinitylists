@@ -32,6 +32,9 @@ files_in_directory <- list.files(path = "data/")
 # }
 
 min_lat <- -50
+max_lat <- -10
+min_long <- 110
+max_long <- 163
 # ala <- read_parquet("data/NSW-Fungi2023-08-23.parquet") |> data.table()
 
 
@@ -108,7 +111,7 @@ ui <-
     conditionalPanel(
       condition = "input.inputType == 'choose'",
       numericInput("latitude", "Latitude", value = -33.8688, min = min_lat, max = -27),  # default: Sydney latitude
-      numericInput("longitude", "Longitude", value = 151.2093, min = 139, max = 165),  # default: Sydney longitude
+      numericInput("longitude", "Longitude", value = 151.2093, min = min_long, max = max_long),  # default: Sydney longitude
       verbatimTextOutput("warning"),
       selectInput(
         inputId = "radiusChoice",
@@ -134,7 +137,7 @@ ui <-
       selectizeInput(
         inputId = "taxa_genus",
         label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-        choices = "All",
+        choices = "Eucalyptus",
         selected = "All",
         options = list(maxOptions = 300L)
       )
@@ -145,7 +148,7 @@ ui <-
       selectizeInput(
         inputId = "taxa_family",
         label = "Choose a family: (you can also select All, but it's slow so be patient)",
-        choices = "All",
+        choices = "My",
         selected = "All",
         options = list(maxOptions = 300L)
       )
@@ -222,8 +225,8 @@ server <- function(input, output, session) {
   
   observe({
     
-    lat_out_of_range <- input$latitude < min_lat || input$latitude > -27
-    lon_out_of_range <- input$longitude < 139 || input$longitude > 165
+    lat_out_of_range <- input$latitude < min_lat || input$latitude > max_lat
+    lon_out_of_range <- input$longitude < min_long || input$longitude > 165
     
     lat_is_empty <- is.null(input$latitude) || is.na(input$latitude)
     lon_is_empty <- is.null(input$longitude) || is.na(input$longitude)
@@ -239,7 +242,7 @@ server <- function(input, output, session) {
         #updateNumericInput(session, "latitude", value = -33.8688)
       }
       if (lon_out_of_range || lon_is_empty) {
-        warning_msg <- paste0(warning_msg, "Entered longitude is out of the allowed range. Please enter a value between 139 and 165.")
+        warning_msg <- paste0(warning_msg, "Entered longitude is out of the allowed range. Please enter a value between min_long and 165.")
         # Reset the longitude value to the default
         # updateNumericInput(session, "longitude", value = 151.2093)
       }
@@ -324,7 +327,7 @@ server <- function(input, output, session) {
   
   
   ala_data <- reactive({
-    read_parquet(paste0("data/", input$ala_path)) %>% data.table()
+    open_dataset(paste0("data/", input$ala_path)) |> filter(Lat<0) |> collect() |> data.table() #add filtering to bounding box plus buffer here
   })
   
   # A reactive to combine your two inputs
