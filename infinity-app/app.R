@@ -514,7 +514,7 @@ intersect_data <- reactive({
         # fillColor = "white",      # Inner fill color
         # fillOpacity = 1,          # Make the fill fully opaque
         # radius = 14,               # Increase the radius
-        clusterOptions = markerClusterOptions()
+        clusterOptions = markerClusterOptions(maxClusterRadius = 30)
       ) %>%
       addPolygons(data = place_polygon, color = "red") %>%
       addPolygons(data = add_buffer(place_polygon, buffer), color = buffer_color)
