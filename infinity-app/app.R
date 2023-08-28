@@ -1,23 +1,65 @@
 # ----------------------
 # Load Libraries
 # ----------------------
+
+# Libraries for Shiny web applications
 library(shiny)
-library(DT)
-library(leaflet)
-library(sf)
-library(dplyr)
-library(data.table)
-library(lubridate)
-library(arrow)
 library(shinybusy)
 library(shinythemes)
+
+# Libraries for data manipulation and transformation
+library(DT)            # For rendering data tables in Shiny
+library(dplyr)         # For data manipulation
+library(data.table)    # For efficient data manipulation
+library(lubridate)     # For date-time manipulation
+library(arrow)         # For reading/writing different file formats efficiently
+
+# Libraries for spatial data handling and visualization
+library(leaflet)       # For rendering interactive maps
+library(sf)            # For spatial data operations
+
+# To suppress warning messages when summarizing data
 options(dplyr.summarise.inform = FALSE)
 
 # ----------------------
 # Data Preparation
 # ----------------------
-ala <- read_parquet("data/NSW_plants_cleaned2023-08-22.parquet") |> data.table()
 
+# Get the list of files in the data directory
+files_in_directory <- list.files(path = "data/")
+
+# Define bounding box for Australia
+min_lat <- -50
+max_lat <- -10
+min_long <- 110
+max_long <- 163
+
+
+# Function to add a buffer around a given geometry (polygon or multipolygon)
+add_buffer <- function(geom, buffer_size_meters) {
+  
+  # Check if the input is an sfc_POLYGON, sfc_MULTIPOLYGON or their "sfg" equivalents
+  if (!inherits(geom, c("sfc_POLYGON", "sfg_POLYGON", "sfc_MULTIPOLYGON", "sfg_MULTIPOLYGON"))) {
+    stop("Input must be of type sfc_POLYGON, sfg_POLYGON, sfc_MULTIPOLYGON, or sfg_MULTIPOLYGON.")
+  }
+  
+  # Transform to UTM zone based on centroid longitude
+  centroid <- st_centroid(geom)
+  utm_zone <- floor((st_coordinates(centroid)[1] + 180) / 6) + 1
+  crs_utm <- paste0("+proj=utm +zone=", utm_zone, " +datum=WGS84")
+  geom_utm <- st_transform(geom, crs_utm)
+  
+  # Add buffer
+  buffered_utm <- st_buffer(geom_utm, dist = buffer_size_meters)
+  
+  # Transform back to original CRS (4326)
+  buffered <- st_transform(buffered_utm, "+proj=longlat +datum=WGS84 +no_defs")
+  
+  return(buffered)
+}
+
+
+# Function to load spatial data from a given file path
 load_place <- function(path) {
   tryCatch({
     geom <- st_read(path, crs = 4326, quiet = TRUE)
@@ -28,6 +70,7 @@ load_place <- function(path) {
   })
 }
 
+# Function to create a circular polygon around a given lat-long coordinate with a specified radius
 create_circle_polygon <- function(lat, long, radius_m) {
   # Create a point in a geographical coordinate system (WGS 84)
   pt <- st_point(c(long, lat))
@@ -46,11 +89,12 @@ create_circle_polygon <- function(lat, long, radius_m) {
 }
 
 
+# Load predefined spatial boundaries for various places
 places <- list(
   "Wategora Reserve" = load_place(
     "places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
-  "Fowlers Gap, UNSW" = load_place("places/fowlers2.kml"),
+  "Fowlers Gap, UNSW" = load_place("places/unsw-fowlers.kml"),
   "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml"),
   "Australian Botanic Garden Mount Annan" = load_place("places/mt-annan-australian-botanic-garden.kml"),
   "Grants Beach Walking Trail" = load_place("places/grants-beach-walking-trail.kml")
@@ -59,16 +103,17 @@ places <- list(
 # ----------------------
 # UI
 # ----------------------
+# Define the user interface for the Shiny app
 ui <- 
   fluidPage(
     theme = shinytheme("cosmo"),
-    titlePanel("An Infinity of Lists: an Interactive Guide to the NSW Flora"),
+    titlePanel("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity"),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-    
+    selectInput("ala_path", "Choose a file:", choices = files_in_directory),
     radioButtons("inputType", "Input method:", 
                  choices = list("Preloaded Place" = "preloaded", 
                                 "Upload KML" = "upload",
-                                "Choose a place in NSW" = "choose"),
+                                "Choose a place in Australia" = "choose"),
                  selected = "preloaded", inline = TRUE),
     
     conditionalPanel(
@@ -85,15 +130,15 @@ ui <-
       condition = "input.inputType == 'upload'",
       fileInput(
         "uploadKML",
-        "Upload your own KML (within NSW only)",
+        "Upload your own KML",
         accept = c(".kml")
       )),
     conditionalPanel(
       condition = "input.inputType == 'choose'",
-      numericInput("latitude", "Latitude", value = -33.8688, min = -39, max = -27),  # default: Sydney latitude
-      numericInput("longitude", "Longitude", value = 151.2093, min = 139, max = 165),  # default: Sydney longitude
+      numericInput("latitude", "Latitude", value = -33.8688, min = min_lat, max = max_long),  # default: Sydney latitude
+      numericInput("longitude", "Longitude", value = 151.2093, min = min_long, max = max_long),  # default: Sydney longitude
       verbatimTextOutput("warning"),
-      selectInput(
+    selectInput(
         inputId = "radiusChoice",
         label = "Choose a radius:",
         choices = c("100m" = 100,
@@ -116,9 +161,9 @@ ui <-
       condition = "input.taxonOfInterest == 'genus'",
       selectizeInput(
         inputId = "taxa_genus",
-        label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-        choices = "Eucalyptus",
-        selected = "Eucalyptus",
+        label = "Choose a genus: ",
+        choices = "All",
+        selected = "All",
         options = list(maxOptions = 300L)
       )
     ),
@@ -127,13 +172,25 @@ ui <-
       condition = "input.taxonOfInterest == 'family'",
       selectizeInput(
         inputId = "taxa_family",
-        label = "Choose a family: (you can also select All, but it's slow so be patient)",
-        choices = "Myrtaceae",
-        selected = "Myrtaceae",
+        label = "Choose a family:",
+        choices = "All",
+        selected = "All",
         options = list(maxOptions = 300L)
       )
     ),
-    
+    selectInput(
+      inputId = "buffer_size",
+      label = "Choose a buffer:",
+      choices = c("0m (ie. no buffer)" = 0,
+                  "100m" = 100,
+                  "500m" = 500,
+                  "1km" = 1000,
+                  "2km" = 2000,
+                  "5km" = 5000,
+                  "10km" = 10000,
+                  "50km" = 50000),
+      selected = 0
+    ),
     downloadButton('downloadData', 'Download CSV'),
     tags$br(),
     textOutput("statsOutput"),
@@ -151,26 +208,17 @@ ui <-
 
 
 server <- function(input, output, session) {
+  
   # Function to update genus choices based on selected place
   update_genus_choices <- function(place) {
-    place_polygon <- places[[place]]
-    ss <-
-      ala[Lat < st_bbox(place_polygon)$ymax &
-            Lat > st_bbox(place_polygon)$ymin &
-            Long < st_bbox(place_polygon)$xmax &
-            Long > st_bbox(place_polygon)$xmin]
-    choices = c("Eucalyptus", "All", sort(unique(ss$Genus)))
+    place_polygon<-selected_polygon()
+    choices = c("All", sort(unique(ala_data()$Genus)))
     return(choices)
   }
   
   update_family_choices <- function(place) {
-    place_polygon <- places[[place]]
-    ss <-
-      ala[Lat < st_bbox(place_polygon)$ymax &
-            Lat > st_bbox(place_polygon)$ymin &
-            Long < st_bbox(place_polygon)$xmax &
-            Long > st_bbox(place_polygon)$xmin]
-    choices = c("Myrtaceae", "All", sort(unique(ss$Family)))
+    place_polygon<-selected_polygon()
+    choices = c("All", sort(unique(ala_data()$Family)))
     return(choices)
   }
   
@@ -201,8 +249,9 @@ server <- function(input, output, session) {
   })
   
   observe({
-    lat_out_of_range <- input$latitude < -39 || input$latitude > -27
-    lon_out_of_range <- input$longitude < 139 || input$longitude > 165
+    
+    lat_out_of_range <- input$latitude < min_lat || input$latitude > max_lat
+    lon_out_of_range <- input$longitude < min_long || input$longitude > 165
     
     lat_is_empty <- is.null(input$latitude) || is.na(input$latitude)
     lon_is_empty <- is.null(input$longitude) || is.na(input$longitude)
@@ -213,12 +262,12 @@ server <- function(input, output, session) {
       
       # Update the warning message based on which values are out of range
       if (lat_out_of_range || lat_is_empty) {
-        warning_msg <- paste0(warning_msg, "Entered latitude is out of the allowed range. Please enter a value between -39 and -27.\n")
+        warning_msg <- paste0(warning_msg, "Entered latitude is out of the allowed range. Please enter a value between ", min_lat, " and ", max_lat,".\n")
         # Reset the latitude value to the default
         #updateNumericInput(session, "latitude", value = -33.8688)
       }
       if (lon_out_of_range || lon_is_empty) {
-        warning_msg <- paste0(warning_msg, "Entered longitude is out of the allowed range. Please enter a value between 139 and 165.")
+        warning_msg <- paste0(warning_msg, "Entered longitude is out of the allowed range. Please enter a value between ", min_long," and ", max_long, ".\n")
         # Reset the longitude value to the default
         # updateNumericInput(session, "longitude", value = 151.2093)
       }
@@ -230,6 +279,7 @@ server <- function(input, output, session) {
       output$warning <- renderText("")
     }
   })
+  
   
   selected_polygon <- reactive({
     if (input$inputType == "preloaded") {
@@ -249,18 +299,18 @@ server <- function(input, output, session) {
   intersect_data <- reactive({
     if (input$taxonOfInterest == "genus") {
       if (input$taxa_genus == "All") {
-        data <- ala  # if "all" is selected, don't filter
+        data <- ala_data()  # if "all" is selected, don't filter
       } else {
-        data <- ala[Genus == input$taxa_genus,]
+        data <- ala_data()[Genus == input$taxa_genus,]
       }
     } else if (input$taxonOfInterest == "family") {
       if (input$taxa_family == "All") {
-        data <- ala  # if "all" is selected, don't filter
+        data <- ala_data()  # if "all" is selected, don't filter
       } else {
-        data <- ala[Family == input$taxa_family,]
+        data <- ala_data()[Family == input$taxa_family,]
       }
     } else {
-      data <- ala
+      data <- ala_data()
     }
     
     
@@ -274,7 +324,21 @@ server <- function(input, output, session) {
     point_polygon_intersection <-
       as.data.table(point_polygon_intersection)
     
-    point_polygon_intersection[order(Species, `Voucher Type`, -as.integer(`Collection Date`))]
+    buffer <- as.numeric(input$buffer_size)
+    buffer_place <- add_buffer(place_polygon,buffer)
+    
+    point_polygon_buffer_intersection <-
+      data[st_intersects(points, buffer_place, sparse = FALSE)[, 1],]
+    point_polygon_intersection <-
+      as.data.table(point_polygon_intersection)
+    
+    point_polygon_buffer_intersection$`In target area`<-case_when(
+      paste0(point_polygon_buffer_intersection$Species, point_polygon_buffer_intersection$`Voucher Type`) %in% 
+        paste0(point_polygon_intersection$Species, point_polygon_intersection$`Voucher Type`) ~ "in target",
+      TRUE ~ "only in buffer"
+    )
+    
+    point_polygon_buffer_intersection[order(Species, `Voucher Type`, -as.integer(`Collection Date`))]
   })
   
   stats_text <- reactive({
@@ -301,30 +365,59 @@ server <- function(input, output, session) {
   })
   
   
-  # Observer to update genus input based on the selected place
-  observeEvent(input$place, {
-        updateSelectizeInput(
-          session,
-          "taxa_genus",
-          selected = "Eucalyptus",
-          choices = update_genus_choices(input$place),
-          server = FALSE)
-        updateSelectizeInput(
-          session,
-          "taxa_family",
-          choices = update_family_choices(input$place),
-          selected = "Myrtaceae",
-          server = FALSE
-        )
+  ala_data <- reactive({
+    long_buffer <- 0.578 #50 km approx
+    lat_buffer <- 0.45 #50 km approx
+    place_polygon <- selected_polygon()
+    open_dataset(paste0("data/", input$ala_path)) |> 
+      filter(Lat< st_bbox(place_polygon)$ymax + lat_buffer & 
+             Lat > st_bbox(place_polygon)$ymin - lat_buffer&
+             Long < st_bbox(place_polygon)$xmax + long_buffer & 
+             Long > st_bbox(place_polygon)$xmin - long_buffer) |> 
+      collect() |> data.table() 
   })
+  
+  # A reactive to combine your two inputs
+  combined_input <- reactive({
+    list(place = input$place, ala_path = input$ala_path)
+  })
+  
+  # Observe changes in the combined input
+  observeEvent(combined_input(), {
+    
+    # Directly get the data from the ala_data reactive
+    current_ala <- ala_data()
+    
+    updateSelectizeInput(
+      session,
+      "taxa_genus",
+      selected = "All",
+      choices = update_genus_choices(input$place),
+      server = FALSE)
+    
+    updateSelectizeInput(
+      session,
+      "taxa_family",
+      choices = update_family_choices(input$place),
+      selected = "All",
+      server = FALSE
+    )
+  })
+
    
   # Reactive expression to summarize and filter data
-  filtered_data<- reactive({ 
-    result<-intersect_data()
+  filtered_data <- reactive({ 
+    result <- intersect_data()
     if (nrow(result) == 0) {
       return(data.table(Species = character(0), `Voucher Type` = character(0), `Most recent obs.` = character(0), N = integer(0), Long = numeric(0), Lat = numeric(0), `Voucher location` = character(0), `Observed by` = character(0), Native = character(0)))
     }
+    
+    # Sort the data by 'in target area' and 'Collection Date'
+    result <- result[order(`In target area` == "in target", -`Collection Date`)]
+    
+    
     result <- result[, .(
+      `In target area` = `In target area`[1],
       N = .N,
       `Most recent obs.` = {
         first_date <- first(`Collection Date`)
@@ -332,7 +425,6 @@ server <- function(input, output, session) {
           as.character(NA)
         else
           format(first_date, "%d-%b-%Y")
-      
       },
       Long = Long[1],
       Lat = Lat[1],
@@ -347,23 +439,30 @@ server <- function(input, output, session) {
         ),
         `Voucher Location`[1]
       ),
-      `Observed by` = `Recorded by`[1],
-      `Native?` = `Native Anywhere in Aus`[1]
+      `Observed by` = `Recorded by`[1]
     ),
     by = .(Species, `Voucher Type`)]
+    
+    return(result)
   })
   
   # Render data table
+  
   output$table <- renderDT({
+    data<-filtered_data()
+    n_index <- 4
+    data$N <- as.numeric(data$N)
     datatable(
-      filtered_data(),
+      data,
       escape = FALSE,
       options = list(
         searching = TRUE,
-        pageLength = 25,
+        pageLength = 10,
+        order = list(list(n_index, 'desc')),  # sort by the "N" column in descending order
         columnDefs = list(list(
-          className = 'dt-left', targets = '_all'
-        ))
+          className = 'dt-left', targets = '_all'),
+          list(type = 'num', targets = n_index)
+        )
       )
     )
   })
@@ -383,9 +482,12 @@ server <- function(input, output, session) {
   
   # Render Leaflet map
   output$map <- renderLeaflet({
+    
     url <- "https://cloud.google.com/maps-platform/terms"
     link_text <- "Google Maps"
     place_polygon <- selected_polygon() # Use the reactive polygon 
+    buffer<- as.numeric(input$buffer_size)
+    if(buffer==0) buffer_color<- rgb(1, 0, 0, alpha=0) else buffer_color<-"green" 
     leaflet() %>%
       addTiles(
         urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
@@ -397,12 +499,11 @@ server <- function(input, output, session) {
         ~ Lat,
         popup = paste(filtered_data()$Species, filtered_data()$`Voucher Type`)
       ) %>%
-      addPolygons(data = place_polygon, color = "red")
+      addPolygons(data = place_polygon, color = "red") %>%
+      addPolygons(data = add_buffer(place_polygon,buffer), color = buffer_color)
   })
 
 }
-
-
 
 
 shinyApp(ui = ui, server = server)
