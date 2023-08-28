@@ -296,50 +296,51 @@ server <- function(input, output, session) {
     }
   })
   
-  intersect_data <- reactive({
-    if (input$taxonOfInterest == "genus") {
-      if (input$taxa_genus == "All") {
-        data <- ala_data()  # if "all" is selected, don't filter
-      } else {
-        data <- ala_data()[Genus == input$taxa_genus,]
-      }
-    } else if (input$taxonOfInterest == "family") {
-      if (input$taxa_family == "All") {
-        data <- ala_data()  # if "all" is selected, don't filter
-      } else {
-        data <- ala_data()[Family == input$taxa_family,]
-      }
+
+intersect_data <- reactive({
+  if (input$taxonOfInterest == "genus") {
+    if (input$taxa_genus == "All") {
+      data <- ala_data()  # if "all" is selected, don't filter
     } else {
-      data <- ala_data()
+      data <- ala_data()[Genus == input$taxa_genus,]
     }
-    
-    
-    place_polygon <- selected_polygon() # Use the reactive polygon 
-    
-    if (is.null(place_polygon)) return(data.table())
-    
-    points <- st_as_sf(data, coords = c("Long", "Lat"), crs = 4326)
-    point_polygon_intersection <-
-      data[st_intersects(points, place_polygon, sparse = FALSE)[, 1],]
-    point_polygon_intersection <-
-      as.data.table(point_polygon_intersection)
-    
-    buffer <- as.numeric(input$buffer_size)
-    buffer_place <- add_buffer(place_polygon,buffer)
-    
-    point_polygon_buffer_intersection <-
-      data[st_intersects(points, buffer_place, sparse = FALSE)[, 1],]
-    point_polygon_intersection <-
-      as.data.table(point_polygon_intersection)
-    
-    point_polygon_buffer_intersection$`In target area`<-case_when(
-      paste0(point_polygon_buffer_intersection$Species, point_polygon_buffer_intersection$`Voucher Type`) %in% 
-        paste0(point_polygon_intersection$Species, point_polygon_intersection$`Voucher Type`) ~ "in target",
-      TRUE ~ "only in buffer"
-    )
-    
-    point_polygon_buffer_intersection[order(Species, `Voucher Type`, -as.integer(`Collection Date`))]
+  } else if (input$taxonOfInterest == "family") {
+    if (input$taxa_family == "All") {
+      data <- ala_data()  # if "all" is selected, don't filter
+    } else {
+      data <- ala_data()[Family == input$taxa_family,]
+    }
+  } else {
+    data <- ala_data()
+  }
+
+  place_polygon <- selected_polygon() # Use the reactive polygon 
+
+  if (is.null(place_polygon)) return(data.table())
+
+  points <- st_as_sf(data, coords = c("Long", "Lat"), crs = 4326)
+
+  data_copy <- data.table::copy(data)
+  
+  # Determine which points are inside the target polygon
+  in_target <- st_intersects(points, place_polygon, sparse = FALSE)[, 1]
+  
+  # Determine all points inside the buffer
+  buffer <- as.numeric(input$buffer_size)
+  buffer_place <- add_buffer(place_polygon, buffer)
+  in_buffer_all <- st_intersects(points, buffer_place, sparse = FALSE)[, 1]
+  
+  # Determine points ONLY inside the buffer and not inside place_polygon
+  in_buffer_only <- setdiff(in_buffer_all, in_target)
+  
+  # Label the points accordingly
+  data_copy$`In target area`[in_target] <- "in target"
+  data_copy$`In target area`[in_buffer_only] <- "only in buffer"
+  result_data <- data_copy[!is.na(`In target area`)]
+ 
+  return(result_data)
   })
+  
   
   stats_text <- reactive({
     
