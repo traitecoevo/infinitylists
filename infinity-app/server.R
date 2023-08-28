@@ -358,10 +358,6 @@ server <- function(input, output, session) {
         lng = ~ filtered_data()$Long,
         lat = ~ filtered_data()$Lat,
         popup = ~ paste(filtered_data()$Species, filtered_data()$`Voucher Type`),
-        # color = "blue",          # Border color
-        # fillColor = "white",      # Inner fill color
-        # fillOpacity = 1,          # Make the fill fully opaque
-        # radius = 14,               # Increase the radius
         clusterOptions = markerClusterOptions(maxClusterRadius = 30)
       ) %>%
       addPolygons(data = place_polygon, color = "red") %>%
