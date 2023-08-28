@@ -374,7 +374,7 @@ server <- function(input, output, session) {
              Lat > st_bbox(place_polygon)$ymin - lat_buffer&
              Long < st_bbox(place_polygon)$xmax + long_buffer & 
              Long > st_bbox(place_polygon)$xmin - long_buffer) |> 
-      collect() |> data.table() 
+      collect() |> data.table()
   })
   
   # A reactive to combine your two inputs
