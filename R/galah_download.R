@@ -12,13 +12,13 @@ library(skimr)
 download_ala_obs <- function(taxa = "Plantae", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
-  NSW_obs <- retrieve_data(taxa)
+  ala_obs <- retrieve_data(taxa)
   
   # 2. Filtering and processing
-  NSW_cleaned <- process_data(NSW_obs)
+  ala_cleaned <- process_data(ala_obs)
   
   # 3. Save processed data
-  save_data(NSW_cleaned, taxa, output_dir)
+  save_data(ala_cleaned, taxa, output_dir)
 }
 
 retrieve_data <- function(taxa) {
