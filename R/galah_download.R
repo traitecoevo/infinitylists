@@ -9,7 +9,7 @@ library(here)
 library(APCalign)
 library(skimr)
 
-download_ala_obs <- function(taxa = "Plantae", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa = "Fungi", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
   ala_obs <- retrieve_data(taxa)
@@ -76,5 +76,5 @@ save_data <- function(data, taxa, output_dir) {
 }
 
 
-
+# galah_config(email = "XXXX")
 download_ala_obs()
