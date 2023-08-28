@@ -495,7 +495,7 @@ server <- function(input, output, session) {
     if(buffer == 0) {
       buffer_color <- rgb(1, 0, 0, alpha=0)
     } else {
-      buffer_color <- "green"
+      buffer_color <- "purple"
     }
     
     leaflet() %>%
@@ -508,6 +508,10 @@ server <- function(input, output, session) {
         lng = ~filtered_data()$Long,
         lat = ~filtered_data()$Lat,
         popup = ~paste(filtered_data()$Species, filtered_data()$`Voucher Type`),
+        color = "blue",          # Border color
+        fillColor = "white",      # Inner fill color
+        fillOpacity = 1,          # Make the fill fully opaque
+        radius = 14,               # Increase the radius
         clusterOptions = markerClusterOptions()
       ) %>%
       addPolygons(data = place_polygon, color = "red") %>%
