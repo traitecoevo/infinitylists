@@ -26,6 +26,7 @@ options(dplyr.summarise.inform = FALSE)
 # ----------------------
 
 # Get the list of files in the data directory
+files_in_directory <- list.files(path = "data/")
 
 # Define bounding box for Australia
 min_lat <- -50
@@ -102,6 +103,7 @@ places <- list(
 # ----------------------
 # UI
 # ----------------------
+# Define the user interface for the Shiny app
 ui <- 
   fluidPage(
     theme = shinytheme("cosmo"),
@@ -411,11 +413,11 @@ server <- function(input, output, session) {
     }
     
     # Sort the data by 'in target area' and 'Collection Date'
-    result <- result[order(`in target area` == "in target", -`Collection Date`)]
+    result <- result[order(`In target area` == "in target", -`Collection Date`)]
     
     
     result <- result[, .(
-      `in target area` = `in target area`[1],
+      `In target area` = `In target area`[1],
       N = .N,
       `Most recent obs.` = {
         first_date <- first(`Collection Date`)
@@ -445,16 +447,22 @@ server <- function(input, output, session) {
   })
   
   # Render data table
+  
   output$table <- renderDT({
+    data<-filtered_data()
+    n_index <- 4
+    data$N <- as.numeric(data$N)
     datatable(
-      filtered_data(),
+      data,
       escape = FALSE,
       options = list(
         searching = TRUE,
         pageLength = 10,
+        order = list(list(n_index, 'desc')),  # sort by the "N" column in descending order
         columnDefs = list(list(
-          className = 'dt-left', targets = '_all'
-        ))
+          className = 'dt-left', targets = '_all'),
+          list(type = 'num', targets = n_index)
+        )
       )
     )
   })
