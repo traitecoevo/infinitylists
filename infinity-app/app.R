@@ -337,7 +337,7 @@ intersect_data <- reactive({
   data$`In target area`[in_buffer_only] <- "only in buffer"
   # Label the points accordingly
  
-  print(table(data$`In target area`))
+  #print(table(data$`In target area`))
   
   data<-dplyr::filter(data,!is.na(`In target area`))
   return(data.table(data))
