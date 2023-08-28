@@ -159,8 +159,8 @@ ui <-
       condition = "input.taxonOfInterest == 'genus'",
       selectizeInput(
         inputId = "taxa_genus",
-        label = "Choose a genus: (you can also select All, but it's slow so be patient)",
-        choices = "Eucalyptus",
+        label = "Choose a genus: ",
+        choices = "All",
         selected = "All",
         options = list(maxOptions = 300L)
       )
@@ -170,8 +170,8 @@ ui <-
       condition = "input.taxonOfInterest == 'family'",
       selectizeInput(
         inputId = "taxa_family",
-        label = "Choose a family: (you can also select All, but it's slow so be patient)",
-        choices = "My",
+        label = "Choose a family:",
+        choices = "All",
         selected = "All",
         options = list(maxOptions = 300L)
       )
@@ -211,14 +211,14 @@ server <- function(input, output, session) {
   update_genus_choices <- function(place) {
     place_polygon<-selected_polygon()
     most_common_genus <- names(sort(table(ala_data()$Genus), decreasing = TRUE)[1])
-    choices = c(most_common_genus, "All", sort(unique(ala_data()$Genus)))
+    choices = c("All", sort(unique(ala_data()$Genus)))
     return(choices)
   }
   
   update_family_choices <- function(place) {
     place_polygon<-selected_polygon()
     most_common_family <- names(sort(table(ala_data()$Family), decreasing = TRUE)[1])
-    choices = c(most_common_family, "All", sort(unique(ala_data()$Family)))
+    choices = c("All", sort(unique(ala_data()$Family)))
     return(choices)
   }
   
@@ -394,7 +394,7 @@ server <- function(input, output, session) {
     updateSelectizeInput(
       session,
       "taxa_genus",
-      selected = most_common_genus,
+      selected = "All",
       choices = update_genus_choices(input$place),
       server = FALSE)
     
@@ -402,7 +402,7 @@ server <- function(input, output, session) {
       session,
       "taxa_family",
       choices = update_family_choices(input$place),
-      selected = most_common_family,
+      selected = "All",
       server = FALSE
     )
   })
@@ -479,10 +479,12 @@ server <- function(input, output, session) {
   
   # Render Leaflet map
   output$map <- renderLeaflet({
+    
     url <- "https://cloud.google.com/maps-platform/terms"
     link_text <- "Google Maps"
     place_polygon <- selected_polygon() # Use the reactive polygon 
     buffer<- as.numeric(input$buffer_size)
+    if(buffer==0) buffer_color<- rgb(1, 0, 0, alpha=0) else buffer_color<-"green" 
     leaflet() %>%
       addTiles(
         urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
@@ -495,7 +497,7 @@ server <- function(input, output, session) {
         popup = paste(filtered_data()$Species, filtered_data()$`Voucher Type`)
       ) %>%
       addPolygons(data = place_polygon, color = "red") %>%
-      addPolygons(data = add_buffer(place_polygon,buffer), color = "green")
+      addPolygons(data = add_buffer(place_polygon,buffer), color = buffer_color)
   })
 
 }
