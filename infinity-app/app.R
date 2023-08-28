@@ -17,6 +17,7 @@ library(arrow)         # For reading/writing different file formats efficiently
 # Libraries for spatial data handling and visualization
 library(leaflet)       # For rendering interactive maps
 library(sf)            # For spatial data operations
+library(leaflet.extras)
 
 # To suppress warning messages when summarizing data
 options(dplyr.summarise.inform = FALSE)
@@ -196,7 +197,7 @@ ui <-
     textOutput("statsOutput"),
     tags$br(),
     DTOutput("table"),
-    leafletOutput("map")
+    leafletOutput("map",height=500)
   )
 
     
@@ -414,7 +415,8 @@ server <- function(input, output, session) {
     }
     
     # Sort the data by 'in target area' and 'Collection Date'
-    result <- result[order(`In target area` == "in target", -`Collection Date`)]
+    result <- result[order(-as.integer(`In target area` == "in target"), -`Collection Date`)]
+    
     
     
     result <- result[, .(
@@ -488,22 +490,30 @@ server <- function(input, output, session) {
     url <- "https://cloud.google.com/maps-platform/terms"
     link_text <- "Google Maps"
     place_polygon <- selected_polygon() # Use the reactive polygon 
-    buffer<- as.numeric(input$buffer_size)
-    if(buffer==0) buffer_color<- rgb(1, 0, 0, alpha=0) else buffer_color<-"green" 
+    buffer <- as.numeric(input$buffer_size)
+    
+    if(buffer == 0) {
+      buffer_color <- rgb(1, 0, 0, alpha=0)
+    } else {
+      buffer_color <- "green"
+    }
+    
     leaflet() %>%
       addTiles(
         urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
         attribution = paste0('<a href="', url, '">', link_text, '</a>')
       ) %>%
-      addMarkers(
+      addCircleMarkers(
         data = filtered_data(),
-        ~ Long,
-        ~ Lat,
-        popup = paste(filtered_data()$Species, filtered_data()$`Voucher Type`)
+        lng = ~filtered_data()$Long,
+        lat = ~filtered_data()$Lat,
+        popup = ~paste(filtered_data()$Species, filtered_data()$`Voucher Type`),
+        clusterOptions = markerClusterOptions()
       ) %>%
       addPolygons(data = place_polygon, color = "red") %>%
-      addPolygons(data = add_buffer(place_polygon,buffer), color = buffer_color)
+      addPolygons(data = add_buffer(place_polygon, buffer), color = buffer_color)
   })
+  
 
 }
 
