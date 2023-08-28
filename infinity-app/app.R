@@ -1,31 +1,40 @@
 # ----------------------
 # Load Libraries
 # ----------------------
+
+# Libraries for Shiny web applications
 library(shiny)
-library(DT)
-library(leaflet)
-library(sf)
-library(dplyr)
-library(data.table)
-library(lubridate)
-library(arrow)
 library(shinybusy)
 library(shinythemes)
+
+# Libraries for data manipulation and transformation
+library(DT)            # For rendering data tables in Shiny
+library(dplyr)         # For data manipulation
+library(data.table)    # For efficient data manipulation
+library(lubridate)     # For date-time manipulation
+library(arrow)         # For reading/writing different file formats efficiently
+
+# Libraries for spatial data handling and visualization
+library(leaflet)       # For rendering interactive maps
+library(sf)            # For spatial data operations
+
+# To suppress warning messages when summarizing data
 options(dplyr.summarise.inform = FALSE)
 
 # ----------------------
 # Data Preparation
 # ----------------------
 
-files_in_directory <- list.files(path = "data/")
+# Get the list of files in the data directory
 
+# Define bounding box for Australia
 min_lat <- -50
 max_lat <- -10
 min_long <- 110
 max_long <- 163
 
 
-
+# Function to add a buffer around a given geometry (polygon or multipolygon)
 add_buffer <- function(geom, buffer_size_meters) {
   
   # Check if the input is an sfc_POLYGON, sfc_MULTIPOLYGON or their "sfg" equivalents
@@ -49,6 +58,7 @@ add_buffer <- function(geom, buffer_size_meters) {
 }
 
 
+# Function to load spatial data from a given file path
 load_place <- function(path) {
   tryCatch({
     geom <- st_read(path, crs = 4326, quiet = TRUE)
@@ -59,6 +69,7 @@ load_place <- function(path) {
   })
 }
 
+# Function to create a circular polygon around a given lat-long coordinate with a specified radius
 create_circle_polygon <- function(lat, long, radius_m) {
   # Create a point in a geographical coordinate system (WGS 84)
   pt <- st_point(c(long, lat))
@@ -77,11 +88,12 @@ create_circle_polygon <- function(lat, long, radius_m) {
 }
 
 
+# Load predefined spatial boundaries for various places
 places <- list(
   "Wategora Reserve" = load_place(
     "places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
-  "Fowlers Gap, UNSW" = load_place("places/fowlers2.kml"),
+  "Fowlers Gap, UNSW" = load_place("places/unsw-fowlers.kml"),
   "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml"),
   "Australian Botanic Garden Mount Annan" = load_place("places/mt-annan-australian-botanic-garden.kml"),
   "Grants Beach Walking Trail" = load_place("places/grants-beach-walking-trail.kml")
@@ -248,12 +260,12 @@ server <- function(input, output, session) {
       
       # Update the warning message based on which values are out of range
       if (lat_out_of_range || lat_is_empty) {
-        warning_msg <- paste0(warning_msg, "Entered latitude is out of the allowed range. Please enter a value between", min_lat, "and", max_lat,".\n")
+        warning_msg <- paste0(warning_msg, "Entered latitude is out of the allowed range. Please enter a value between ", min_lat, " and ", max_lat,".\n")
         # Reset the latitude value to the default
         #updateNumericInput(session, "latitude", value = -33.8688)
       }
       if (lon_out_of_range || lon_is_empty) {
-        warning_msg <- paste0(warning_msg, "Entered longitude is out of the allowed range. Please enter a value between", min_long,"and", max_long, ".\n")
+        warning_msg <- paste0(warning_msg, "Entered longitude is out of the allowed range. Please enter a value between ", min_long," and ", max_long, ".\n")
         # Reset the longitude value to the default
         # updateNumericInput(session, "longitude", value = 151.2093)
       }
@@ -318,7 +330,7 @@ server <- function(input, output, session) {
     point_polygon_intersection <-
       as.data.table(point_polygon_intersection)
     
-    point_polygon_buffer_intersection$`in target area`<-case_when(
+    point_polygon_buffer_intersection$`In target area`<-case_when(
       paste0(point_polygon_buffer_intersection$Species, point_polygon_buffer_intersection$`Voucher Type`) %in% 
         paste0(point_polygon_intersection$Species, point_polygon_intersection$`Voucher Type`) ~ "in target",
       TRUE ~ "only in buffer"
@@ -484,8 +496,6 @@ server <- function(input, output, session) {
   })
 
 }
-
-
 
 
 shinyApp(ui = ui, server = server)
