@@ -451,7 +451,8 @@ server <- function(input, output, session) {
   
   output$table <- renderDT({
     data<-filtered_data()
-    n_index <- 4
+    n_index <- 3 #not sure why this has to be off by 1
+    data$N <- as.numeric(data$N)
     setorder(data, -N)  # sort by the "N" column in descending order
     datatable(
       data,
