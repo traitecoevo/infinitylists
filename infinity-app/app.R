@@ -321,8 +321,6 @@ intersect_data <- reactive({
 
   points <- st_as_sf(data, coords = c("Long", "Lat"), crs = 4326)
 
-  data_copy <- data.table::copy(data)
-  
   # Determine which points are inside the target polygon
   in_target <- st_intersects(points, place_polygon, sparse = FALSE)[, 1]
   
@@ -332,14 +330,17 @@ intersect_data <- reactive({
   in_buffer_all <- st_intersects(points, buffer_place, sparse = FALSE)[, 1]
   
   # Determine points ONLY inside the buffer and not inside place_polygon
-  in_buffer_only <- setdiff(in_buffer_all, in_target)
-  
+  in_buffer_only <- in_buffer_all & !in_target
+
+  data$`In target area` <- NA
+  data$`In target area`[in_target] <- "in target"
+  data$`In target area`[in_buffer_only] <- "only in buffer"
   # Label the points accordingly
-  data_copy$`In target area`[in_target] <- "in target"
-  data_copy$`In target area`[in_buffer_only] <- "only in buffer"
-  result_data <- data_copy[!is.na(`In target area`)]
  
-  return(result_data)
+  print(table(data$`In target area`))
+  
+  data<-dplyr::filter(data,!is.na(`In target area`))
+  return(data.table(data))
   })
   
   
