@@ -505,15 +505,15 @@ intersect_data <- reactive({
         urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
         attribution = paste0('<a href="', url, '">', link_text, '</a>')
       ) %>%
-      addCircleMarkers(
+      addMarkers(
         data = filtered_data(),
         lng = ~filtered_data()$Long,
         lat = ~filtered_data()$Lat,
         popup = ~paste(filtered_data()$Species, filtered_data()$`Voucher Type`),
-        color = "blue",          # Border color
-        fillColor = "white",      # Inner fill color
-        fillOpacity = 1,          # Make the fill fully opaque
-        radius = 14,               # Increase the radius
+        # color = "blue",          # Border color
+        # fillColor = "white",      # Inner fill color
+        # fillOpacity = 1,          # Make the fill fully opaque
+        # radius = 14,               # Increase the radius
         clusterOptions = markerClusterOptions()
       ) %>%
       addPolygons(data = place_polygon, color = "red") %>%
