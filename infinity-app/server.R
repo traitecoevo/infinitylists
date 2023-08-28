@@ -290,7 +290,12 @@ server <- function(input, output, session) {
     ),
     by = .(Species, `Voucher Type`)]
     
-    return(result)
+    
+    #removing rows from buffer that are in the target polygon.  
+    target_species <- result[`In target area` == "in target", unique(Species)]
+    result2 <- result[!(Species %in% target_species & `In target area` == "only in buffer")]
+    
+    return(result2)
   })
   
   # Render data table
