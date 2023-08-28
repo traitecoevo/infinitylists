@@ -9,7 +9,7 @@ library(here)
 library(APCalign)
 library(skimr)
 
-download_ala_obs <- function(taxa = "Papilionoidea", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa = "Odonata", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
   ala_obs <- retrieve_data(taxa)
