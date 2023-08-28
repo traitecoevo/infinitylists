@@ -251,7 +251,7 @@ server <- function(input, output, session) {
   observe({
     
     lat_out_of_range <- input$latitude < min_lat || input$latitude > max_lat
-    lon_out_of_range <- input$longitude < min_long || input$longitude > 165
+    lon_out_of_range <- input$longitude < min_long || input$longitude > max_long
     
     lat_is_empty <- is.null(input$latitude) || is.na(input$latitude)
     lon_is_empty <- is.null(input$longitude) || is.na(input$longitude)
@@ -342,6 +342,7 @@ server <- function(input, output, session) {
   })
   
   stats_text <- reactive({
+    
     data <- intersect_data()
     
     total_species <- length(unique(data$Species))
@@ -452,6 +453,7 @@ server <- function(input, output, session) {
     data<-filtered_data()
     n_index <- 4
     data$N <- as.numeric(data$N)
+    setorder(data, -N)
     datatable(
       data,
       escape = FALSE,
