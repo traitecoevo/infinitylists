@@ -19,23 +19,11 @@ options(dplyr.summarise.inform = FALSE)
 
 files_in_directory <- list.files(path = "data/")
 
-#  ala <-read_parquet(paste0("data/", files_in_directory[1])) %>% data.table()
-#           
-# 
-# # Initialize the variables
-# if (nrow(ala) > 0) {
-#   most_common_genus <- names(sort(table(ala$Genus), decreasing = TRUE)[1])
-#   most_common_family <- names(sort(table(ala$Family), decreasing = TRUE)[1])
-# } else {
-#   most_common_genus <- NULL
-#   most_common_family <- NULL
-# }
-
 min_lat <- -50
 max_lat <- -10
 min_long <- 110
 max_long <- 163
-# ala <- read_parquet("data/NSW-Fungi2023-08-23.parquet") |> data.table()
+
 
 
 add_buffer <- function(geom, buffer_size_meters) {
@@ -210,14 +198,12 @@ server <- function(input, output, session) {
   # Function to update genus choices based on selected place
   update_genus_choices <- function(place) {
     place_polygon<-selected_polygon()
-    most_common_genus <- names(sort(table(ala_data()$Genus), decreasing = TRUE)[1])
     choices = c("All", sort(unique(ala_data()$Genus)))
     return(choices)
   }
   
   update_family_choices <- function(place) {
     place_polygon<-selected_polygon()
-    most_common_family <- names(sort(table(ala_data()$Family), decreasing = TRUE)[1])
     choices = c("All", sort(unique(ala_data()$Family)))
     return(choices)
   }
@@ -387,9 +373,6 @@ server <- function(input, output, session) {
     
     # Directly get the data from the ala_data reactive
     current_ala <- ala_data()
-    
-    most_common_genus <- names(sort(table(current_ala$Genus), decreasing = TRUE)[1])
-    most_common_family <- names(sort(table(current_ala$Family), decreasing = TRUE)[1])
     
     updateSelectizeInput(
       session,
