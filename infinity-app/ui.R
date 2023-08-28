@@ -1,28 +1,6 @@
 
 
-# ----------------------
-# Load Libraries
-# ----------------------
 
-# Libraries for Shiny web applications
-library(shiny)
-library(shinybusy)
-library(shinythemes)
-
-# Libraries for data manipulation and transformation
-library(DT)            # For rendering data tables in Shiny
-library(dplyr)         # For data manipulation
-library(data.table)    # For efficient data manipulation
-library(lubridate)     # For date-time manipulation
-library(arrow)         # For reading/writing different file formats efficiently
-
-# Libraries for spatial data handling and visualization
-library(leaflet)       # For rendering interactive maps
-library(sf)            # For spatial data operations
-library(leaflet.extras)
-
-# To suppress warning messages when summarizing data
-options(dplyr.summarise.inform = FALSE)
 
 
 # ----------------------
