@@ -191,7 +191,7 @@ ui <-
                   "50km" = 50000),
       selected = 0
     ),
-    downloadButton('downloadData', 'Download CSV'),
+    downloadButton('downloadData', 'Download all obs CSV'),
     tags$br(),
     textOutput("statsOutput"),
     tags$br(),
@@ -452,18 +452,17 @@ server <- function(input, output, session) {
   output$table <- renderDT({
     data<-filtered_data()
     n_index <- 4
-    data$N <- as.numeric(data$N)
-    setorder(data, -N)
+    setorder(data, -N)  # sort by the "N" column in descending order
     datatable(
       data,
+      rownames = FALSE, 
       escape = FALSE,
       options = list(
         searching = TRUE,
         pageLength = 10,
         order = list(list(n_index, 'desc')),  # sort by the "N" column in descending order
         columnDefs = list(list(
-          className = 'dt-left', targets = '_all'),
-          list(type = 'num', targets = n_index)
+          className = 'dt-left', targets = '_all')
         )
       )
     )
@@ -472,10 +471,10 @@ server <- function(input, output, session) {
   # Handle CSV download
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste("data-", Sys.Date(), ".csv", sep = "")
+      paste(input$place,"-",gsub(".parquet","",input$ala_path),".csv", sep = "")
     },
     content = function(file) {
-      data <- filtered_data()
+      data <- intersect_data()
       data$`Voucher Location`<-gsub("<a href='","",data$`Voucher Location`)
       data$`Voucher Location`<-gsub("' target='_blank'>iNat</a>","",data$`Voucher Location`)
       write.csv(data, file, row.names = FALSE)
@@ -506,6 +505,5 @@ server <- function(input, output, session) {
   })
 
 }
-
 
 shinyApp(ui = ui, server = server)
