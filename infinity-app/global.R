@@ -108,3 +108,34 @@ places <- list(
   "Australian Botanic Garden Mount Annan" = load_place("places/mt-annan-australian-botanic-garden.kml"),
   "Grants Beach Walking Trail" = load_place("places/grants-beach-walking-trail.kml")
 )
+
+
+# Function to filter data based on taxon of interest
+filter_by_taxon <- function(input, ala_data) {
+  if (input$taxonOfInterest == "genus") {
+    if (input$taxa_genus == "All") {
+      return(ala_data())
+    } else {
+      return(ala_data()[Genus == input$taxa_genus, ])
+    }
+  } else if (input$taxonOfInterest == "family") {
+    if (input$taxa_family == "All") {
+      return(ala_data())
+    } else {
+      return(ala_data()[Family == input$taxa_family, ])
+    }
+  } else {
+    return(ala_data())
+  }
+}
+
+# Function to determine which points are inside the target polygon
+points_in_target <- function(points, place_polygon) {
+  st_intersects(points, place_polygon, sparse = FALSE)[, 1]
+}
+
+# Function to determine which points are inside the buffer
+points_in_buffer <- function(points, place_polygon, buffer_size) {
+  buffer_place <- add_buffer(place_polygon, buffer_size)
+  st_intersects(points, buffer_place, sparse = FALSE)[, 1]
+}
