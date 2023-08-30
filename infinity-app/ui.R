@@ -50,14 +50,15 @@ ui <-
         "Latitude",
         value = -33.8688,
         min = min_lat,
-        max = max_lat
-      ),
+        max = max_lat,
+        step = 0.00001),
       numericInput(
         "longitude",
         "Longitude",
         value = 148.2093,
         min = min_long,
-        max = max_long
+        max = max_long,
+        step = 0.00001
       ),
       verbatimTextOutput("warning"),
       selectInput(
