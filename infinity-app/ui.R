@@ -21,7 +21,7 @@ ui <-
       choices = list(
         "Preloaded Place" = "preloaded",
         "Upload KML" = "upload",
-        "Choose a place in Australia" = "choose"
+        "Choose a lat/long in Australia" = "choose"
       ),
       selected = "preloaded",
       inline = TRUE
@@ -36,7 +36,13 @@ ui <-
         selected = "Fowlers Gap, UNSW"
       )
     ),
-    
+   conditionalPanel(
+      condition = "input.inputType == 'upload'",
+      fileInput(
+        "uploadKML",
+        "Upload your own KML (within NSW only)",
+        accept = c(".kml")
+      )),
     conditionalPanel(
       condition = "input.inputType == 'choose'",
       numericInput(
@@ -68,7 +74,7 @@ ui <-
         ),
         selected = 5000
       ),
-      actionButton("executeButton", "Execute")
+      actionButton("executeButton", "Go")
     ),
     
     radioButtons(
