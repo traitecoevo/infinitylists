@@ -43,7 +43,7 @@ server <- function(input, output, session) {
     }
   })
   
-  observe({
+  observeEvent(debounce(reactive({ input$recalculate }), 500),{
     lat_out_of_range <-
       input$latitude < min_lat || input$latitude > max_lat
     lon_out_of_range <-
@@ -70,7 +70,7 @@ server <- function(input, output, session) {
             ".\n"
           )
         # Reset the latitude value to the default
-        #updateNumericInput(session, "latitude", value = -33.8688)
+        updateNumericInput(session, "latitude", value = -33.8688)
       }
       if (lon_out_of_range || lon_is_empty) {
         warning_msg <-
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
             ".\n"
           )
         # Reset the longitude value to the default
-        # updateNumericInput(session, "longitude", value = 151.2093)
+         updateNumericInput(session, "longitude", value = 151.2093)
       }
       
       # Display the warning to the user
@@ -113,48 +113,30 @@ server <- function(input, output, session) {
   
   
   intersect_data <- reactive({
-    if (input$taxonOfInterest == "genus") {
-      if (input$taxa_genus == "All") {
-        data <- ala_data()  # if "all" is selected, don't filter
-      } else {
-        data <- ala_data()[Genus == input$taxa_genus, ]
-      }
-    } else if (input$taxonOfInterest == "family") {
-      if (input$taxa_family == "All") {
-        data <- ala_data()  # if "all" is selected, don't filter
-      } else {
-        data <- ala_data()[Family == input$taxa_family, ]
-      }
-    } else {
-      data <- ala_data()
+    data <- filter_by_taxon(input, ala_data)
+    
+    place_polygon <- selected_polygon()
+    
+    if (is.null(place_polygon)) {
+      return(data.table())
     }
     
-    place_polygon <- selected_polygon() # Use the reactive polygon
-    
-    if (is.null(place_polygon))
-      return(data.table())
-    
-    points <- st_as_sf(data, coords = c("Long", "Lat"), crs = 4326)
-    
-    # Determine which points are inside the target polygon
-    in_target <-
-      st_intersects(points, place_polygon, sparse = FALSE)[, 1]
-    
-    # Determine all points inside the buffer
-    buffer <- as.numeric(input$buffer_size)
-    buffer_place <- add_buffer(place_polygon, buffer)
-    in_buffer_all <-
-      st_intersects(points, buffer_place, sparse = FALSE)[, 1]
-    
-    # Determine points ONLY inside the buffer and not inside place_polygon
-    in_buffer_only <- in_buffer_all & !in_target
-    
-    data$`In target area` <- NA
-    data$`In target area`[in_target] <- "in target"
-    data$`In target area`[in_buffer_only] <- "only in buffer"
-    # Label the points accordingly
-    
-    #print(table(data$`In target area`))
+    if (nrow(data) > 0) {
+      points <- st_as_sf(data, coords = c("Long", "Lat"), crs = 4326)
+      
+      in_target <- points_in_target(points, place_polygon)
+      
+      buffer_size <- as.numeric(input$buffer_size)
+      in_buffer_all <- points_in_buffer(points, place_polygon, buffer_size)
+      
+      in_buffer_only <- in_buffer_all & !in_target
+      
+      data$`In target area` <- NA
+      data$`In target area`[in_target] <- "in target"
+      data$`In target area`[in_buffer_only] <- "only in buffer"
+    } else {
+      data$`In target area` <- NA
+    }
     
     data <- dplyr::filter(data, !is.na(`In target area`))
     return(data.table(data))
@@ -206,7 +188,7 @@ server <- function(input, output, session) {
           Long < st_bbox(place_polygon)$xmax + long_buffer &
           Long > st_bbox(place_polygon)$xmin - long_buffer
       ) |>
-      collect() |> data.table()
+      collect() |> data.table() 
   })
   
   # A reactive to combine your two inputs
