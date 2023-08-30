@@ -42,18 +42,18 @@ ui <-
     ),
     conditionalPanel(
       condition = "input.inputType == 'choose'",
-      numericInput(
+      sliderInput(
         "latitude",
         "Latitude",
         value = -33.8688,
         min = min_lat,
-        max = max_long
+        max = max_lat
       ),
       # default: Sydney latitude
-      numericInput(
+      sliderInput(
         "longitude",
         "Longitude",
-        value = 151.2093,
+        value = 148.2093,
         min = min_long,
         max = max_long
       ),
@@ -73,6 +73,7 @@ ui <-
         ),
         selected = 5000
       )
+      
     ),
     
     radioButtons(
