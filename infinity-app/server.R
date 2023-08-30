@@ -277,8 +277,8 @@ server <- function(input, output, session) {
         else
           format(first_date, "%d-%b-%Y")
       },
-      Long = Long[1],
       Lat = Lat[1],
+      Long = Long[1],
       `Voucher Location` = ifelse(
         grepl("https", `Voucher Location`[1]),
         paste0(
