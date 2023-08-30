@@ -43,7 +43,7 @@ server <- function(input, output, session) {
     }
   })
   
-  observeEvent(debounce(reactive({ input$recalculate }), 500),{
+  observeEvent(input$executeButton,{
     lat_out_of_range <-
       input$latitude < min_lat || input$latitude > max_lat
     lon_out_of_range <-
@@ -95,20 +95,42 @@ server <- function(input, output, session) {
   })
   
   
-  selected_polygon <- reactive({
-    if (input$inputType == "preloaded") {
-      return(places[[input$place]])
-    } else if (input$inputType == "choose") {
-      lat <- as.numeric(input$latitude)
-      long <- as.numeric(input$longitude)
-      radius_m <- as.numeric(input$radiusChoice)
-      return(create_circle_polygon(lat, long, radius_m))
-    } else if (input$inputType == "upload" &&
-               !is.null(places[[input$place]])) {
-      return(places[[input$place]])
-    } else {
+  circle_polygon <- eventReactive(input$executeButton, {
+    lat <- tryCatch(as.numeric(input$latitude), error = function(e) NA)
+    long <- tryCatch(as.numeric(input$longitude), error = function(e) NA)
+    radius_m <- tryCatch(as.numeric(input$radiusChoice), error = function(e) NA)
+    
+    if (is.na(lat) || is.na(long) || is.na(radius_m)) {
       return(NULL)
     }
+    
+    return(create_circle_polygon(lat, long, radius_m))
+  })
+  
+  
+  selected_polygon <- reactive({
+    switch(input$inputType,
+           
+           "preloaded" = {
+             return(places[[input$place]])
+           },
+           
+           "choose" = {
+             return(circle_polygon())
+           },
+           
+           "upload" = {
+             if (!is.null(places[[input$place]])) {
+               return(places[[input$place]])
+             } else {
+               return(NULL)
+             }
+           },
+           
+           {
+             return(NULL)
+           }
+    )
   })
   
   
