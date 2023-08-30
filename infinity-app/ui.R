@@ -35,12 +35,6 @@ ui <-
     ),
     
     conditionalPanel(
-      condition = "input.inputType == 'upload'",
-      fileInput("uploadKML",
-                "Upload your own KML",
-                accept = c(".kml"))
-    ),
-    conditionalPanel(
       condition = "input.inputType == 'choose'",
       numericInput(
         "latitude",
@@ -49,7 +43,6 @@ ui <-
         min = min_lat,
         max = max_lat
       ),
-      # default: Sydney latitude
       numericInput(
         "longitude",
         "Longitude",
@@ -57,7 +50,6 @@ ui <-
         min = min_long,
         max = max_long
       ),
-      # default: Sydney longitude
       verbatimTextOutput("warning"),
       selectInput(
         inputId = "radiusChoice",
@@ -72,8 +64,8 @@ ui <-
           "50km" = 50000
         ),
         selected = 5000
-      )
-      
+      ),
+      actionButton("executeButton", "Execute")
     ),
     
     radioButtons(
