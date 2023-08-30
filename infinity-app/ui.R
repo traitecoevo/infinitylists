@@ -42,7 +42,7 @@ ui <-
     ),
     conditionalPanel(
       condition = "input.inputType == 'choose'",
-      sliderInput(
+      numericInput(
         "latitude",
         "Latitude",
         value = -33.8688,
@@ -50,7 +50,7 @@ ui <-
         max = max_lat
       ),
       # default: Sydney latitude
-      sliderInput(
+      numericInput(
         "longitude",
         "Longitude",
         value = 148.2093,
