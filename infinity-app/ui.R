@@ -127,7 +127,7 @@ ui <-
     tags$br(),
     div(style = "font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 20px;", textOutput("statsOutput")),
     tags$br(),
-    DTOutput("table"),
+    reactableOutput("table"),
     leafletOutput("map", height = 500),
     div(style = "margin-bottom: 50px;") 
       ),

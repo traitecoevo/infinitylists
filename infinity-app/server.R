@@ -304,25 +304,50 @@ server <- function(input, output, session) {
   
   # Render data table
   
-  output$table <- renderDT({
+  output$table <- renderReactable({
     data <- filtered_data()
-    n_index <- 3 #not sure why this has to be off by 1
-    data$N <- as.numeric(data$N)
-    setorder(data,-N)  # sort by the "N" column in descending order
-    datatable(
+    data <- data[order(-data$N), ]  # sort by the "N" column in descending order
+    
+    reactable(
       data,
+      filterable = TRUE,
       rownames = FALSE,
-      escape = FALSE,
-      options = list(
-        searching = TRUE,
-        pageLength = 10,
-        order = list(list(n_index, 'desc')),
-        # sort by the "N" column in descending order
-        columnDefs = list(list(
-          className = 'dt-left', targets = '_all'
-        ))
+      showSortable = TRUE,
+      highlight = T, 
+      theme = reactableTheme(
+        headerStyle = list(
+          "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
+          "&[aria-sort='ascending'], &[aria-sort='descending']" = list(background = "hsl(0, 0%, 96%)"),
+          borderColor = "#555"
+        )
+      ),
+      columns = list(
+        N = colDef(
+          name = "N", 
+          align = "right",
+          width = 80,
+          sortable = TRUE,
+          defaultSortOrder = "desc"
+        ),
+        Lat = colDef(
+          name = "Lat", 
+          align = "left",
+          width = 100
+        ),
+        Long = colDef(
+          name = "Long", 
+          align = "left",
+          width = 100
+        ),
+        `Voucher Location` = colDef(
+          name = "Voucher Location", 
+          align = "left",
+          width = 200,
+          html = TRUE
+        )
       )
     )
+    
   })
   
   # Handle CSV download

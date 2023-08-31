@@ -14,6 +14,7 @@ library(shinythemes)
 
 # Libraries for data manipulation and transformation
 library(DT)            # For rendering data tables in Shiny
+library(reactable)
 library(dplyr)         # For data manipulation
 library(data.table)    # For efficient data manipulation
 library(lubridate)     # For date-time manipulation
