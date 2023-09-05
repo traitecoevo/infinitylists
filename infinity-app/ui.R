@@ -8,7 +8,7 @@ ui <-
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel(
-      "An Infinity of Lists: an Interactive Guide to the Australian Biodiversity"
+      "An Infinity of Lists: an Interactive Guide to Australian Biodiversity"
     ),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
     tabsetPanel(
@@ -137,7 +137,10 @@ ui <-
              h2("Frequently Asked Questions"),
              
              h4("1. What does this app do?"),
-             p("This app allows users to explore the biodiversity in various areas in Australia."),
+             p("This app allows users to explore biodiversity across Australia. After selecting a taxonomic group and a location, the app will generate a species list."),
+             
+             h4("2. Which taxonomic groups can I generate lists for?"),
+             p("You can generate lists for marsupials"),
              
              h4("2. How do I select a location?"),
              p("You can select a location using one of the three input methods: 'Preloaded Place', 'Upload KML', or 'Choose a place in Australia'."),
@@ -147,6 +150,21 @@ ui <-
              
              h4("4. How do I download the data?"),
              p("You can download the data by clicking on the 'Download all obs CSV' button."),
+             
+             h4("6. How do I download the data?"),
+             p("You can download the data by clicking on the 'Download all obs CSV' button."),
+             
+             h4("7. How do I download the data?"),
+             p("You can download the data by clicking on the 'Download all obs CSV' button."),
+             
+             h4("8. How do I download the data?"),
+             p("You can download the data by clicking on the 'Download all obs CSV' button."),
+             
+             h4("9. How do I download the data?"),
+             p("You can download the data by clicking on the 'Download all obs CSV' button."),
+             
+             h4("10. Why is the app called 'An Infinity of Lists'?"),
+             p("The app's name is a reference to the book 'The Infinity of Lists' by Italian author Umberto Eco."),
              
              # Add more questions and answers as needed
     )
