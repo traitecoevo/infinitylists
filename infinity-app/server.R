@@ -42,7 +42,6 @@ server <- function(input, output, session) {
       )
     }
   })
- 
   
   circle_polygon <- eventReactive(input$executeButton, {
     lat <- tryCatch(as.numeric(input$latitude), error = function(e) NA)
@@ -215,7 +214,6 @@ server <- function(input, output, session) {
                    -`Collection Date`)]
     
     
-    
     result <- result[, .(
       `In target area` = `In target area`[1],
       N = .N,
@@ -237,8 +235,13 @@ server <- function(input, output, session) {
           "iNat",
           "</a>"
         ),
-        `Voucher Location`[1]
-      ),
+        paste0(
+          "<a href='",
+          "https://biocache.ala.org.au/occurrences/",`Record Id`[1],
+          "' target='_blank'>",
+          `Voucher Location`[1],
+          "</a>"
+      )),
       `Observed by` = `Recorded by`[1]
     ),
     by = .(Species, `Voucher Type`)]

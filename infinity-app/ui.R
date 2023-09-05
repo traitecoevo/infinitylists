@@ -8,7 +8,7 @@ ui <-
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel(
-      "An Infinity of Lists: an Interactive Guide to Australian Biodiversity"
+      "An Infinity of Lists: an Interactive Guide to the Australian Biodiversity"
     ),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
     tabsetPanel(
@@ -133,7 +133,7 @@ ui <-
       ),
     
     # New FAQ tabPanel
-    tabPanel("FAQs",
+    tabPanel("FAQ",
              h2("Frequently Asked Questions"),
              
              h4("1. What does this app do?"),
@@ -141,9 +141,6 @@ ui <-
              
              h4("2. Which taxonomic groups can I generate lists for?"),
              p("You can generate lists for marsupials, plants, dragonflies + damselflies (Odonata), butterflies (Papilionoidea) or cicadas."),
-             
-             h4("3. How do I select a location?"),
-             p("You can select a location using one of the three input methods: 'Preloaded Place', 'Upload KML', or 'Choose a lat/long in Australia'. Note that the six preloaded places are demonstration locations"),
              
              h4("4. What is a KML file?"),
              p("KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as Google Earth."),
@@ -183,8 +180,6 @@ ui <-
              
              h4("16. Why is the app called 'An Infinity of Lists'?"),
              p("The app's name is a reference to the book 'The Infinity of Lists' by Italian author Umberto Eco."),
-             
-             # Add more questions and answers as needed
     )
     )
   )
