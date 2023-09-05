@@ -133,7 +133,7 @@ ui <-
       ),
     
     # New FAQ tabPanel
-    tabPanel("FAQ",
+    tabPanel("FAQs",
              h2("Frequently Asked Questions"),
              
              h4("1. What does this app do?"),
