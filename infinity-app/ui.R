@@ -8,10 +8,15 @@ ui <-
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel(
-      "An Infinity of Lists: an Interactive Guide to the Australian Biodiversity"
-    ),
+      div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
+          img(src = "infinitylist_hex.svg", width=150),
+           
+      )
+      ),
+    
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-    tabsetPanel(
+   
+     tabsetPanel(
       # Existing content wrapped in a tabPanel
       tabPanel("Main", 
     selectInput("ala_path", "Choose a file:", choices = files_in_directory),
