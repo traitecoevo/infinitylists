@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# infinitylists
+# infinitylists <img src="inst/figs/infinitylist_hex.png" align="right" alt="" width="250" />
 
 <!-- badges: start -->
 <!-- badges: end -->
