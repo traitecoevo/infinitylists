@@ -158,7 +158,7 @@ ui <-
              p("All data are extracted from the Atlas of Living Australia (ALA), Australia's national biodiversity database."),
              
              h4("8. Which data sources within the ALA are included?"),
-             p("The app generates lists from two data sources, both of which are associated with some kind of voucher, i.e., records that are 'verifiable'. First, all records associated with a physical voucher stored in an Australian institution (such as herbaria and museums) are included for the voucher type 'Collection'. Second, all Australian records from the online citizen science platform iNaturalist that have qualified to enter the ALA are included for the voucher types 'Photograph' and 'Sound'."),
+             p("The app generates lists from two data sources, both of which are associated with some kind of voucher, i.e., records that are 'verifiable'. First, all records associated with a physical voucher stored in an Australian institution (such as herbaria and museums) are included for the voucher type 'Collection'. Second, all Australian records from the online citizen science platform iNaturalist that have qualified to enter the ALA are included for the voucher types 'Photograph' and 'Recording'."),
              
              h4("9. What does the buffer do?"),
              p("Selecting a buffer includes additional species that have not been recorded within the main target area, but have been seen in the immediate surrounding area up to the defined radius."),
