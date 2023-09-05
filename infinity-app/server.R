@@ -275,7 +275,7 @@ server <- function(input, output, session) {
         if (is.na(first_date))
           as.character(NA)
         else
-          format(first_date, "%d-%b-%Y")
+          first_date
       },
       Lat = Lat[1],
       Long = Long[1],
@@ -322,6 +322,8 @@ server <- function(input, output, session) {
           className = 'dt-left', targets = '_all'
         ))
       )
+    ) |> formatDate(5, method = "toLocaleDateString", 
+                    params = list('en-AU', list(day = 'numeric', month = 'short', year = 'numeric'))
     )
   })
   
