@@ -42,7 +42,58 @@ server <- function(input, output, session) {
       )
     }
   })
- 
+  
+  observeEvent(input$executeButton,{
+    lat_out_of_range <-
+      input$latitude < min_lat || input$latitude > max_lat
+    lon_out_of_range <-
+      input$longitude < min_long || input$longitude > max_long
+    
+    lat_is_empty <- is.null(input$latitude) || is.na(input$latitude)
+    lon_is_empty <-
+      is.null(input$longitude) || is.na(input$longitude)
+    
+    if (lat_out_of_range ||
+        lon_out_of_range || lat_is_empty || lon_is_empty) {
+      # Initialize a warning message
+      warning_msg <- ""
+      
+      # Update the warning message based on which values are out of range
+      if (lat_out_of_range || lat_is_empty) {
+        warning_msg <-
+          paste0(
+            warning_msg,
+            "Entered latitude is out of the allowed range. Please enter a value between ",
+            min_lat,
+            " and ",
+            max_lat,
+            ".\n"
+          )
+        # Reset the latitude value to the default
+        updateNumericInput(session, "latitude", value = -33.8688)
+      }
+      if (lon_out_of_range || lon_is_empty) {
+        warning_msg <-
+          paste0(
+            warning_msg,
+            "Entered longitude is out of the allowed range. Please enter a value between ",
+            min_long,
+            " and ",
+            max_long,
+            ".\n"
+          )
+        # Reset the longitude value to the default
+         updateNumericInput(session, "longitude", value = 151.2093)
+      }
+      
+      # Display the warning to the user
+      output$warning <- renderText(warning_msg)
+    } else {
+      # If the values are okay, don't display any warning
+      output$warning <- renderText("")
+    }
+  })
+  
   
   circle_polygon <- eventReactive(input$executeButton, {
     lat <- tryCatch(as.numeric(input$latitude), error = function(e) NA)
@@ -215,7 +266,6 @@ server <- function(input, output, session) {
                    -`Collection Date`)]
     
     
-    
     result <- result[, .(
       `In target area` = `In target area`[1],
       N = .N,
@@ -237,8 +287,13 @@ server <- function(input, output, session) {
           "iNat",
           "</a>"
         ),
-        `Voucher Location`[1]
-      ),
+        paste0(
+          "<a href='",
+          "https://biocache.ala.org.au/occurrences/",`Record Id`[1],
+          "' target='_blank'>",
+          `Voucher Location`[1],
+          "</a>"
+      )),
       `Observed by` = `Recorded by`[1]
     ),
     by = .(Species, `Voucher Type`)]
