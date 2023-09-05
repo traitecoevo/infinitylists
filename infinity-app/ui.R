@@ -140,13 +140,16 @@ ui <-
              p("This app allows users to explore biodiversity across Australia. After selecting a taxonomic group and a location, the app will generate a species list."),
              
              h4("2. Which taxonomic groups can I generate lists for?"),
-             p("You can generate lists for marsupials"),
+             p("You can generate lists for marsupials, plants, dragonflies + damselflies (Odonata) or butterflies (Papilionoidea)"),
              
              h4("2. How do I select a location?"),
-             p("You can select a location using one of the three input methods: 'Preloaded Place', 'Upload KML', or 'Choose a place in Australia'."),
+             p("You can select a location using one of the three input methods: 'Preloaded Place', 'Upload KML', or 'Choose a lat/long in Australia'. Note that the five preloaded places are demonstration locations"),
              
-             h4("3. What is a buffer?"),
-             p("A buffer is an additional area around your selected location that you can include in your data query."),
+             h4("6. What is a KML file?"),
+             p("KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as Google Earth."),
+             
+             h4("3. Where can I find a KML file for the location I'm interested in?"),
+             p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as Google Earth by drawing a polygon, and then exporting it as a KML."),
              
              h4("4. How do I download the data?"),
              p("You can download the data by clicking on the 'Download all obs CSV' button."),
@@ -160,7 +163,7 @@ ui <-
              h4("8. How do I download the data?"),
              p("You can download the data by clicking on the 'Download all obs CSV' button."),
              
-             h4("9. How do I download the data?"),
+             h4("9. Why am I "),
              p("You can download the data by clicking on the 'Download all obs CSV' button."),
              
              h4("10. Why is the app called 'An Infinity of Lists'?"),
