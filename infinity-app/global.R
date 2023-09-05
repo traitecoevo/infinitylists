@@ -100,7 +100,8 @@ places <- list(
   "Fowlers Gap, UNSW" = load_place("places/unsw-fowlers.kml"),
   "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml"),
   "Australian Botanic Garden Mount Annan" = load_place("places/mt-annan-australian-botanic-garden.kml"),
-  "Grants Beach Walking Trail" = load_place("places/grants-beach-walking-trail.kml")
+  "Grants Beach Walking Trail" = load_place("places/grants-beach-walking-trail.kml"),
+  "North Head - Sydney Harbour Federation Trust" = load_place("places/north-head-sydney-harbour-federation-trust.kml")
 )
 
 
