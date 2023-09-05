@@ -30,12 +30,6 @@ options(dplyr.summarise.inform = FALSE)
 # Get the list of files in the data directory
 files_in_directory <- list.files(path = "data/")
 
-# Define bounding box for Australia
-min_lat <- -50
-max_lat <- -10
-min_long <- 110
-max_long <- 163
-
 # Function to add a buffer around a given geometry (polygon or multipolygon)
 add_buffer <- function(geom, buffer_size_meters) {
   # Check if the input is an sfc_POLYGON, sfc_MULTIPOLYGON or their "sfg" equivalents
