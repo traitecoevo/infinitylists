@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# infinitylists
+# infinitylists <img src="inst/figs/infinitylist_hex.png" align="right" alt="" width="250" />
 
 <!-- badges: start -->
 <!-- badges: end -->
