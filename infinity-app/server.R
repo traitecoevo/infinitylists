@@ -136,7 +136,7 @@ server <- function(input, output, session) {
       collections_species,
       "species and",
       photographic_count,
-      "photographic records of",
+      "photographic or audio records of",
       photographic_species,
       "species."
     )
@@ -267,7 +267,7 @@ server <- function(input, output, session) {
       escape = FALSE,
       options = list(
         searching = TRUE,
-        pageLength = 10,
+        pageLength = 25,
         order = list(list(n_index, 'desc')),
         # sort by the "N" column in descending order
         columnDefs = list(list(
