@@ -17,7 +17,7 @@ ui <-
     selectInput("ala_path", "Choose a taxa:", choices=setNames(files_in_directory,taxa_names),selected="Australia-Plantae-2023-09-05.parquet"),
     radioButtons(
       "inputType",
-      "Input method:",
+      "Choose a place:",
       choices = list(
         "Preloaded Place" = "preloaded",
         "Upload KML" = "upload",
@@ -79,7 +79,7 @@ ui <-
     
     radioButtons(
       "taxonOfInterest",
-      "Taxon of interest:",
+      "Taxonomic level:",
       choices = list("Genus" = "genus",
                      "Family" = "family"),
       selected = "genus",
