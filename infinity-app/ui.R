@@ -8,14 +8,13 @@ ui <-
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel(
-      tags$div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
-          img(src = "infinitylist_hex.svg", width=150)
-      )
-    ),
+      windowTitle = "Infinity Lists",
+      div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
+          img(src = "infinitylist_hex.svg", width=150))),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
     sidebarLayout(
       sidebarPanel(
-    selectInput("ala_path", "Choose a file:", choices=setNames(files_in_directory,taxa_names)),
+    selectInput("ala_path", "Choose a file:", choices=setNames(files_in_directory,taxa_names),selected="Australia-Plantae-2023-09-05.parquet"),
     radioButtons(
       "inputType",
       "Input method:",
