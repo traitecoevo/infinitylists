@@ -66,9 +66,10 @@ add_buffer <- function(geom, buffer_size_meters) {
 load_place <- function(path) {
   tryCatch({
     geom <- st_read(path, crs = 4326, quiet = TRUE)
+    geom <- st_zm(geom, drop = TRUE, what = "ZM") # Drop the Z-dimension if present
     return(st_geometry(geom))
   }, error = function(e) {
-    showNotification(paste("Error loading KML:", e$message), type = "error")
+    cat("Error loading KML:", e$message, "\n") # Print the error message
     return(NULL)
   })
 }
