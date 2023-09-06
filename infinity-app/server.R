@@ -290,10 +290,13 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       data <- intersect_data()
-      data$`Voucher Location` <-
-        gsub("<a href='", "", data$`Voucher Location`)
-      data$`Voucher Location` <-
-        gsub("' target='_blank'>iNat</a>", "", data$`Voucher Location`)
+      data$`Voucher Location` = ifelse(
+        grepl("https", data$`Voucher Location`),
+          data$`Voucher Location`
+        ,
+        paste0(
+          "https://biocache.ala.org.au/occurrences/",data$`Record Id`
+        ))
       write.csv(data, file, row.names = FALSE)
     }
   )
