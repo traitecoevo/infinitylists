@@ -136,7 +136,7 @@ server <- function(input, output, session) {
       collections_species,
       "species and",
       photographic_count,
-      "photographic records of",
+      "photographic or audio records of",
       photographic_species,
       "species."
     )
