@@ -29,6 +29,7 @@ options(dplyr.summarise.inform = FALSE)
 
 # Get the list of files in the data directory
 files_in_directory <- list.files(path = "data/")
+taxa_names<-gsub("Australia-(.+?)-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet", "\\1", files_in_directory)
 
 # Function to add a buffer around a given geometry (polygon or multipolygon)
 add_buffer <- function(geom, buffer_size_meters) {

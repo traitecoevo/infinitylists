@@ -15,14 +15,14 @@ ui <-
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
     sidebarLayout(
       sidebarPanel(
-    selectInput("ala_path", "Choose a file:", choices = files_in_directory),
+    selectInput("ala_path", "Choose a file:", choices=setNames(files_in_directory,taxa_names)),
     radioButtons(
       "inputType",
       "Input method:",
       choices = list(
         "Preloaded Place" = "preloaded",
         "Upload KML" = "upload",
-        "Choose a lat/long in Australia" = "choose"
+        "Choose a lat/long" = "choose"
       ),
       selected = "preloaded",
       inline = TRUE
@@ -123,8 +123,8 @@ ui <-
       ),
       selected = 0
     ),
-    downloadButton('downloadData', 'Download all obs CSV')
-   
+    downloadButton('downloadData', 'Download all obs CSV'),
+   width=3
       ),
    mainPanel(
      tabsetPanel(
@@ -136,7 +136,7 @@ ui <-
                 div(style = "margin-bottom: 50px;") 
        ),
                 
-       tabPanel("Results",
+       tabPanel("Species observed or collected",
         DTOutput("table")
        ),
     tabPanel("FAQs",
@@ -189,6 +189,6 @@ ui <-
     )
      )
    )
-    )
+    ),width=8
   )
 
