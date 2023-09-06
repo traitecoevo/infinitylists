@@ -8,7 +8,7 @@ ui <-
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel(
-      windowTitle = "Infinity List",
+      windowTitle = "Infinity Lists",
       div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
                   img(src = "infinitylist_hex.svg", width=150))
       
@@ -19,7 +19,8 @@ ui <-
      tabsetPanel(
       # Existing content wrapped in a tabPanel
       tabPanel("Main", 
-    selectInput("ala_path", "Choose a file:", choices = files_in_directory),
+    selectInput("ala_path", "Choose a file:", choices = files_in_directory, 
+                selected = "Australia-Plantae-2023-09-05.parquet"),
     radioButtons(
       "inputType",
       "Input method:",
