@@ -9,7 +9,7 @@ library(here)
 library(APCalign)
 library(skimr)
 
-download_ala_obs <- function(taxa = "Odonata", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa = "Marsupialia", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
   ala_obs <- retrieve_data(taxa)
@@ -63,7 +63,7 @@ process_data <- function(data) {
       collectionDate = if_else(is.na(collectionDate), ymd(eventDate, tz = "UTC", quiet = TRUE), collectionDate)
     ) |> 
     select(
-      species:family, collectionDate, lat, long, voucher_type, voucher_location, recordedBy
+      species:family, collectionDate, lat, long, voucher_type, voucher_location, recordedBy,recordID
     ) |> 
     clean_names("title")
 }
