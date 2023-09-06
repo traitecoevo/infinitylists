@@ -10,24 +10,18 @@ ui <-
     titlePanel(
       windowTitle = "Infinity Lists",
       div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
-                  img(src = "infinitylist_hex.svg", width=150))
-      
-    ),
-    
+          img(src = "infinitylist_hex.svg", width=150))),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-   
-     tabsetPanel(
-      # Existing content wrapped in a tabPanel
-      tabPanel("Main", 
-    selectInput("ala_path", "Choose a file:", choices = files_in_directory, 
-                selected = "Australia-Plantae-2023-09-05.parquet"),
+    sidebarLayout(
+      sidebarPanel(
+    selectInput("ala_path", "Choose a taxa:", choices=setNames(files_in_directory,taxa_names),selected="Australia-Plantae-2023-09-05.parquet"),
     radioButtons(
       "inputType",
-      "Input method:",
+      "Choose a place:",
       choices = list(
         "Preloaded Place" = "preloaded",
         "Upload KML" = "upload",
-        "Choose a lat/long in Australia" = "choose"
+        "Choose a lat/long" = "choose"
       ),
       selected = "preloaded",
       inline = TRUE
@@ -66,7 +60,6 @@ ui <-
         max = 180,
         step = 0.00001
       ),
-      verbatimTextOutput("warning"),
       selectInput(
         inputId = "radiusChoice",
         label = "Choose a radius:",
@@ -86,7 +79,7 @@ ui <-
     
     radioButtons(
       "taxonOfInterest",
-      "Taxon of interest:",
+      "Taxonomic level:",
       choices = list("Genus" = "genus",
                      "Family" = "family"),
       selected = "genus",
@@ -130,15 +123,21 @@ ui <-
       selected = 0
     ),
     downloadButton('downloadData', 'Download all obs CSV'),
-    tags$br(),
-    div(style = "font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 20px;", textOutput("statsOutput")),
-    tags$br(),
-    DTOutput("table"),
-    leafletOutput("map", height = 500),
-    div(style = "margin-bottom: 50px;") 
+   width=3
       ),
-    
-    # New FAQ tabPanel
+   mainPanel(
+     tabsetPanel(
+       tabPanel("Map",
+                leafletOutput("map", height = 500),
+                tags$br(),
+                div(style = "font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 20px;", textOutput("statsOutput")),
+                tags$br(),
+                div(style = "margin-bottom: 50px;") 
+       ),
+                
+       tabPanel("Species observed or collected",
+        DTOutput("table")
+       ),
     tabPanel("FAQs",
              h2("Frequently Asked Questions"),
              
@@ -187,6 +186,8 @@ ui <-
              h4("16. Why is the app called 'An Infinity of Lists'?"),
              p("The app's name is a reference to the book 'The Infinity of Lists' by Italian author Umberto Eco."),
     )
-    )
+     )
+   )
+    ),width=8
   )
 
