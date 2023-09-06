@@ -8,17 +8,13 @@ ui <-
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel(
-      div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
-          img(src = "infinitylist_hex.svg", width=150),
-           
+      tags$div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
+          img(src = "infinitylist_hex.svg", width=150)
       )
-      ),
-    
+    ),
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
-   
-     tabsetPanel(
-      # Existing content wrapped in a tabPanel
-      tabPanel("Main", 
+    sidebarLayout(
+      sidebarPanel(
     selectInput("ala_path", "Choose a file:", choices = files_in_directory),
     radioButtons(
       "inputType",
@@ -65,7 +61,6 @@ ui <-
         max = 180,
         step = 0.00001
       ),
-      verbatimTextOutput("warning"),
       selectInput(
         inputId = "radiusChoice",
         label = "Choose a radius:",
@@ -128,16 +123,22 @@ ui <-
       ),
       selected = 0
     ),
-    downloadButton('downloadData', 'Download all obs CSV'),
-    tags$br(),
-    div(style = "font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 20px;", textOutput("statsOutput")),
-    tags$br(),
-    DTOutput("table"),
-    leafletOutput("map", height = 500),
-    div(style = "margin-bottom: 50px;") 
+    downloadButton('downloadData', 'Download all obs CSV')
+   
       ),
-    
-    # New FAQ tabPanel
+   mainPanel(
+     tabsetPanel(
+       tabPanel("Map",
+                leafletOutput("map", height = 500),
+                tags$br(),
+                div(style = "font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 20px;", textOutput("statsOutput")),
+                tags$br(),
+                div(style = "margin-bottom: 50px;") 
+       ),
+                
+       tabPanel("Results",
+        DTOutput("table")
+       ),
     tabPanel("FAQs",
              h2("Frequently Asked Questions"),
              
@@ -186,6 +187,8 @@ ui <-
              h4("16. Why is the app called 'An Infinity of Lists'?"),
              p("The app's name is a reference to the book 'The Infinity of Lists' by Italian author Umberto Eco."),
     )
+     )
+   )
     )
   )
 
