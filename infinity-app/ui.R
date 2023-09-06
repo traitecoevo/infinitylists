@@ -135,7 +135,7 @@ ui <-
                 div(style = "margin-bottom: 50px;") 
        ),
                 
-       tabPanel("Species observed or collected",
+       tabPanel("Species records",
         DTOutput("table")
        ),
     tabPanel("FAQs",
