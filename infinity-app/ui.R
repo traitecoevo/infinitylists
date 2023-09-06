@@ -8,11 +8,11 @@ ui <-
   fluidPage(
     theme = shinytheme("cosmo"),
     titlePanel(
+      windowTitle = "Infinity List",
       div("An Infinity of Lists: an Interactive Guide to the Australian Biodiversity",
-          img(src = "infinitylist_hex.svg", width=150),
-           
-      )
-      ),
+                  img(src = "infinitylist_hex.svg", width=150))
+      
+    ),
     
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
    
