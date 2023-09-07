@@ -9,7 +9,7 @@ library(here)
 library(APCalign)
 library(skimr)
 
-download_ala_obs <- function(taxa = "Marsupialia", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa = "Plantae", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
   ala_obs <- retrieve_data(taxa)
@@ -17,9 +17,29 @@ download_ala_obs <- function(taxa = "Marsupialia", output_dir = "infinity-app/da
   # 2. Filtering and processing
   ala_cleaned <- process_data(ala_obs)
   
-  # 3. Save processed data
-  save_data(ala_cleaned, taxa, output_dir)
+  # 3. Add additional columns
+  ala_cleaned_with_add_ons <- get_establishment_status(ala_cleaned, taxa)
+  
+  # 4. Save processed data
+  save_data(ala_cleaned_with_add_ons, taxa, output_dir)
+  
+ 
 }
+
+
+get_establishment_status <- function(ala_cleaned, taxa = taxa) {
+  if (taxa == "Plantae") {
+    resources <- APCalign::load_taxonomic_resources()
+    lookup <-
+      native_anywhere_in_australia(ala_cleaned$Species, resources = resources)
+    lookup <- rename(lookup, Species = species)
+    ala_cleaned <-
+      ala_cleaned %>% dplyr::left_join(lookup, by = join_by("Species"))
+  }
+  return(ala_cleaned)
+}
+
+
 
 retrieve_data <- function(taxa) {
   galah_call() |> 
