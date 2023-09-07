@@ -14,7 +14,7 @@ ui <-
     add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
     sidebarLayout(
       sidebarPanel(
-    selectInput("ala_path", "Choose a taxa:", choices=setNames(files_in_directory,taxa_names),selected="Australia-Plantae-2023-09-05.parquet"),
+    selectInput("ala_path", "Choose a taxa:", choices=files_in_directory,selected=files_in_directory["Plantae"]),
     radioButtons(
       "inputType",
       "Choose a place:",
