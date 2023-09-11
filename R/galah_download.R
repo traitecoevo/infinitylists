@@ -77,4 +77,4 @@ save_data <- function(data, taxa, output_dir) {
 
 
 # galah_config(email = "XXXX")
-download_ala_obs()
+# download_ala_obs()
