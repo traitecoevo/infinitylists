@@ -2,17 +2,17 @@
 
 # Libraries
 library(galah)
-library(tidyverse)
+library(dplyr)
 library(janitor)
 library(arrow)
-library(here)
-library(APCalign)
-library(skimr)
 
-download_ala_obs <- function(taxa, output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa, 
+                             year_range = c(1923, 2023),
+                             save_raw_data = FALSE,
+                             output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
-  ala_obs <- retrieve_data(taxa)
+  ala_obs <- retrieve_data(taxa, year_range, save_raw_data, output_dir)
   
   # 2. Filtering and processing
   ala_cleaned <- process_data(ala_obs)
@@ -21,24 +21,62 @@ download_ala_obs <- function(taxa, output_dir = "infinity-app/data/") {
   save_data(ala_cleaned, taxa, output_dir)
 }
 
-retrieve_data <- function(taxa) {
-  galah_call() |> 
-    galah_identify(taxa) |>
-    galah_apply_profile("CSDM") |>
+retrieve_data_by_years <- function(taxa, 
+                                   years, 
+                                   save_raw_data, 
+                                   output_dir) {
+  
+  # Download data from ALA
+  download <- galah_call() |> 
+    galah_identify(taxa) |> 
     galah_filter(
-      #stateProvince == state,
+      spatiallyValid == TRUE, 
       species != "",
       decimalLatitude != "",
-      year >= 1923,
+      year == years,
       basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
-    ) |>
+    ) |> 
     galah_select(
       recordID, species, genus, family, decimalLatitude, decimalLongitude, 
       coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
-      references, institutionCode, recordedBy
-    ) |>
+      references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf
+    ) |> 
     atlas_occurrences()
+  
+  # Save download (optional)
+  if(save_raw_data)
+    arrow::write_parquet(
+      download,
+      paste0(output_dir, "ALA-Australia-", taxa, "-", first(years), 
+             "-", last(years), "-",  Sys.Date(), ".parquet")
+    )
+  
+  return(download)
 }
+
+
+
+retrieve_data <- function(taxa, 
+                          year_range = c(1923, 2023),
+                          save_raw_data = FALSE, 
+                          output_dir = "ignore/"){
+  
+  # Split years into chunks of 10 year intervals
+  years <- seq(year_range[1], year_range[2])
+  
+  year_chunks <- split(years, ceiling(seq_along(years)/10))
+  
+  download <-  purrr::map(year_chunks,
+                          purrr::possibly(~retrieve_data_by_years(taxa, years = .x, save_raw_data, output_dir))
+  )
+  
+  # Collapse list
+  output <- dplyr::bind_rows(download)
+  
+  return(output)
+  
+}
+
 
 process_data <- function(data) {
   datasets_of_interest <- c(
