@@ -23,8 +23,8 @@ download_ala_obs <- function(taxa,
 
 retrieve_data_by_years <- function(taxa, 
                                    years, 
-                                   save_raw_data, 
-                                   output_dir) {
+                                   save_raw_data = NULL, 
+                                   output_dir =NULL) {
   
   # Download data from ALA
   download <- galah_call() |> 
@@ -64,7 +64,7 @@ retrieve_data <- function(taxa,
   # Split years into chunks of 10 year intervals
   years <- seq(year_range[1], year_range[2])
   
-  year_chunks <- split(years, ceiling(seq_along(years)/10))
+  year_chunks <- split(years, ceiling(seq_along(years)/9))
   
   download <-  purrr::map(year_chunks,
                           purrr::possibly(~retrieve_data_by_years(taxa, years = .x, save_raw_data, output_dir))
@@ -114,6 +114,6 @@ save_data <- function(data, taxa, output_dir) {
 }
 
 # job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
-#   download_ala_obs(taxa = "Cicadoidea")
+#   download_ala_obs(taxa = "Odonata")
 # })
 
