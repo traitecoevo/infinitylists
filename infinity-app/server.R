@@ -226,7 +226,7 @@ server <- function(input, output, session) {
       },
       Lat = Lat[1],
       Long = Long[1],
-      `Voucher Location` = ifelse(
+      `Repository` = ifelse(
         grepl("https", `Voucher Location`[1]),
         paste0(
           "<a href='",
@@ -242,10 +242,9 @@ server <- function(input, output, session) {
           `Voucher Location`[1],
           "</a>"
       )),
-      `Establishment means` = native_anywhere_in_aus[1],
       `Observed by` = `Recorded by`[1]
     ),
-    by = .(Species, `Voucher Type`)]
+    by = .(Species, `Establishment means` = native_anywhere_in_aus,`Voucher type`=`Voucher Type`)]
     
     
     #removing rows from buffer that are in the target polygon.  
@@ -259,23 +258,29 @@ server <- function(input, output, session) {
   
   output$table <- renderDT({
     data <- filtered_data()
-    n_index <- 3 #not sure why this has to be off by 1
+    
+    #preliminaries
+    n_index <- which(names(data)=="N")-1 #not sure why this has to be off by 1
+    default_page_length <- 25
+    date_index <- which(names(data)=="Most recent obs.")
     data$N <- as.numeric(data$N)
     setorder(data,-N)  # sort by the "N" column in descending order
+    
+    #entres
     datatable(
       data,
       rownames = FALSE,
       escape = FALSE,
       options = list(
         searching = TRUE,
-        pageLength = 25,
+        pageLength = default_page_length,
         order = list(list(n_index, 'desc')),
         # sort by the "N" column in descending order
         columnDefs = list(list(
           className = 'dt-left', targets = '_all'
         ))
       )
-    ) |> formatDate(5, method = "toLocaleDateString", 
+    ) |> formatDate(date_index, method = "toLocaleDateString", 
                     params = list('en-AU', list(day = 'numeric', month = 'short', year = 'numeric'))
     )
   })
