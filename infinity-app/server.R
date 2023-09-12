@@ -242,6 +242,7 @@ server <- function(input, output, session) {
           `Voucher Location`[1],
           "</a>"
       )),
+      `Establishment means` = native_anywhere_in_aus[1],
       `Observed by` = `Recorded by`[1]
     ),
     by = .(Species, `Voucher Type`)]
