@@ -101,7 +101,7 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
   if (taxa == "Plantae") {
     resources <- APCalign::load_taxonomic_resources()
     lookup <-
-      native_anywhere_in_australia(ala_cleaned$Species, resources = resources)
+      APCalign::native_anywhere_in_australia(ala_cleaned$Species, resources = resources)
     lookup <- rename(lookup, Species = species)
     ala_cleaned <-
       ala_cleaned %>% dplyr::left_join(lookup, by = join_by("Species"))
