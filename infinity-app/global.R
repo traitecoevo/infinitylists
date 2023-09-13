@@ -29,7 +29,11 @@ options(dplyr.summarise.inform = FALSE)
 
 # Get the list of files in the data directory
 files_in_directory <- list.files(path = "data/")
-taxa_names<-gsub("Australia-(.+?)-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet", "\\1", files_in_directory)
+taxa_names <-
+  gsub("Australia-(.+?)-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet",
+       "\\1",
+       files_in_directory)
+files_in_directory <- setNames(files_in_directory, taxa_names)
 
 # Function to add a buffer around a given geometry (polygon or multipolygon)
 add_buffer <- function(geom, buffer_size_meters) {
@@ -67,7 +71,8 @@ add_buffer <- function(geom, buffer_size_meters) {
 load_place <- function(path) {
   tryCatch({
     geom <- st_read(path, crs = 4326, quiet = TRUE)
-    geom <- st_zm(geom, drop = TRUE, what = "ZM") # Drop the Z-dimension if present
+    geom <-
+      st_zm(geom, drop = TRUE, what = "ZM") # Drop the Z-dimension if present
     return(st_geometry(geom))
   }, error = function(e) {
     cat("Error loading KML:", e$message, "\n") # Print the error message
@@ -113,13 +118,13 @@ filter_by_taxon <- function(input, ala_data) {
     if (input$taxa_genus == "All") {
       return(ala_data())
     } else {
-      return(ala_data()[Genus == input$taxa_genus, ])
+      return(ala_data()[Genus == input$taxa_genus,])
     }
   } else if (input$taxonOfInterest == "family") {
     if (input$taxa_family == "All") {
       return(ala_data())
     } else {
-      return(ala_data()[Family == input$taxa_family, ])
+      return(ala_data()[Family == input$taxa_family,])
     }
   } else {
     return(ala_data())
