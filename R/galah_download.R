@@ -9,7 +9,7 @@ library(here)
 library(APCalign)
 library(skimr)
 
-download_ala_obs <- function(taxa = "Plantae", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa = "Papilionoidea", output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
   ala_obs <- retrieve_data(taxa)
@@ -35,6 +35,10 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
     lookup <- rename(lookup, Species = species)
     ala_cleaned <-
       ala_cleaned %>% dplyr::left_join(lookup, by = join_by("Species"))
+    return(ala_cleaned)
+  } else { # ALERT, ALERT NEEED TO CHANGE THIS IF WE ADD MORE TAXA!!!!!!!!!
+    ala_cleaned$native_anywhere_in_aus <- "native" 
+    ala_cleaned$native_anywhere_in_aus[ala_cleaned$Species %in% c("Danaus plexippus","Pieris rapae")]<-"introduced"
   }
   return(ala_cleaned)
 }
