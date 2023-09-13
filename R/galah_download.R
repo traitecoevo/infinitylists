@@ -105,6 +105,10 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
     lookup <- rename(lookup, Species = species)
     ala_cleaned <-
       ala_cleaned %>% dplyr::left_join(lookup, by = join_by("Species"))
+    return(ala_cleaned)
+  } else { # ALERT, ALERT NEEED TO CHANGE THIS IF WE ADD MORE TAXA!!!!!!!!!
+    ala_cleaned$native_anywhere_in_aus <- "native" 
+    ala_cleaned$native_anywhere_in_aus[ala_cleaned$Species %in% c("Danaus plexippus","Pieris rapae")]<-"introduced"
   }
   return(ala_cleaned)
 }
@@ -144,7 +148,7 @@ save_data <- function(data, taxa, output_dir) {
   )
 }
 
-job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
-  download_ala_obs(taxa = "Plantae")
-})
+# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
+#   download_ala_obs(taxa = "Plantae")
+# })
 
