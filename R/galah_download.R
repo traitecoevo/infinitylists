@@ -1,10 +1,9 @@
-
-
 # Libraries
 library(galah)
 library(dplyr)
 library(janitor)
 library(arrow)
+library(APCalign)
 
 download_ala_obs <- function(taxa, 
                              year_range = c(1923, 2023),
@@ -27,26 +26,31 @@ download_ala_obs <- function(taxa,
 }
 
 
+query <- function(taxa, years){
+  galah_call() |> 
+  galah_identify(taxa) |> 
+  galah_filter(
+    spatiallyValid == TRUE, 
+    species != "",
+    decimalLatitude != "",
+    year == years,
+    basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
+  ) |> 
+  galah_select(
+    recordID, species, genus, family, decimalLatitude, decimalLongitude, 
+    coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
+    references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf
+  )
+}
+
+
 retrieve_data_by_years <- function(taxa, 
-                                   years, 
+                                   years,
                                    save_raw_data = NULL, 
                                    output_dir =NULL) {
   
   # Download data from ALA
-  download <- galah_call() |> 
-    galah_identify(taxa) |> 
-    galah_filter(
-      spatiallyValid == TRUE, 
-      species != "",
-      decimalLatitude != "",
-      year == years,
-      basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
-    ) |> 
-    galah_select(
-      recordID, species, genus, family, decimalLatitude, decimalLongitude, 
-      coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
-      references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf
-    ) |> 
+  download <- query(taxa, years) |> 
     atlas_occurrences()
   
   # Save download (optional)
@@ -70,14 +74,23 @@ retrieve_data <- function(taxa,
   # Split years into chunks of 10 year intervals
   years <- seq(year_range[1], year_range[2])
   
-  year_chunks <- split(years, ceiling(seq_along(years)/9))
+  # Determine atlas counts
+  n_obs <- query(taxa, years) |> 
+    atlas_counts()
   
-  download <-  purrr::map(year_chunks,
-                          purrr::possibly(~retrieve_data_by_years(taxa, years = .x, save_raw_data, output_dir))
-  )
-  
-  # Collapse list
-  output <- dplyr::bind_rows(download)
+  # If less than 1 mil records
+  if(n_obs < 1000000)
+    output <- retrieve_data_by_years(taxa, years, save_raw_data, output_dir)
+  else{
+    year_chunks <- split(years, ceiling(seq_along(years)/9))
+    
+    download <-  purrr::map(year_chunks,
+                            purrr::possibly(~retrieve_data_by_years(taxa, years = .x, save_raw_data, output_dir))
+    )
+    
+    # Collapse list
+    output <- dplyr::bind_rows(download)
+  } 
   
   return(output)
   
@@ -131,7 +144,7 @@ save_data <- function(data, taxa, output_dir) {
   )
 }
 
-# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
-#   download_ala_obs(taxa = "Odonata")
-# })
+job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
+  download_ala_obs(taxa = "Plantae")
+})
 
