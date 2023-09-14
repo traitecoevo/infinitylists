@@ -288,9 +288,11 @@ server <- function(input, output, session) {
   # Handle CSV download
   output$downloadData <- downloadHandler(
     filename = function() {
+      name_bits <- gsub(".parquet", "", input$ala_path)
+      name_bits <- gsub("Australia-", "", name_bits)
       paste(input$place,
-            "-",
-            gsub(".parquet", "", input$ala_path),
+            "-",input$buffer_size,"m-buffer-",
+            name_bits,
             ".csv",
             sep = "")
     },
