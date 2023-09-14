@@ -1,18 +1,17 @@
-
-
 # Libraries
 library(galah)
-library(tidyverse)
+library(dplyr)
 library(janitor)
 library(arrow)
-library(here)
 library(APCalign)
-library(skimr)
 
-download_ala_obs <- function(taxa = "Papilionoidea", output_dir = "infinity-app/data/") {
+download_ala_obs <- function(taxa, 
+                             year_range = c(1923, 2023),
+                             save_raw_data = FALSE,
+                             output_dir = "infinity-app/data/") {
   
   # 1. Data retrieval
-  ala_obs <- retrieve_data(taxa)
+  ala_obs <- retrieve_data(taxa, year_range, save_raw_data, output_dir)
   
   # 2. Filtering and processing
   ala_cleaned <- process_data(ala_obs)
@@ -27,11 +26,82 @@ download_ala_obs <- function(taxa = "Papilionoidea", output_dir = "infinity-app/
 }
 
 
+query <- function(taxa, years){
+  galah_call() |> 
+  galah_identify(taxa) |> 
+  galah_filter(
+    spatiallyValid == TRUE, 
+    species != "",
+    decimalLatitude != "",
+    year == years,
+    basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
+  ) |> 
+  galah_select(
+    recordID, species, genus, family, decimalLatitude, decimalLongitude, 
+    coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
+    references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf
+  )
+}
+
+
+retrieve_data_by_years <- function(taxa, 
+                                   years,
+                                   save_raw_data = NULL, 
+                                   output_dir =NULL) {
+  
+  # Download data from ALA
+  download <- query(taxa, years) |> 
+    atlas_occurrences()
+  
+  # Save download (optional)
+  if(save_raw_data)
+    arrow::write_parquet(
+      download,
+      paste0(output_dir, "ALA-Australia-", taxa, "-", first(years), 
+             "-", last(years), "-",  Sys.Date(), ".parquet")
+    )
+  
+  return(download)
+}
+
+
+
+retrieve_data <- function(taxa, 
+                          year_range = c(1923, 2023),
+                          save_raw_data = FALSE, 
+                          output_dir = "ignore/"){
+  
+  # Split years into chunks of 10 year intervals
+  years <- seq(year_range[1], year_range[2])
+  
+  # Determine atlas counts
+  n_obs <- query(taxa, years) |> 
+    atlas_counts()
+  
+  # If less than 1 mil records
+  if(n_obs < 1000000)
+    output <- retrieve_data_by_years(taxa, years, save_raw_data, output_dir)
+  else{
+    year_chunks <- split(years, ceiling(seq_along(years)/9))
+    
+    download <-  purrr::map(year_chunks,
+                            purrr::possibly(~retrieve_data_by_years(taxa, years = .x, save_raw_data, output_dir))
+    )
+    
+    # Collapse list
+    output <- dplyr::bind_rows(download)
+  } 
+  
+  return(output)
+  
+}
+
+
 get_establishment_status <- function(ala_cleaned, taxa = taxa) {
   if (taxa == "Plantae") {
     resources <- APCalign::load_taxonomic_resources()
     lookup <-
-      native_anywhere_in_australia(ala_cleaned$Species, resources = resources)
+      APCalign::native_anywhere_in_australia(ala_cleaned$Species, resources = resources)
     lookup <- rename(lookup, Species = species)
     ala_cleaned <-
       ala_cleaned %>% dplyr::left_join(lookup, by = join_by("Species"))
@@ -41,27 +111,6 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
     ala_cleaned$native_anywhere_in_aus[ala_cleaned$Species %in% c("Danaus plexippus","Pieris rapae")]<-"introduced"
   }
   return(ala_cleaned)
-}
-
-
-
-retrieve_data <- function(taxa) {
-  galah_call() |> 
-    galah_identify(taxa) |>
-    galah_apply_profile("CSDM") |>
-    galah_filter(
-      #stateProvince == state,
-      species != "",
-      decimalLatitude != "",
-      year >= 1923,
-      basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
-    ) |>
-    galah_select(
-      recordID, species, genus, family, decimalLatitude, decimalLongitude, 
-      coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
-      references, institutionCode, recordedBy
-    ) |>
-    atlas_occurrences()
 }
 
 process_data <- function(data) {
@@ -99,6 +148,7 @@ save_data <- function(data, taxa, output_dir) {
   )
 }
 
+# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
+#   download_ala_obs(taxa = "Plantae")
+# })
 
-# galah_config(email = "XXXX")
-# download_ala_obs()
