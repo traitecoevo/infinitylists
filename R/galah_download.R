@@ -148,7 +148,15 @@ save_data <- function(data, taxa, output_dir) {
   )
 }
 
+# galah_config(email = Sys.getenv("ALA_EMAIL"),
+#              atlas = "Australia")
+# 
 # job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
+#   download_ala_obs(taxa = "Papilionoidea")
+#   download_ala_obs(taxa = "Odonata")
+#   download_ala_obs(taxa = "Marsupialia")
+#   download_ala_obs(taxa = "Cicadoidea")
 #   download_ala_obs(taxa = "Plantae")
 # })
+
 
