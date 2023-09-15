@@ -196,11 +196,16 @@ ui <-
         )
       )
     ),
-
-    div("Powered by ",
-             tags$a(href = "https://www.unsw.edu.au/science", "UNSW Faculty of Science"), 
-             align = "right", style = "padding: 30px",
-        
-        div("Created by Will Cornwell, Fonti Kar and Thomas Mesaglio"))
+    
+    tags$footer(
+      "Powered by ",
+      tags$a(href = "https://www.unsw.edu.au/science", "UNSW Faculty of Science"), 
+      align = "right", style = "padding: 30px",
+      
+      div("Created by Will Cornwell, Fonti Kar and Thomas Mesaglio",  
+          target)
+      ),  
+     
   )
+  
 
