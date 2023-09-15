@@ -39,7 +39,7 @@ query <- function(taxa, years){
   galah_select(
     recordID, species, genus, family, decimalLatitude, decimalLongitude, 
     coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
-    references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf
+    references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf,sounds
   )
 }
 
@@ -106,7 +106,7 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
     ala_cleaned <-
       ala_cleaned %>% dplyr::left_join(lookup, by = join_by("Species"))
     return(ala_cleaned)
-  } else { # ALERT, ALERT NEEED TO CHANGE THIS IF WE ADD MORE TAXA!!!!!!!!!
+  } else { # ALERT, ALERT THIS IS A HACK!  NEEED TO CHANGE THIS IF WE ADD MORE TAXA!!!!!!!!!
     ala_cleaned$native_anywhere_in_aus <- "native" 
     ala_cleaned$native_anywhere_in_aus[ala_cleaned$Species %in% c("Danaus plexippus","Pieris rapae")]<-"introduced"
   }
@@ -129,7 +129,9 @@ process_data <- function(data) {
     ) |>
     mutate(
       voucher_location = if_else(!is.na(references), references, institutionCode),
-      voucher_type = if_else(basisOfRecord == "PRESERVED_SPECIMEN", "Collection", "Photograph"),
+      voucher_type = case_when(basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection", 
+                               !is.na(sounds) ~ "Audio",
+                               TRUE ~ "Photograph"),
       lat = decimalLatitude,
       long = decimalLongitude,
       collectionDate = ymd_hms(eventDate, tz = "UTC", quiet = TRUE),
@@ -151,12 +153,12 @@ save_data <- function(data, taxa, output_dir) {
 # galah_config(email = Sys.getenv("ALA_EMAIL"),
 #              atlas = "Australia")
 # 
-# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
+ job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
 #   download_ala_obs(taxa = "Papilionoidea")
 #   download_ala_obs(taxa = "Odonata")
 #   download_ala_obs(taxa = "Marsupialia")
-#   download_ala_obs(taxa = "Cicadoidea")
+   download_ala_obs(taxa = "Cicadoidea")
 #   download_ala_obs(taxa = "Plantae")
-# })
+ })
 
 
