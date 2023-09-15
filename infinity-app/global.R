@@ -11,6 +11,7 @@
 library(shiny)
 library(shinybusy)
 library(shinythemes)
+library(bsplus)
 
 # Libraries for data manipulation and transformation
 library(DT)            # For rendering data tables in Shiny
@@ -141,3 +142,8 @@ points_in_buffer <- function(points, place_polygon, buffer_size) {
   buffer_place <- add_buffer(place_polygon, buffer_size)
   st_intersects(points, buffer_place, sparse = FALSE)[, 1]
 }
+
+
+# Custom Github hyperlink icon
+target <- shiny_iconlink(name = "github")
+target$attribs$href <- "https://github.com/traitecoevo/infinitylists"
