@@ -29,7 +29,7 @@ library(leaflet.extras)
 options(dplyr.summarise.inform = FALSE)
 
 # Get the list of files in the data directory
-files_in_directory <- list.files(path = "data/")
+files_in_directory <- list.files(path = "data/", pattern = ".parquet")
 taxa_names <-
   gsub("Australia-(.+?)-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet",
        "\\1",
