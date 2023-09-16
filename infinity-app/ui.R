@@ -161,7 +161,7 @@ ui <-
                    p("You can search anywhere in Australia, including external territories such as Norfolk Island or Christmas Island, or Australian waters."),
                    
                    h4("7. Where do the data come from?"),
-                   p("All data are extracted from the Atlas of Living Australia (ALA) Australia's ", tags$a(href = "https://www.ala.org.au", "national biodiversity database")),
+                   p("All data are extracted from the Atlas of Living Australia (ALA), Australia's ", tags$a(href = "https://www.ala.org.au", "national biodiversity database.")),
                    
                    h4("8. Which data sources within the ALA are included?"),
                    p("The app generates lists from two data sources, both of which are associated with some kind of voucher, i.e., records that are 'verifiable'. First, all records associated with a physical voucher stored in an Australian institution (such as herbaria and museums) are included for the voucher type 'Collection'. Second, all Australian records from the online citizen science platform iNaturalist that have qualified to enter the ALA are included for the voucher types 'Photograph' and 'Recording'."),
