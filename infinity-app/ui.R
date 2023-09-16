@@ -152,16 +152,16 @@ ui <-
                    p("You can generate lists for marsupials, plants, dragonflies + damselflies (Odonata), butterflies (Papilionoidea) or cicadas."),
                    
                    h4("4. What is a KML file?"),
-                   p("KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as Google Earth."),
+                   p("KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as ", tags$a(href = "https://earth.google.com/", "Google Earth ")),
                    
                    h4("5. Where can I find a KML file for the location I'm interested in?"),
-                   p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as Google Earth by drawing a polygon, and then exporting it as a KML."),
+                   p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as ", tags$a(href = "https://earth.google.com/", "Google Earth "),  "by drawing a polygon, and then exporting it as a KML."),
                    
                    h4("6. Can I search for any location in Australia?"),
                    p("You can search anywhere in Australia, including external territories such as Norfolk Island or Christmas Island, or Australian waters."),
                    
                    h4("7. Where do the data come from?"),
-                   p("All data are extracted from the Atlas of Living Australia (ALA), Australia's national biodiversity database: https://www.ala.org.au."),
+                   p("All data are extracted from the Atlas of Living Australia (ALA) Australia's ", tags$a(href = "https://www.ala.org.au", "national biodiversity database")),
                    
                    h4("8. Which data sources within the ALA are included?"),
                    p("The app generates lists from two data sources, both of which are associated with some kind of voucher, i.e., records that are 'verifiable'. First, all records associated with a physical voucher stored in an Australian institution (such as herbaria and museums) are included for the voucher type 'Collection'. Second, all Australian records from the online citizen science platform iNaturalist that have qualified to enter the ALA are included for the voucher types 'Photograph' and 'Recording'."),
@@ -170,13 +170,21 @@ ui <-
                    p("Selecting a buffer includes additional species that have not been recorded within the main target area, but have been seen in the immediate surrounding area up to the defined radius."),
                    
                    h4("10. Which taxonomic trees does the app use?"),
-                   p("The species names presented in the app follow the taxonomic trees used by the ALA. For plants, names are taken from the Australian Plant Census (https://biodiversity.org.au/nsl/services/search/taxonomy), and for animals, names are taken from the Australian Faunal Directory (https://biodiversity.org.au/afd/home) (with minor exceptions for both)."),
+                   p("The species names presented in the app follow the taxonomic trees used by the ALA. For plants, names are taken from the ", tags$a(href = "https://biodiversity.org.au/nsl/services/search/taxonomy", "Australian Plant Census "), "and for animals, names are taken from the ", tags$a("Australian Faunal Directory ", href = "https://biodiversity.org.au/afd/home"), "with minor exceptions for both"),
                    
                    h4("11. Are records only included in the app if they are identified to species?"),
                    p("Yes, any records that are identified to a taxonomic level coarser than species will not be retrieved by the app. Also, any records identified to an infraspecific level will only have the species identification displayed within the app."),
                    
                    h4("12. Are any other records excluded from the app?"),
-                   p("Yes, the following types of record are excluded: 1) iNaturalist records with a copyright license of All Rights Reserved; 2) All records pre-dating 1923; 3) All records with a coordinate uncertainty value of > 1000 m; 4) Records hidden from default ALA maps based on their standard data profile filters. More information can be found on these here: https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters. Note that we manually overrode three of the four Species Distribution Modelling (CSDM) filters (records with a spatial issue are still excluded) to ensure these records are included."),
+                   p("Yes, the following types of record are excluded: "),
+                   tags$ol(
+                     tags$li("iNaturalist records with a copyright license of All Rights Reserved"),
+                     tags$li("All records pre-dating 1923"),
+                     tags$li("All records with a coordinate uncertainty value of > 1000 m"),
+                     tags$li("Records considered to have spatial issues by ALA")
+                   ),
+                   p("More information can be found on these ", tags$a("here", href = "https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters")),
+                     
                    
                    h4("13. Does the app reveal the location of species with sensitive locations?"),
                    p("Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA itself) are excluded from the app."),
@@ -191,7 +199,7 @@ ui <-
                    p("The blue markers represent a single record. The coloured circles represent clusters of points; the number in the centre of each circle shows how many records are within that cluster. Zooming in on the map will resolve these clusters into their individual points. If a cluster remains at the maximum zoom level, clicking it will resolve it into its individual points."),
                    
                    h4("17. Why is the app called 'An Infinity of Lists'?"),
-                   p("The app's name is a reference to the book 'The Infinity of Lists' by Italian author Umberto Eco."),
+                   p("The app's name is a reference to the book ", tags$a(href = "https://en.wikipedia.org/wiki/The_Infinity_of_Lists", 'The Infinity of Lists'), " by Italian author Umberto Eco."),
           )
         )
       )
