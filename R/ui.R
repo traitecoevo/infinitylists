@@ -10,7 +10,7 @@ ui <- function(){
     titlePanel(
       windowTitle = "Infinity Lists",
       div("An Infinity of Lists: an Interactive Guide to Australian Biodiversity",
-          img(src = "infinitylist_hex.svg", width=150))),
+          img(src = "www/infinitylist_hex.svg", width=150))),
   
     
     shinybusy::add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
