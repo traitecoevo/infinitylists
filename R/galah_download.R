@@ -26,16 +26,16 @@ download_ala_obs <- function(taxa,
 #'
 #' @import galah
 query <- function(taxa, years){
-  galah_call() |> 
-  galah_identify(taxa) |> 
-  galah_filter(
+  galah::galah_call() |> 
+  galah::galah_identify(taxa) |> 
+  galah::galah_filter(
     spatiallyValid == TRUE, 
     species != "",
     decimalLatitude != "",
     year == years,
     basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
   ) |> 
-  galah_select(
+  galah::galah_select(
     recordID, species, genus, family, decimalLatitude, decimalLongitude, 
     coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
     references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf,sounds
@@ -156,12 +156,12 @@ save_data <- function(data, taxa, output_dir) {
 #              atlas = "Australia")
 #
 # requireNamespace("job", quietly = TRUE)
- job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
+#job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
 #   download_ala_obs(taxa = "Papilionoidea")
 #   download_ala_obs(taxa = "Odonata")
 #   download_ala_obs(taxa = "Marsupialia")
-   download_ala_obs(taxa = "Cicadoidea")
+#   download_ala_obs(taxa = "Cicadoidea")
 #   download_ala_obs(taxa = "Plantae")
- })
+# })
 
 

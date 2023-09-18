@@ -1,4 +1,4 @@
-#' Title
+#' Run Infinity List App in R
 #'
 #' @param ... 
 #'
@@ -8,7 +8,7 @@
 
 infinitylistApp <- function(...){
   ui <- ui() 
-  server <- server
+  server <- infinity_server()
   
   shinyApp(ui, server, ...)
 } 

@@ -1,22 +1,8 @@
 # ----------------------
 # Data Preparation
 # ----------------------
-
-
-# ----------------------
-# Load Libraries
-# ----------------------
-
-# Libraries for Shiny web applications
-
-# Libraries for data manipulation and transformation
-
-# Libraries for spatial data handling and visualization
-
-library(leaflet.extras)
-
 # To suppress warning messages when summarizing data
-options(dplyr.summarise.inform = FALSE)
+# options(dplyr.summarise.inform = FALSE)
 
 # Get the list of files in the data directory
 files_in_directory <- list.files(path = "data/", pattern = ".parquet")
@@ -24,6 +10,7 @@ taxa_names <-
   gsub("Australia-(.+?)-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet",
        "\\1",
        files_in_directory)
+
 files_in_directory <- setNames(files_in_directory, taxa_names)
 
 # Function to add a buffer around a given geometry (polygon or multipolygon)
@@ -93,13 +80,13 @@ create_circle_polygon <- function(lat, long, radius_m) {
 # Load predefined spatial boundaries for various places
 places <- list(
   "Wategora Reserve" = load_place(
-    "places/wategora-reserve-survey-area-approximate-boundaries.kml"
+    "data/places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
-  "Fowlers Gap, UNSW" = load_place("places/unsw-fowlers.kml"),
-  "UNSW Smiths Lake and Vicinity" = load_place("places/unsw-smith-lake-field-station-and-vicinity.kml"),
-  "Australian Botanic Garden Mount Annan" = load_place("places/mt-annan-australian-botanic-garden.kml"),
-  "Grants Beach Walking Trail" = load_place("places/grants-beach-walking-trail.kml"),
-  "North Head - Sydney Harbour Federation Trust" = load_place("places/north-head-sydney-harbour-federation-trust.kml")
+  "Fowlers Gap, UNSW" = load_place("data/places/unsw-fowlers.kml"),
+  "UNSW Smiths Lake and Vicinity" = load_place("data/places/unsw-smith-lake-field-station-and-vicinity.kml"),
+  "Australian Botanic Garden Mount Annan" = load_place("data/places/mt-annan-australian-botanic-garden.kml"),
+  "Grants Beach Walking Trail" = load_place("data/places/grants-beach-walking-trail.kml"),
+  "North Head - Sydney Harbour Federation Trust" = load_place("data/places/north-head-sydney-harbour-federation-trust.kml")
 )
 
 
