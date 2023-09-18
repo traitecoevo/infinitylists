@@ -1,8 +1,6 @@
 #' Run Infinity List App in R
 #'
 #' @param ... 
-#'
-#' @return
 #' @export
 #' @import shiny
 

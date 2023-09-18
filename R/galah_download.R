@@ -1,3 +1,10 @@
+#' Download observations for Infinity List
+#'
+#' @param taxa 
+#' @param year_range 
+#' @param save_raw_data 
+#' @param output_dir 
+#' @export
 download_ala_obs <- function(taxa, 
                              year_range = c(1923, 2023),
                              save_raw_data = FALSE,
@@ -19,12 +26,10 @@ download_ala_obs <- function(taxa,
 }
 
 
-#' Title
+#' Default ALA query
 #'
 #' @param taxa 
 #' @param years 
-#'
-#' @import galah
 query <- function(taxa, years){
   galah::galah_call() |> 
   galah::galah_identify(taxa) |> 
