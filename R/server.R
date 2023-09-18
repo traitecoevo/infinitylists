@@ -112,6 +112,19 @@ infinity_server <- function(...){
       return(data.table::data.table(data))
     })
     
+    ala_data <- reactive({
+      long_buffer <- 0.578 #50 km approx
+      lat_buffer <- 0.45 #50 km approx
+      place_polygon <- selected_polygon()
+      arrow::open_dataset(paste0("data/", input$ala_path)) |>
+        dplyr::filter(
+          Lat < sf::st_bbox(place_polygon)$ymax + lat_buffer &
+            Lat > sf::st_bbox(place_polygon)$ymin - lat_buffer &
+            Long < sf::st_bbox(place_polygon)$xmax + long_buffer &
+            Long > sf::st_bbox(place_polygon)$xmin - long_buffer
+        ) |>
+        dplyr::collect() |> data.table::data.table() 
+    })
     
     stats_text <- reactive({
       data <- intersect_data()
@@ -158,7 +171,7 @@ infinity_server <- function(...){
             Long < sf::st_bbox(place_polygon)$xmax + long_buffer &
             Long > sf::st_bbox(place_polygon)$xmin - long_buffer
         ) |>
-        arrow::collect() |> data.table::data.table() 
+        dplyr::collect() |> data.table::data.table() 
     })
     
     # A reactive to combine your two inputs
@@ -322,19 +335,19 @@ infinity_server <- function(...){
         buffer_color <- "darkorange"
       }
       
-      leaflet::leaflet() %>%
+      leaflet::leaflet() |>
         leaflet::addTiles(
           urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
           attribution = paste0('<a href="', url, '">', link_text, '</a>')
-        ) %>%
+        ) |>
         leaflet::addMarkers(
           data = filtered_data(),
           lng = ~ filtered_data()$Long,
           lat = ~ filtered_data()$Lat,
           popup = ~ paste(filtered_data()$Species, filtered_data()$`Voucher Type`),
           clusterOptions = markerClusterOptions(maxClusterRadius = 20)
-        ) %>%
-        leaflet::addPolygons(data = place_polygon, color = "red") %>%
+        ) |>
+        leaflet::addPolygons(data = place_polygon, color = "red") |>
         leaflet::addPolygons(data = add_buffer(place_polygon, buffer), color = buffer_color)
     })
   }

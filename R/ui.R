@@ -6,7 +6,7 @@
 # Define the user interface for the Shiny app
 ui <- function(){
   fluidPage(
-    theme = shinytheme::shinytheme("cosmo"),
+    theme = shinythemes::shinytheme("cosmo"),
     titlePanel(
       windowTitle = "Infinity Lists",
       div("An Infinity of Lists: an Interactive Guide to Australian Biodiversity",
