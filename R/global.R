@@ -18,7 +18,6 @@ library(arrow)         # For reading/writing different file formats efficiently
 
 # Libraries for spatial data handling and visualization
 library(leaflet)       # For rendering interactive maps
-library(sf)            # For spatial data operations
 library(leaflet.extras)
 
 # To suppress warning messages when summarizing data
@@ -54,7 +53,7 @@ add_buffer <- function(geom, buffer_size_meters) {
   geom_utm <- sf::st_transform(geom, crs_utm)
   
   # Add buffer
-  buffered_utm <- sf::st_buffer(geom_utm, dist = buffer_size_meters)
+  buffered_utm <- sf::buffer(geom_utm, dist = buffer_size_meters)
   
   # Transform back to original CRS (4326)
   buffered <-
@@ -138,7 +137,6 @@ points_in_buffer <- function(points, place_polygon, buffer_size) {
   buffer_place <- add_buffer(place_polygon, buffer_size)
   sf::st_intersects(points, buffer_place, sparse = FALSE)[, 1]
 }
-
 
 # Custom Github hyperlink icon
 target <- bsplus::shiny_iconlink(name = "github")

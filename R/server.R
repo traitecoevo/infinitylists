@@ -88,7 +88,7 @@ server <- function(input, output, session) {
     place_polygon <- selected_polygon()
     
     if (is.null(place_polygon)) {
-      return(data.table())
+      return(data.table::data.table())
     }
     
     if (nrow(data) > 0) {
@@ -109,7 +109,7 @@ server <- function(input, output, session) {
     }
     
     data <- dplyr::filter(data, !is.na(`In target area`))
-    return(data.table(data))
+    return(data.table::data.table(data))
   })
   
   
@@ -151,14 +151,14 @@ server <- function(input, output, session) {
     long_buffer <- 0.578 #50 km approx
     lat_buffer <- 0.45 #50 km approx
     place_polygon <- selected_polygon()
-    open_dataset(paste0("data/", input$ala_path)) |>
-      filter(
+    arrow::open_dataset(paste0("data/", input$ala_path)) |>
+      dplyr::filter(
         Lat < sf::st_bbox(place_polygon)$ymax + lat_buffer &
           Lat > sf::st_bbox(place_polygon)$ymin - lat_buffer &
           Long < sf::st_bbox(place_polygon)$xmax + long_buffer &
           Long > sf::st_bbox(place_polygon)$xmin - long_buffer
       ) |>
-      collect() |> data.table() 
+      arrow::collect() |> data.table::data.table() 
   })
   
   # A reactive to combine your two inputs
@@ -194,7 +194,7 @@ server <- function(input, output, session) {
     result <- intersect_data()
     if (nrow(result) == 0) {
       return(
-        data.table(
+        data.table::data.table(
           Species = character(0),
           `Voucher Type` = character(0),
           `Most recent obs.` = character(0),
@@ -256,7 +256,7 @@ server <- function(input, output, session) {
   
   # Render data table
   
-  output$table <- renderDT({
+  output$table <- DT::renderDT({
     data <- filtered_data()
     
     #preliminaries
@@ -267,7 +267,7 @@ server <- function(input, output, session) {
     setorder(data,-N)  # sort by the "N" column in descending order
     
     #entres
-    datatable(
+    DT::datatable(
       data,
       rownames = FALSE,
       escape = FALSE,
@@ -280,7 +280,7 @@ server <- function(input, output, session) {
           className = 'dt-left', targets = '_all'
         ))
       )
-    ) |> formatDate(date_index, method = "toLocaleDateString", 
+    ) |> DT::formatDate(date_index, method = "toLocaleDateString", 
                     params = list('en-AU', list(day = 'numeric', month = 'short', year = 'numeric'))
     )
   })
@@ -310,7 +310,7 @@ server <- function(input, output, session) {
   )
   
   # Render Leaflet map
-  output$map <- renderLeaflet({
+  output$map <- leaflet::renderLeaflet({
     url <- "https://cloud.google.com/maps-platform/terms"
     link_text <- "Google Maps"
     place_polygon <- selected_polygon() # Use the reactive polygon
@@ -322,19 +322,19 @@ server <- function(input, output, session) {
       buffer_color <- "darkorange"
     }
     
-    leaflet() %>%
-      addTiles(
+    leaflet::leaflet() %>%
+      leaflet::addTiles(
         urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
         attribution = paste0('<a href="', url, '">', link_text, '</a>')
       ) %>%
-      addMarkers(
+      leaflet::addMarkers(
         data = filtered_data(),
         lng = ~ filtered_data()$Long,
         lat = ~ filtered_data()$Lat,
         popup = ~ paste(filtered_data()$Species, filtered_data()$`Voucher Type`),
         clusterOptions = markerClusterOptions(maxClusterRadius = 20)
       ) %>%
-      addPolygons(data = place_polygon, color = "red") %>%
-      addPolygons(data = add_buffer(place_polygon, buffer), color = buffer_color)
+      leaflet::addPolygons(data = place_polygon, color = "red") %>%
+      leaflet::addPolygons(data = add_buffer(place_polygon, buffer), color = buffer_color)
   })
 }
