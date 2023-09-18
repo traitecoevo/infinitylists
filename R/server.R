@@ -82,13 +82,27 @@ infinity_server <- function(...){
     })
     
     
+    ala_data <- reactive({
+      long_buffer <- 0.578 #50 km approx
+      lat_buffer <- 0.45 #50 km approx
+      place_polygon <- selected_polygon()
+      arrow::open_dataset(paste0("data/", input$ala_path)) |>
+        dplyr::filter(
+          Lat < sf::st_bbox(place_polygon)$ymax + lat_buffer &
+            Lat > sf::st_bbox(place_polygon)$ymin - lat_buffer &
+            Long < sf::st_bbox(place_polygon)$xmax + long_buffer &
+            Long > sf::st_bbox(place_polygon)$xmin - long_buffer
+        ) |>
+        dplyr::collect() |> data.table::data.table() 
+    })
+    
     intersect_data <- reactive({
       data <- filter_by_taxon(input, ala_data)
       
       place_polygon <- selected_polygon()
       
       if (is.null(place_polygon)) {
-        return(data.table::data.table())
+        return(data.table::data.table(data))
       }
       
       if (nrow(data) > 0) {
@@ -112,19 +126,7 @@ infinity_server <- function(...){
       return(data.table::data.table(data))
     })
     
-    ala_data <- reactive({
-      long_buffer <- 0.578 #50 km approx
-      lat_buffer <- 0.45 #50 km approx
-      place_polygon <- selected_polygon()
-      arrow::open_dataset(paste0("data/", input$ala_path)) |>
-        dplyr::filter(
-          Lat < sf::st_bbox(place_polygon)$ymax + lat_buffer &
-            Lat > sf::st_bbox(place_polygon)$ymin - lat_buffer &
-            Long < sf::st_bbox(place_polygon)$xmax + long_buffer &
-            Long > sf::st_bbox(place_polygon)$xmin - long_buffer
-        ) |>
-        dplyr::collect() |> data.table::data.table() 
-    })
+
     
     stats_text <- reactive({
       data <- intersect_data()
@@ -159,20 +161,6 @@ infinity_server <- function(...){
       stats_text()
     })
     
-    
-    ala_data <- reactive({
-      long_buffer <- 0.578 #50 km approx
-      lat_buffer <- 0.45 #50 km approx
-      place_polygon <- selected_polygon()
-      arrow::open_dataset(paste0("data/", input$ala_path)) |>
-        dplyr::filter(
-          Lat < sf::st_bbox(place_polygon)$ymax + lat_buffer &
-            Lat > sf::st_bbox(place_polygon)$ymin - lat_buffer &
-            Long < sf::st_bbox(place_polygon)$xmax + long_buffer &
-            Long > sf::st_bbox(place_polygon)$xmin - long_buffer
-        ) |>
-        dplyr::collect() |> data.table::data.table() 
-    })
     
     # A reactive to combine your two inputs
     combined_input <- reactive({
