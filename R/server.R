@@ -1,7 +1,6 @@
-# ----------------------
-# Server
-# ----------------------
-
+#' Create server for infinity lists
+#'
+#' @param ... 
 infinity_server <- function(...){
   server <- function(input, output, session) {
     # Function to update genus choices based on selected place
@@ -213,8 +212,7 @@ infinity_server <- function(...){
       result <-
         result[order(-as.integer(`In target area` == "in target"),
                      -`Collection Date`)]
-      
-      
+
       result <- result[, .(
         `In target area` = `In target area`[1],
         N = .N,
