@@ -1,10 +1,3 @@
-# Libraries
-library(galah)
-library(dplyr)
-library(janitor)
-library(arrow)
-library(APCalign)
-
 download_ala_obs <- function(taxa, 
                              year_range = c(1923, 2023),
                              save_raw_data = FALSE,
@@ -26,6 +19,12 @@ download_ala_obs <- function(taxa,
 }
 
 
+#' Title
+#'
+#' @param taxa 
+#' @param years 
+#'
+#' @import galah
 query <- function(taxa, years){
   galah_call() |> 
   galah_identify(taxa) |> 
@@ -51,7 +50,7 @@ retrieve_data_by_years <- function(taxa,
   
   # Download data from ALA
   download <- query(taxa, years) |> 
-    atlas_occurrences()
+    galah::atlas_occurrences()
   
   # Save download (optional)
   if(save_raw_data)
@@ -76,7 +75,7 @@ retrieve_data <- function(taxa,
   
   # Determine atlas counts
   n_obs <- query(taxa, years) |> 
-    atlas_counts()
+    galah::atlas_counts()
   
   # If less than 1 mil records
   if(n_obs < 1000000)
@@ -102,9 +101,12 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
     resources <- APCalign::load_taxonomic_resources()
     lookup <-
       APCalign::native_anywhere_in_australia(ala_cleaned$Species, resources = resources)
-    lookup <- rename(lookup, Species = species)
+    
+    lookup <- dplyr::rename(lookup, Species = species)
+    
     ala_cleaned <-
       ala_cleaned %>% dplyr::left_join(lookup, by = join_by("Species"))
+    
     return(ala_cleaned)
   } else { # ALERT, ALERT THIS IS A HACK!  NEEED TO CHANGE THIS IF WE ADD MORE TAXA!!!!!!!!!
     ala_cleaned$native_anywhere_in_aus <- "native" 
@@ -121,30 +123,30 @@ process_data <- function(data) {
   )
   
   data |> 
-    filter(
+    dplyr::filter(
       basisOfRecord == "PRESERVED_SPECIMEN" | datasetName %in% datasets_of_interest,
       is.na(coordinateUncertaintyInMeters) | coordinateUncertaintyInMeters <= 1000,
       !is.na(eventDate),
       !str_detect(species, "spec.$")
     ) |>
-    mutate(
-      voucher_location = if_else(!is.na(references), references, institutionCode),
-      voucher_type = case_when(basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection", 
+    dplyr::mutate(
+      voucher_location = dplyr::if_else(!is.na(references), references, institutionCode),
+      voucher_type = dplyr::case_when(basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection", 
                                !is.na(sounds) ~ "Audio",
                                TRUE ~ "Photograph"),
       lat = decimalLatitude,
       long = decimalLongitude,
-      collectionDate = ymd_hms(eventDate, tz = "UTC", quiet = TRUE),
-      collectionDate = if_else(is.na(collectionDate), ymd(eventDate, tz = "UTC", quiet = TRUE), collectionDate)
+      collectionDate = lubridate::ymd_hms(eventDate, tz = "UTC", quiet = TRUE),
+      collectionDate = dplyr::if_else(is.na(collectionDate), lubridate::ymd(eventDate, tz = "UTC", quiet = TRUE), collectionDate)
     ) |> 
-    select(
+    dplyr::select(
       species:family, collectionDate, lat, long, voucher_type, voucher_location, recordedBy,recordID
     ) |> 
-    clean_names("title")
+    janitor::clean_names("title")
 }
 
 save_data <- function(data, taxa, output_dir) {
-  write_parquet(
+  arrow::write_parquet(
     data,
     paste0(output_dir, "Australia-", taxa, "-", Sys.Date(), ".parquet")
   )
@@ -152,7 +154,8 @@ save_data <- function(data, taxa, output_dir) {
 
 # galah_config(email = Sys.getenv("ALA_EMAIL"),
 #              atlas = "Australia")
-# 
+#
+# requireNamespace("job", quietly = TRUE)
  job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
 #   download_ala_obs(taxa = "Papilionoidea")
 #   download_ala_obs(taxa = "Odonata")

@@ -11,10 +11,7 @@
 
 # Libraries for data manipulation and transformation
 library(DT)            # For rendering data tables in Shiny
-library(dplyr)         # For data manipulation
 library(data.table)    # For efficient data manipulation
-library(lubridate)     # For date-time manipulation
-library(arrow)         # For reading/writing different file formats efficiently
 
 # Libraries for spatial data handling and visualization
 library(leaflet)       # For rendering interactive maps

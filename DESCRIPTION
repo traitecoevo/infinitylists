@@ -17,8 +17,19 @@ Depends:
     R (>= 2.10)
 LazyData: true
 Imports: 
+    APCalign (>= 0.1.1),
+    arrow,
     bsplus,
+    galah,
+    janitor,
+    leaflet,
+    lubridate,
+    purrr,
     sf,
     shiny,
     shinybusy,
     shinythemes
+Remotes: 
+    traitecoevo/APCalign
+Suggests: 
+    job
