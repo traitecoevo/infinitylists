@@ -18,7 +18,7 @@ ui <- function(){
     
     sidebarLayout(
       sidebarPanel(
-        selectInput("ala_path", "Choose a taxa:", choices=files_in_directory,selected=files_in_directory["Plantae"]),
+        selectInput("ala_path", "Choose a taxa:", choices = files_in_directory, selected = files_in_directory["Plantae"]),
         radioButtons(
           "inputType",
           "Choose a place:",
@@ -132,7 +132,7 @@ ui <- function(){
       mainPanel(
         tabsetPanel(
           tabPanel("Map",
-                   leafletOutput("map", height = 500),
+                   leaflet::leafletOutput("map", height = 500),
                    tags$br(),
                    div(style = "font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 20px;", textOutput("statsOutput")),
                    tags$br(),
@@ -140,7 +140,7 @@ ui <- function(){
           ),
           
           tabPanel("Species records",
-                   DTOutput("table")
+                   DT::DTOutput("table")
           ),
           tabPanel("FAQs",
                    h2("Frequently Asked Questions"),
