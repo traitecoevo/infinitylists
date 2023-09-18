@@ -102,7 +102,7 @@ infinity_server <- function(...){
       place_polygon <- selected_polygon()
       
       if (is.null(place_polygon)) {
-        return(data.table::data.table(data))
+        return(data)
       }
       
       if (nrow(data) > 0) {
@@ -123,7 +123,7 @@ infinity_server <- function(...){
       }
       
       data <- dplyr::filter(data, !is.na(`In target area`))
-      return(data.table::data.table(data))
+      return(data)
     })
     
 
@@ -133,7 +133,7 @@ infinity_server <- function(...){
       
       total_species <- length(unique(data$Species))
       
-      collections <- data[data$`Voucher Type` == "Collection"]
+      collections <- data[data$`Voucher Type` == "Collection",]
       collections_count <- nrow(collections)
       collections_species <- length(unique(collections$Species))
       
