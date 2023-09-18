@@ -10,11 +10,9 @@
 # Libraries for Shiny web applications
 
 # Libraries for data manipulation and transformation
-library(DT)            # For rendering data tables in Shiny
-library(data.table)    # For efficient data manipulation
 
 # Libraries for spatial data handling and visualization
-library(leaflet)       # For rendering interactive maps
+
 library(leaflet.extras)
 
 # To suppress warning messages when summarizing data
