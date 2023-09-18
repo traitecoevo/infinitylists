@@ -8,7 +8,7 @@
 download_ala_obs <- function(taxa, 
                              year_range = c(1923, 2023),
                              save_raw_data = FALSE,
-                             output_dir = "infinity-app/data/") {
+                             output_dir = "data/") {
   
   # 1. Data retrieval
   ala_obs <- retrieve_data(taxa, year_range, save_raw_data, output_dir)
@@ -73,7 +73,7 @@ retrieve_data_by_years <- function(taxa,
 retrieve_data <- function(taxa, 
                           year_range = c(1923, 2023),
                           save_raw_data = FALSE, 
-                          output_dir = "ignore/"){
+                          output_dir = NULL){
   
   # Split years into chunks of 10 year intervals
   years <- seq(year_range[1], year_range[2])
