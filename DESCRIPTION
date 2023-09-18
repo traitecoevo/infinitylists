@@ -26,6 +26,7 @@ Imports:
     jsonlite,
     leaflet,
     lubridate,
+    pkgload,
     purrr,
     sf,
     shiny,
