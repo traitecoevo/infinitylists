@@ -80,13 +80,13 @@ create_circle_polygon <- function(lat, long, radius_m) {
 # Load predefined spatial boundaries for various places
 places <- list(
   "Wategora Reserve" = load_place(
-    "data/places/wategora-reserve-survey-area-approximate-boundaries.kml"
+    "inst/extdata/places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
-  "Fowlers Gap, UNSW" = load_place("data/places/unsw-fowlers.kml"),
-  "UNSW Smiths Lake and Vicinity" = load_place("data/places/unsw-smith-lake-field-station-and-vicinity.kml"),
-  "Australian Botanic Garden Mount Annan" = load_place("data/places/mt-annan-australian-botanic-garden.kml"),
-  "Grants Beach Walking Trail" = load_place("data/places/grants-beach-walking-trail.kml"),
-  "North Head - Sydney Harbour Federation Trust" = load_place("data/places/north-head-sydney-harbour-federation-trust.kml")
+  "Fowlers Gap, UNSW" = load_place("inst/extdata/places/unsw-fowlers.kml"),
+  "UNSW Smiths Lake and Vicinity" = load_place("inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"),
+  "Australian Botanic Garden Mount Annan" = load_place("inst/extdata/places/mt-annan-australian-botanic-garden.kml"),
+  "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
+  "North Head - Sydney Harbour Federation Trust" = load_place("inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
 )
 
 

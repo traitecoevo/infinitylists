@@ -31,4 +31,4 @@ check_and_download_update <- function() {
 }
 
 # Example usage
-check_and_download_update()
+# check_and_download_update()
