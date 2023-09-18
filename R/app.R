@@ -2,7 +2,6 @@
 #'
 #' @param ... 
 #' @export
-#' @import shiny
 
 infinitylistApp <- function(...){
   ui <- ui() 

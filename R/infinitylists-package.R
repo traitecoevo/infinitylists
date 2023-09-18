@@ -1,4 +1,6 @@
 #' @keywords internal
+#' @import shiny
+#' @import data.table
 "_PACKAGE"
 
 ## usethis namespace: start

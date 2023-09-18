@@ -2,4 +2,5 @@
 
 export(download_ala_obs)
 export(infinitylistApp)
+import(data.table)
 import(shiny)

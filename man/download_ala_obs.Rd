@@ -8,7 +8,7 @@ download_ala_obs(
   taxa,
   year_range = c(1923, 2023),
   save_raw_data = FALSE,
-  output_dir = "infinity-app/data/"
+  output_dir = "data/"
 )
 }
 \arguments{
