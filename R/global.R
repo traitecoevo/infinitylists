@@ -6,6 +6,7 @@
 
 # Get the list of files in the data directory
 files_in_directory <- list.files(path = system.file(package = "infinitylists", "data/"), pattern = ".parquet")
+print(system.file(package = "infinitylists", "data/"))
 taxa_names <-
   gsub("Australia-(.+?)-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet",
        "\\1",
