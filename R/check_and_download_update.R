@@ -1,8 +1,3 @@
-
-# Required libraries
-library(httr)
-library(jsonlite)
-
 check_and_download_update <- function() {
   
   current_version="0.0.0"
@@ -10,8 +5,8 @@ check_and_download_update <- function() {
 
     # Fetch the latest release information using the GitHub API
   url <- paste0("https://api.github.com/repos/", "traitecoevo", "/", "infinitylists", "/releases/latest")
-  response <- GET(url)
-  release_data <- fromJSON(content(response, "text"))
+  response <- httr::GET(url)
+  release_data <- jsonlite::fromJSON(httr::content(response, "text"))
   
   # Extract the latest version tag
   latest_version <- gsub("v", "", release_data$tag_name)
@@ -36,4 +31,4 @@ check_and_download_update <- function() {
 }
 
 # Example usage
-check_and_download_update()
+# check_and_download_update()

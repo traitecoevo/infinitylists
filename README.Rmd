@@ -23,20 +23,22 @@ This shiny-based application allows users to extract plant occurrence data from 
 
 ## Installation
 
-You can install the development version of infinitylists from [GitHub](https://github.com/) with:
+You can install the development version of 'infinitylists' from [GitHub](https://github.com/traitecoevo/infinitylists) with:
 
-``` r
-# install.packages("devtools")
-devtools::install_github("traitecoevo/plant-map-app")
+```{r}
+# install.packages("remotes")
+remotes::install_github("traitecoevo/infinitylists")
 ```
 
-## Example
+## Use the app 
 
-This is a basic example which shows you how to solve a common problem:
+The app can be access here:https://posit-connect-unsw.intersect.org.au/infinitylists/
+
+## Use the app locally
 
 ```{r example}
 library(infinitylists)
 
-runApp()
+infinitylistApp()
 ```
 

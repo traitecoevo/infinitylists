@@ -16,22 +16,23 @@ type, number of vouchers, date of the most recent voucher, spatial
 coordinates, voucher location, and the voucher collector. Records are
 displayed both in a table and on a map, and are downloadable as a CSV.
 
+The app can be access
+here:<https://posit-connect-unsw.intersect.org.au/infinitylists/>
+
 ## Installation
 
-You can install the development version of infinitylists from
-[GitHub](https://github.com/) with:
+You can install the development version of ‘infinitylists’ from
+[GitHub](https://github.com/traitecoevo/infinitylists) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("traitecoevo/plant-map-app")
+# install.packages("remotes")
+remotes::install_github("traitecoevo/infinitylists")
 ```
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
+## Run the app locally
 
 ``` r
 library(infinitylists)
 
-runApp()
+infinitylistApp()
 ```
