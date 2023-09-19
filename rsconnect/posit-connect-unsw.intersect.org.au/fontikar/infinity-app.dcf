@@ -5,8 +5,6 @@ account: fontikar
 server: posit-connect-unsw.intersect.org.au
 hostUrl: https://posit-connect-unsw.intersect.org.au/__api__
 appId: 1
-bundleId: 12
-url: https://posit-connect-unsw.intersect.org.au/content/25e92198-2ece-4e63-a4bd-ee7cf12b4321/
+bundleId:
+url: https://posit-connect-unsw.intersect.org.au/infinitylists/
 version: 1
-asMultiple: FALSE
-asStatic: FALSE

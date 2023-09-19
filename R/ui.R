@@ -4,21 +4,21 @@
 # UI
 # ----------------------
 # Define the user interface for the Shiny app
-ui <-
+ui <- function(){
   fluidPage(
-    theme = shinytheme("cosmo"),
+    theme = shinythemes::shinytheme("cosmo"),
     titlePanel(
       windowTitle = "Infinity Lists",
       div("An Infinity of Lists: an Interactive Guide to Australian Biodiversity",
-          img(src = "infinitylist_hex.svg", width=150))),
+          img(src = "www/infinitylist_hex.svg", width=150))),
   
     
-    add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
+    shinybusy::add_busy_spinner(spin = "fading-circle", color = "#0dc5c1"),
     
     
     sidebarLayout(
       sidebarPanel(
-        selectInput("ala_path", "Choose a taxa:", choices=files_in_directory,selected=files_in_directory["Plantae"]),
+        selectInput("ala_path", "Choose a taxa:", choices = files_in_directory, selected = files_in_directory["Plantae"]),
         radioButtons(
           "inputType",
           "Choose a place:",
@@ -132,7 +132,7 @@ ui <-
       mainPanel(
         tabsetPanel(
           tabPanel("Map",
-                   leafletOutput("map", height = 500),
+                   leaflet::leafletOutput("map", height = 500),
                    tags$br(),
                    div(style = "font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 20px;", textOutput("statsOutput")),
                    tags$br(),
@@ -140,7 +140,7 @@ ui <-
           ),
           
           tabPanel("Species records",
-                   DTOutput("table")
+                   DT::DTOutput("table")
           ),
           tabPanel("FAQs",
                    h2("Frequently Asked Questions"),
@@ -217,3 +217,4 @@ ui <-
   )
   
 
+}
