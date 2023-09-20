@@ -165,7 +165,7 @@ infinity_server <- function(...){
     combined_input <- reactive({
       list(place = input$place, ala_path = input$ala_path, 
            type = input$inputType, execute = input$executeButton, 
-           buffer= input$buffer_size)
+           buffer= input$buffer_size, lat = input$latitude)
     })
     
     # Observe changes in the combined input
