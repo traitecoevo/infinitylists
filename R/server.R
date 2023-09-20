@@ -3,18 +3,7 @@
 #' @param ... 
 infinity_server <- function(...){
   server <- function(input, output, session) {
-    # Function to update genus choices based on selected place
-    update_genus_choices <- function(place) {
-      #place_polygon <- selected_polygon()
-      choices = c("All", sort(unique(intersect_data()$Genus)))
-      return(choices)
-    }
-    
-    update_family_choices <- function(place) {
-      #place_polygon <- selected_polygon()
-      choices = c("All", sort(unique(intersect_data()$Family)))
-      return(choices)
-    }
+
     
     
     # Observer to handle uploaded KML files
@@ -161,28 +150,23 @@ infinity_server <- function(...){
     })
     
     
-    # A reactive to combine your two inputs
-    combined_input <- reactive({
-      list(place = input$place, ala_path = input$ala_path, 
-           type = input$inputType, execute = input$executeButton, 
-           buffer= input$buffer_size, lat = input$latitude)
-    })
-    
-    # Observe changes in the combined input
-    observeEvent(combined_input(), {
+# Observe changes in intersect_data() and update choic
+    observeEvent(list(input$place,input$buffer_size,
+                      input$inputType,input$taxonOfInterest,
+                      input$uploadKML,input$latitude,input$ala_path,input$executeButton),{
       
       updateSelectizeInput(
         session,
         "taxa_genus",
         selected = "All",
-        choices = update_genus_choices(input$place),
+        choices = c("All", sort(unique(intersect_data()$Genus))),
         server = TRUE
       )
       
       updateSelectizeInput(
         session,
         "taxa_family",
-        choices = update_family_choices(input$place),
+        choices = c("All", sort(unique(intersect_data()$Family))),
         selected = "All",
         server = TRUE
       )
@@ -257,7 +241,6 @@ infinity_server <- function(...){
     
     output$table <- DT::renderDT({
       data <- filtered_data()
-      
       #preliminaries
       n_index <- which(names(data)=="N")-1 #not sure why this has to be off by 1
       default_page_length <- 25
