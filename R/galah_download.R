@@ -1,10 +1,32 @@
-#' Download observations for Infinity List
+#' Download Observations for Infinity List
 #'
-#' @param taxa
-#' @param year_range
-#' @param save_raw_data
-#' @param output_dir
+#' This function downloads observation data for the given taxa and year range
+#' from the "Infinity List" source, processes and cleans the data, adds additional
+#' columns (e.g., establishment status), and optionally saves the raw and processed data.
+#'
+#' @param taxa A character vector or string specifying the taxa (e.g., species, genus) 
+#'             for which observations are to be downloaded.
+#' @param year_range A numeric vector of length 2 indicating the start and end years 
+#'                   for data retrieval. Default is from 1923 to 2023.
+#' @param save_raw_data A logical value indicating whether to save the raw data. 
+#'                      By default, raw data is not saved (`FALSE`).
+#' @param output_dir A character string specifying the directory where any saved data 
+#'                   (raw or processed) will be stored. By default, data is saved 
+#'                   in the `data/` directory within the "infinitylists" package.
+#'
+#' @details The function carries out the following steps:
+#' 1. Retrieve the data from the "Infinity List" source.
+#' 2. Process and clean the retrieved data to remove any inconsistencies.
+#' 3. Add additional columns to the cleaned data, such as the establishment status 
+#'    for the given taxa.
+#' 4. If `save_raw_data` is `TRUE`, save the processed data to the specified `output_dir`.
+#'
+#' @return This function saves the processed data and returns invisibly. The structure and 
+#'         content of the returned value (if any) is determined by the functions called 
+#'         within (e.g., `retrieve_data`, `process_data`).
+#'
 #' @export
+#'
 download_ala_obs <- function(taxa,
                              year_range = c(1923, 2023),
                              save_raw_data = FALSE,
@@ -29,8 +51,7 @@ download_ala_obs <- function(taxa,
 
 #' Default ALA query
 #'
-#' @param taxa
-#' @param years
+#' @noRd
 query <- function(taxa, years) {
   galah::galah_call() |>
     galah::galah_identify(taxa) |>
@@ -62,6 +83,7 @@ query <- function(taxa, years) {
 }
 
 
+#' @noRd
 retrieve_data_by_years <- function(taxa,
                                    years,
                                    save_raw_data = NULL,
@@ -92,7 +114,7 @@ retrieve_data_by_years <- function(taxa,
 }
 
 
-
+#' @noRd
 retrieve_data <- function(taxa,
                           year_range = c(1923, 2023),
                           save_raw_data = FALSE,
@@ -124,7 +146,7 @@ retrieve_data <- function(taxa,
   
 }
 
-
+#' @noRd
 get_establishment_status <- function(ala_cleaned, taxa = taxa) {
   if (taxa == "Plantae") {
     resources <- APCalign::load_taxonomic_resources()
@@ -154,6 +176,8 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
   return(ala_cleaned)
 }
 
+
+#' @noRd
 process_data <- function(data) {
   datasets_of_interest <- c(
     "Australia's Virtual Herbarium",
@@ -196,6 +220,8 @@ process_data <- function(data) {
     janitor::clean_names("title")
 }
 
+
+#' @noRd
 save_data <- function(data, taxa, output_dir) {
   arrow::write_parquet(data,
                        paste0(output_dir, "Australia-", taxa, "-", Sys.Date(), ".parquet"))

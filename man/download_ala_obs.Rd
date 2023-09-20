@@ -2,24 +2,46 @@
 % Please edit documentation in R/galah_download.R
 \name{download_ala_obs}
 \alias{download_ala_obs}
-\title{Download observations for Infinity List}
+\title{Download Observations for Infinity List}
 \usage{
 download_ala_obs(
   taxa,
   year_range = c(1923, 2023),
   save_raw_data = FALSE,
-  output_dir = "data/"
+  output_dir = system.file(package = "infinitylists", "data/")
 )
 }
 \arguments{
-\item{taxa}{}
+\item{taxa}{A character vector or string specifying the taxa (e.g., species, genus)
+for which observations are to be downloaded.}
 
-\item{year_range}{}
+\item{year_range}{A numeric vector of length 2 indicating the start and end years
+for data retrieval. Default is from 1923 to 2023.}
 
-\item{save_raw_data}{}
+\item{save_raw_data}{A logical value indicating whether to save the raw data.
+By default, raw data is not saved (\code{FALSE}).}
 
-\item{output_dir}{}
+\item{output_dir}{A character string specifying the directory where any saved data
+(raw or processed) will be stored. By default, data is saved
+in the \verb{data/} directory within the "infinitylists" package.}
+}
+\value{
+This function saves the processed data and returns invisibly. The structure and
+content of the returned value (if any) is determined by the functions called
+within (e.g., \code{retrieve_data}, \code{process_data}).
 }
 \description{
-Download observations for Infinity List
+This function downloads observation data for the given taxa and year range
+from the "Infinity List" source, processes and cleans the data, adds additional
+columns (e.g., establishment status), and optionally saves the raw and processed data.
+}
+\details{
+The function carries out the following steps:
+\enumerate{
+\item Retrieve the data from the "Infinity List" source.
+\item Process and clean the retrieved data to remove any inconsistencies.
+\item Add additional columns to the cleaned data, such as the establishment status
+for the given taxa.
+\item If \code{save_raw_data} is \code{TRUE}, save the processed data to the specified \code{output_dir}.
+}
 }
