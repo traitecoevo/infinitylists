@@ -5,13 +5,13 @@ infinity_server <- function(...){
   server <- function(input, output, session) {
     # Function to update genus choices based on selected place
     update_genus_choices <- function(place) {
-      place_polygon <- selected_polygon()
+      #place_polygon <- selected_polygon()
       choices = c("All", sort(unique(intersect_data()$Genus)))
       return(choices)
     }
     
     update_family_choices <- function(place) {
-      place_polygon <- selected_polygon()
+      #place_polygon <- selected_polygon()
       choices = c("All", sort(unique(intersect_data()$Family)))
       return(choices)
     }
@@ -164,7 +164,7 @@ infinity_server <- function(...){
     # A reactive to combine your two inputs
     combined_input <- reactive({
       list(place = input$place, ala_path = input$ala_path, 
-           type = input$inputType,execute = input$executeButton, 
+           type = input$inputType, execute = input$executeButton, 
            buffer= input$buffer_size)
     })
     
