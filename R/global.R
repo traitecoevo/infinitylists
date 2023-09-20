@@ -87,7 +87,7 @@ places <- list(
   "UNSW Smiths Lake and Vicinity" = load_place("inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"),
   "Australian Botanic Garden Mount Annan" = load_place("inst/extdata/places/mt-annan-australian-botanic-garden.kml"),
   "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
-  "North Head - Sydney Harbour Federation Trust" = load_place("inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
+  "North Head Sanctuary" = load_place("inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
 )
 
 
