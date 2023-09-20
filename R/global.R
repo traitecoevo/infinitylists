@@ -4,15 +4,7 @@
 # To suppress warning messages when summarizing data
 # options(dplyr.summarise.inform = FALSE)
 
-# Get the list of files in the data directory
-files_in_directory <- list.files(path = system.file(package = "infinitylists", "data/"), pattern = ".parquet")
-print(system.file(package = "infinitylists", "data/"))
-taxa_names <-
-  gsub("Australia-(.+?)-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet",
-       "\\1",
-       files_in_directory)
 
-files_in_directory <- setNames(files_in_directory, taxa_names)
 
 # Function to add a buffer around a given geometry (polygon or multipolygon)
 add_buffer <- function(geom, buffer_size_meters) {
@@ -122,9 +114,10 @@ points_in_buffer <- function(points, place_polygon, buffer_size) {
 }
 
 check_and_download_update <- function() {
+  infinity_file_path <- file.path(system.file(package = "infinitylists"), "data")
   
-  current_version="0.0.0"
-  if (file.exists(paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))) current_version<- readLines(paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))
+  current_version <- "0.0.0"
+  if (file.exists(file.path(infinity_file_path,"infinitylistversion.txt"))) current_version<- readLines(file.path(infinity_file_path,"infinitylistversion.txt"))
   
   # Fetch the latest release information using the GitHub API
   url <- paste0("https://api.github.com/repos/", "traitecoevo", "/", "infinitylists", "/releases/latest")
@@ -136,6 +129,10 @@ check_and_download_update <- function() {
   
   # Compare the versions (Assumes semantic versioning)
   if (as.numeric(gsub("\\.", "", latest_version)) > as.numeric(gsub("\\.", "", current_version))) {
+    if (!file.exists(infinity_file_path)) {
+      dir.create(infinity_file_path, recursive = TRUE)
+    }
+    
     cat("New version found:", latest_version, "\n")
     
     # Download binary files
@@ -144,9 +141,9 @@ check_and_download_update <- function() {
       binary_url <- release_data$assets[i, "browser_download_url"]
       
       cat("Downloading:", asset_name, "\n")
-      download.file(binary_url, destfile = paste0(system.file(package = "infinitylists", "data/"),asset_name), mode = "wb")
+      download.file(binary_url, destfile = file.path(infinity_file_path,asset_name), mode = "w")
     }
-    writeLines(latest_version, paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))
+    writeLines(latest_version, file.path(infinity_file_path,"infinitylistversion.txt")) #creating a bug elsewhere
     cat("Update complete.\n")
   } else {
     cat(paste0("You have the latest version (",latest_version,") of the data.\n"))
@@ -154,7 +151,7 @@ check_and_download_update <- function() {
 }
 
 #get data if necessary
-check_and_download_update()
+
 
 
 # Custom Github hyperlink icon

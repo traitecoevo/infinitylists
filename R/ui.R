@@ -97,7 +97,7 @@ ui <- function(){
             label = "Choose a genus: ",
             choices = "All",
             selected = "All",
-            options = list(maxOptions = 300L)
+            options = list(maxOptions = 600L)
           )
         ),
         
@@ -108,7 +108,7 @@ ui <- function(){
             label = "Choose a family:",
             choices = "All",
             selected = "All",
-            options = list(maxOptions = 300L)
+            options = list(maxOptions = 600L)
           )
         ),
         selectInput(
