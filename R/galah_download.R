@@ -113,10 +113,12 @@ get_establishment_status <- function(ala_cleaned, taxa = taxa) {
       ala_cleaned |> dplyr::left_join(lookup, by = join_by("Species"))
     
     return(ala_cleaned)
-  } else { # ALERT, ALERT THIS IS A HACK!  NEEED TO CHANGE THIS IF WE ADD MORE TAXA!!!!!!!!!
+  } if (taxa %in% c("Cicadoidea","Marsupialia","Odonata","Papilionoidea")) { 
     ala_cleaned$native_anywhere_in_aus <- "native" 
     ala_cleaned$native_anywhere_in_aus[ala_cleaned$Species %in% c("Danaus plexippus","Pieris rapae")]<-"introduced"
-  }
+  } if (!taxa %in% c("Cicadoidea","Marsupialia","Odonata","Papilionoidea","Plantae")){ 
+    ala_cleaned$native_anywhere_in_aus <-"unknown"
+  } 
   return(ala_cleaned)
 }
 
