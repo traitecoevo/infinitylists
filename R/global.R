@@ -124,7 +124,7 @@ points_in_buffer <- function(points, place_polygon, buffer_size) {
 check_and_download_update <- function() {
   
   current_version="0.0.0"
-  if (file.exists(paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))) current_version<- readLines("infinity-app/data/infinitylistversion.txt")
+  if (file.exists(paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))) current_version<- readLines(paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))
   
   # Fetch the latest release information using the GitHub API
   url <- paste0("https://api.github.com/repos/", "traitecoevo", "/", "infinitylists", "/releases/latest")
@@ -149,10 +149,11 @@ check_and_download_update <- function() {
     writeLines(latest_version, paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))
     cat("Update complete.\n")
   } else {
-    cat("You have the latest version.\n")
+    cat(paste0("You have the latest version (",latest_version,") of the data.\n"))
   }
 }
 
+#get data if necessary
 check_and_download_update()
 
 
