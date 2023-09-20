@@ -141,7 +141,7 @@ check_and_download_update <- function() {
       binary_url <- release_data$assets[i, "browser_download_url"]
       
       cat("Downloading:", asset_name, "\n")
-      download.file(binary_url, destfile = file.path(infinity_file_path,asset_name), mode = "w")
+      download.file(binary_url, destfile = file.path(infinity_file_path,asset_name), mode = "wb")
     }
     writeLines(latest_version, file.path(infinity_file_path,"infinitylistversion.txt")) #creating a bug elsewhere
     cat("Update complete.\n")
