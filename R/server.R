@@ -85,7 +85,7 @@ infinity_server <- function(...){
       long_buffer <- 0.578 #50 km approx
       lat_buffer <- 0.45 #50 km approx
       place_polygon <- selected_polygon()
-      arrow::open_dataset(paste0(system.file(package = "infinitylists", "data/"), input$ala_path)) |>
+      arrow::open_dataset(file.path(system.file(package = "infinitylists", "data",input$ala_path))) |>
         dplyr::filter(
           Lat < sf::st_bbox(place_polygon)$ymax + lat_buffer &
             Lat > sf::st_bbox(place_polygon)$ymin - lat_buffer &
@@ -163,7 +163,7 @@ infinity_server <- function(...){
     
     # A reactive to combine your two inputs
     combined_input <- reactive({
-      list(place = input$place, ala_path = input$ala_path, type = input$inputType,execute = input$executeButton)
+      list(place = input$place, ala_path = input$ala_path, type = input$inputType,execute = input$executeButton, buffer= input$buffer_size)
     })
     
     # Observe changes in the combined input
