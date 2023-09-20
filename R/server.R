@@ -6,13 +6,13 @@ infinity_server <- function(...){
     # Function to update genus choices based on selected place
     update_genus_choices <- function(place) {
       place_polygon <- selected_polygon()
-      choices = c("All", sort(unique(ala_data()$Genus)))
+      choices = c("All", sort(unique(intersect_data()$Genus)))
       return(choices)
     }
     
     update_family_choices <- function(place) {
       place_polygon <- selected_polygon()
-      choices = c("All", sort(unique(ala_data()$Family)))
+      choices = c("All", sort(unique(intersect_data()$Family)))
       return(choices)
     }
     
@@ -125,7 +125,7 @@ infinity_server <- function(...){
       return(data)
     })
     
-
+    
     
     stats_text <- reactive({
       data <- intersect_data()
@@ -163,7 +163,7 @@ infinity_server <- function(...){
     
     # A reactive to combine your two inputs
     combined_input <- reactive({
-      list(place = input$place, ala_path = input$ala_path)
+      list(place = input$place, ala_path = input$ala_path, type = input$inputType,execute = input$executeButton)
     })
     
     # Observe changes in the combined input
@@ -212,7 +212,7 @@ infinity_server <- function(...){
       result <-
         result[order(-as.integer(`In target area` == "in target"),
                      -`Collection Date`)]
-
+      
       result <- result[, .(
         `In target area` = `In target area`[1],
         N = .N,
