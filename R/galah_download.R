@@ -8,7 +8,7 @@
 download_ala_obs <- function(taxa, 
                              year_range = c(1923, 2023),
                              save_raw_data = FALSE,
-                             output_dir = "data/") {
+                             output_dir = system.file(package = "infinitylists", "data/")) {
   
   # 1. Data retrieval
   ala_obs <- retrieve_data(taxa, year_range, save_raw_data, output_dir)

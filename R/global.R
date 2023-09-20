@@ -87,7 +87,7 @@ places <- list(
   "UNSW Smiths Lake and Vicinity" = load_place("inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"),
   "Australian Botanic Garden Mount Annan" = load_place("inst/extdata/places/mt-annan-australian-botanic-garden.kml"),
   "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
-  "North Head - Sydney Harbour Federation Trust" = load_place("inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
+  "North Head Sanctuary" = load_place("inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
 )
 
 
@@ -120,6 +120,42 @@ points_in_buffer <- function(points, place_polygon, buffer_size) {
   buffer_place <- add_buffer(place_polygon, buffer_size)
   sf::st_intersects(points, buffer_place, sparse = FALSE)[, 1]
 }
+
+check_and_download_update <- function() {
+  
+  current_version="0.0.0"
+  if (file.exists(paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))) current_version<- readLines(paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))
+  
+  # Fetch the latest release information using the GitHub API
+  url <- paste0("https://api.github.com/repos/", "traitecoevo", "/", "infinitylists", "/releases/latest")
+  response <- httr::GET(url)
+  release_data <- jsonlite::fromJSON(httr::content(response, "text"))
+  
+  # Extract the latest version tag
+  latest_version <- gsub("v", "", release_data$tag_name)
+  
+  # Compare the versions (Assumes semantic versioning)
+  if (as.numeric(gsub("\\.", "", latest_version)) > as.numeric(gsub("\\.", "", current_version))) {
+    cat("New version found:", latest_version, "\n")
+    
+    # Download binary files
+    for (i in 1:nrow(release_data$assets)) {
+      asset_name <- release_data$assets[i, "name"]
+      binary_url <- release_data$assets[i, "browser_download_url"]
+      
+      cat("Downloading:", asset_name, "\n")
+      download.file(binary_url, destfile = paste0(system.file(package = "infinitylists", "data/"),asset_name), mode = "wb")
+    }
+    writeLines(latest_version, paste0(system.file(package = "infinitylists", "data/","infinitylistversion.txt")))
+    cat("Update complete.\n")
+  } else {
+    cat(paste0("You have the latest version (",latest_version,") of the data.\n"))
+  }
+}
+
+#get data if necessary
+check_and_download_update()
+
 
 # Custom Github hyperlink icon
 target <- bsplus::shiny_iconlink(name = "github")
