@@ -176,7 +176,7 @@ infinity_server <- function(...){
         "taxa_genus",
         selected = "All",
         choices = update_genus_choices(input$place),
-        server = FALSE
+        server = TRUE
       )
       
       updateSelectizeInput(
@@ -184,7 +184,7 @@ infinity_server <- function(...){
         "taxa_family",
         choices = update_family_choices(input$place),
         selected = "All",
-        server = FALSE
+        server = TRUE
       )
     })
     
