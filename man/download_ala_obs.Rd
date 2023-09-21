@@ -5,14 +5,14 @@
 \title{Download Observations for Infinity List}
 \usage{
 download_ala_obs(
-  taxa,
+  taxon,
   year_range = c(1923, 2023),
   save_raw_data = FALSE,
   output_dir = system.file(package = "infinitylists", "data/")
 )
 }
 \arguments{
-\item{taxa}{A character vector or string specifying the taxa (e.g., species, genus)
+\item{taxon}{A character vector or string specifying the taxa (e.g., species, genus)
 for which observations are to be downloaded.}
 
 \item{year_range}{A numeric vector of length 2 indicating the start and end years

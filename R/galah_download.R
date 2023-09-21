@@ -4,7 +4,7 @@
 #' from the "Infinity List" source, processes and cleans the data, adds additional
 #' columns (e.g., establishment status), and optionally saves the raw and processed data.
 #'
-#' @param taxa A character vector or string specifying the taxa (e.g., species, genus) 
+#' @param taxon A character vector or string specifying the taxa (e.g., species, genus) 
 #'             for which observations are to be downloaded.
 #' @param year_range A numeric vector of length 2 indicating the start and end years 
 #'                   for data retrieval. Default is from 1923 to 2023.
@@ -26,13 +26,13 @@
 #'
 #' @export
 #'
-download_ala_obs <- function(taxa,
+download_ala_obs <- function(taxon,
                              year_range = c(1923, 2023),
                              save_raw_data = FALSE,
                              output_dir = system.file(package = "infinitylists", "data/")) {
   # 1. Data retrieval
   ala_obs <-
-    retrieve_data(taxa, year_range, save_raw_data, output_dir)
+    retrieve_data(taxon, year_range, save_raw_data, output_dir)
   
   # 2. Filtering and processing
   ala_cleaned <- process_data(ala_obs)
@@ -50,11 +50,11 @@ download_ala_obs <- function(taxa,
 
 #' Default ALA query
 #'
-#' @param taxa 
+#' @param taxon 
 #' @noRd
-query <- function(taxa, years){
+query <- function(taxon, years){
   identify <- galah::galah_call() |> 
-    galah::galah_identify(taxa)
+    galah::galah_identify(taxon)
   
   filter <- galah::galah_filter(
     spatiallyValid == TRUE, 
@@ -184,7 +184,7 @@ process_data <- function(data) {
       basisOfRecord == "PRESERVED_SPECIMEN" |
         datasetName %in% datasets_of_interest,
       is.na(coordinateUncertaintyInMeters) |
-        coordinateUncertaintyInMeters <= 1000,!is.na(eventDate),!str_detect(species, "spec.$")
+        coordinateUncertaintyInMeters <= 1000,!is.na(eventDate),!stringr::str_detect(species, "spec.$")
     ) |>
     dplyr::mutate(
       voucher_location = dplyr::if_else(!is.na(references), references, institutionCode),
