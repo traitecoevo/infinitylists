@@ -11,7 +11,7 @@
 #' @param save_raw_data A logical value indicating whether to save the raw data. 
 #'                      By default, raw data is not saved (`FALSE`).
 #' @param output_dir A character string specifying the directory where any saved data 
-#'                   (raw or processed) will be stored. Default is `system.file(package = "infinitylists", "data/")`.
+#'                   (raw or processed) will be stored. 
 #'
 #' @details The function carries out the following steps:
 #' 1. Retrieve the data from the "Infinity List" source.
@@ -29,7 +29,7 @@
 download_ala_obs <- function(taxon,
                              year_range = c(1923, 2023),
                              save_raw_data = FALSE,
-                             output_dir = system.file(package = "infinitylists", "data/")) {
+                             output_dir = file.path(system.file(package = "infinitylists"), "data/")) {
   # 1. Data retrieval
   ala_obs <-
     retrieve_data(taxon, year_range, save_raw_data, output_dir)
@@ -217,8 +217,13 @@ process_data <- function(data) {
 
 #' @noRd
 save_data <- function(data, taxon, output_dir) {
-  arrow::write_parquet(data,
-                       file.path(output_dir, paste0("Australia-", taxon, "-", Sys.Date(), ".parquet")))
+  arrow::write_parquet(x=data,
+                       sink=file.path(output_dir, 
+                                 paste0("Australia-", 
+                                        taxon, 
+                                        "-", 
+                                        Sys.Date(), 
+                                        ".parquet")))
 }
 
 # galah_config(email = Sys.getenv("ALA_EMAIL"),
