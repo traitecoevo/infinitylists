@@ -31,20 +31,27 @@ download_ala_obs <- function(taxa,
 #' @param taxa 
 #' @param years 
 query <- function(taxa, years){
-  galah::galah_call() |> 
-  galah::galah_identify(taxa) |> 
-  galah::galah_filter(
+  identify <- galah::galah_call() |> 
+    galah::galah_identify(taxa)
+  
+  filter <- galah::galah_filter(
     spatiallyValid == TRUE, 
     species != "",
     decimalLatitude != "",
     year == years,
     basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
-  ) |> 
-  galah::galah_select(
+  )
+  
+  select <- galah::galah_select(
     recordID, species, genus, family, decimalLatitude, decimalLongitude, 
     coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
     references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf,sounds
   )
+  
+  identify$filter <- filter
+  identify$select <- select
+  
+  return(identify)
 }
 
 
