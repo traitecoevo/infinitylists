@@ -12,7 +12,7 @@ download_ala_obs(
 )
 }
 \arguments{
-\item{taxon}{A character vector or string specifying the taxa (e.g., species, genus)
+\item{taxon}{A character vector or string specifying the taxon (e.g., species, genus)
 for which observations are to be downloaded.}
 
 \item{year_range}{A numeric vector of length 2 indicating the start and end years
@@ -30,7 +30,7 @@ content of the returned value (if any) is determined by the functions called
 within (e.g., \code{retrieve_data}, \code{process_data}).
 }
 \description{
-This function downloads observation data for the given taxa and year range
+This function downloads observation data for the given taxon and year range
 from the "Infinity List" source, processes and cleans the data, adds additional
 columns (e.g., establishment status), and optionally saves the raw and processed data.
 }
@@ -40,7 +40,7 @@ The function carries out the following steps:
 \item Retrieve the data from the "Infinity List" source.
 \item Process and clean the retrieved data to remove any inconsistencies.
 \item Add additional columns to the cleaned data, such as the establishment status
-for the given taxa.
+for the given taxon.
 \item If \code{save_raw_data} is \code{TRUE}, save the processed data to the specified \code{output_dir}.
 }
 }

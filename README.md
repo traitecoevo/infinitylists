@@ -37,3 +37,25 @@ library(infinitylists)
 
 infinitylistApp()
 ```
+
+## Adding new taxa
+
+InfinityList comes with 5 taxa loaded to start with: plants,
+butterflies, cicadas, marsupials, and dragonflies+damselflies. If you
+want to add another taxa of interest, you’ll need to download the data
+first via the galah interface to the Atlas of Living Australia. This is
+done in a few steps:
+
+``` r
+
+# install.packages("galah")
+library(infinitylists)
+
+# register with ALA
+galah::galah_config(email = "YOUR EMAIL HERE")
+
+# download the data, this needs to be a valid taxa name
+download_ala_obs(taxon = "Orthoptera")
+
+infinitylistApp()
+```

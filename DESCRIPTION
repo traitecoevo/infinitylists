@@ -32,7 +32,6 @@ Imports:
     shiny,
     shinybusy,
     stringr,
-    stringi,
     shinythemes
 Remotes: 
     traitecoevo/APCalign
