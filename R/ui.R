@@ -15,6 +15,10 @@ ui <- function(){
   
   files_in_directory <- setNames(files_in_directory, taxa_names)
   
+  # Custom Github hyperlink icon
+  target <- bsplus::shiny_iconlink(name = "github")
+  target$attribs$href <- "https://github.com/traitecoevo/infinitylists"
+  
   fluidPage(
     theme = shinythemes::shinytheme("cosmo"),
     titlePanel(

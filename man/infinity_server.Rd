@@ -2,13 +2,48 @@
 % Please edit documentation in R/server.R
 \name{infinity_server}
 \alias{infinity_server}
-\title{Create server for infinity lists}
+\title{Infinity List Server Function}
 \usage{
 infinity_server(...)
 }
 \arguments{
-\item{...}{}
+\item{...}{Additional arguments that might be passed to server functions.
+These could be passed from a Shiny UI function or another server function.}
+}
+\value{
+This function sets up and returns a server function for the Shiny app.
+It does not have a direct return value, but rather, it sets up reactive outputs,
+observers, and expressions that the Shiny app will utilize.
 }
 \description{
-Create server for infinity lists
+Initializes and sets up the server-side logic for the Infinity List Shiny application.
+This function manages the user interactions, data processing, and rendering
+of both UI elements and outputs (tables, maps, stats). It handles file uploads,
+data filtering, and interaction with map elements.
+}
+\details{
+The server function handles several main tasks:
+\itemize{
+\item Observes and processes KML file uploads.
+\item Reactively creates polygons based on user inputs.
+\item Filters and processes ALA data based on user-selected polygons.
+\item Computes and displays statistics about observed species.
+\item Updates select input choices based on the available data.
+\item Renders and displays a data table with specific details.
+\item Provides a CSV download handler for the displayed data.
+\item Renders a Leaflet map with markers, polygons, and buffers.
+}
+
+Key internal functions include:
+\itemize{
+\item \code{load_place()}: For processing KML files.
+\item \code{create_circle_polygon()}: To create polygons from user inputs.
+\item \code{points_in_target()}: To determine if points lie within a target polygon.
+\item \code{points_in_buffer()}: To determine if points lie within a buffer around a polygon.
+\item \code{filter_by_taxon()}: Filters the ALA data by selected taxa.
+\item \code{add_buffer()}: Adds a buffer around a given polygon.
+}
+}
+\seealso{
+\code{\link{infinitylistApp}}: Main function that launches the Infinity List Shiny app.
 }

@@ -1,20 +1,45 @@
-#' Create server for infinity lists
+#' Infinity List Server Function
 #'
-#' @param ... 
+#' Initializes and sets up the server-side logic for the Infinity List Shiny application.
+#' This function manages the user interactions, data processing, and rendering
+#' of both UI elements and outputs (tables, maps, stats). It handles file uploads,
+#' data filtering, and interaction with map elements.
+#'
+#' @param ... Additional arguments that might be passed to server functions.
+#' These could be passed from a Shiny UI function or another server function.
+#'
+#' @details
+#' The server function handles several main tasks:
+#' - Observes and processes KML file uploads.
+#' - Reactively creates polygons based on user inputs.
+#' - Filters and processes ALA data based on user-selected polygons.
+#' - Computes and displays statistics about observed species.
+#' - Updates select input choices based on the available data.
+#' - Renders and displays a data table with specific details.
+#' - Provides a CSV download handler for the displayed data.
+#' - Renders a Leaflet map with markers, polygons, and buffers.
+#'
+#' Key internal functions include:
+#' - `load_place()`: For processing KML files.
+#' - `create_circle_polygon()`: To create polygons from user inputs.
+#' - `points_in_target()`: To determine if points lie within a target polygon.
+#' - `points_in_buffer()`: To determine if points lie within a buffer around a polygon.
+#' - `filter_by_taxon()`: Filters the ALA data by selected taxa.
+#' - `add_buffer()`: Adds a buffer around a given polygon.
+#'
+#' @return
+#' This function sets up and returns a server function for the Shiny app.
+#' It does not have a direct return value, but rather, it sets up reactive outputs,
+#' observers, and expressions that the Shiny app will utilize.
+#'
+#' @seealso 
+#' \code{\link{infinitylistApp}}: Main function that launches the Infinity List Shiny app.
+#'
+#' @export
+#'
 infinity_server <- function(...){
   server <- function(input, output, session) {
-    # Function to update genus choices based on selected place
-    update_genus_choices <- function(place) {
-      place_polygon <- selected_polygon()
-      choices = c("All", sort(unique(intersect_data()$Genus)))
-      return(choices)
-    }
-    
-    update_family_choices <- function(place) {
-      place_polygon <- selected_polygon()
-      choices = c("All", sort(unique(intersect_data()$Family)))
-      return(choices)
-    }
+
     
     
     # Observer to handle uploaded KML files
@@ -161,30 +186,25 @@ infinity_server <- function(...){
     })
     
     
-    # A reactive to combine your two inputs
-    combined_input <- reactive({
-      list(place = input$place, ala_path = input$ala_path, type = input$inputType,execute = input$executeButton, buffer= input$buffer_size)
-    })
-    
-    # Observe changes in the combined input
-    observeEvent(combined_input(), {
-      # Directly get the data from the ala_data reactive
-      current_ala <- ala_data()
+# Observe changes in intersect_data() and update choic
+    observeEvent(list(input$place,input$buffer_size,
+                      input$inputType,input$taxonOfInterest,
+                      input$uploadKML,input$latitude,input$ala_path,input$executeButton),{
       
       updateSelectizeInput(
         session,
         "taxa_genus",
         selected = "All",
-        choices = update_genus_choices(input$place),
-        server = FALSE
+        choices = c("All", sort(unique(intersect_data()$Genus))),
+        server = TRUE
       )
       
       updateSelectizeInput(
         session,
         "taxa_family",
-        choices = update_family_choices(input$place),
+        choices = c("All", sort(unique(intersect_data()$Family))),
         selected = "All",
-        server = FALSE
+        server = TRUE
       )
     })
     
@@ -257,7 +277,6 @@ infinity_server <- function(...){
     
     output$table <- DT::renderDT({
       data <- filtered_data()
-      
       #preliminaries
       n_index <- which(names(data)=="N")-1 #not sure why this has to be off by 1
       default_page_length <- 25

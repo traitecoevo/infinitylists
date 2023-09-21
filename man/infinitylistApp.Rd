@@ -2,13 +2,38 @@
 % Please edit documentation in R/app.R
 \name{infinitylistApp}
 \alias{infinitylistApp}
-\title{Run Infinity List App in R}
+\title{Launch the Infinity List Application}
 \usage{
 infinitylistApp(...)
 }
 \arguments{
-\item{...}{}
+\item{...}{Additional arguments passed to \code{shinyApp()}. This can include
+parameters like \code{port}, \code{launch.browser}, and others as described
+in the documentation for \code{shinyApp()}.}
+}
+\value{
+This function launches the Shiny application and does not return until
+the app is terminated by the user.
 }
 \description{
-Run Infinity List App in R
+This function initializes and runs the "Infinity List" application using
+Shiny. Before launching, it checks for any available updates and downloads
+them if necessary. The app provides a user interface (\code{ui}) and server-side
+logic (\code{server}) to interactively work with the Infinity List.
+}
+\details{
+The function carries out the following steps:
+\enumerate{
+\item Checks and downloads any available updates using \code{check_and_download_update()}.
+\item Initializes the user interface (\code{ui}) for the application.
+\item Sets up the server-side logic (\code{server}) for the application.
+\item Launches the Shiny application using \code{shinyApp()}.
+}
+}
+\examples{
+\dontrun{
+  # Launch the Infinity List App
+  infinitylistApp()
+}
+
 }
