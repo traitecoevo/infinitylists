@@ -217,6 +217,11 @@ process_data <- function(data) {
 
 #' @noRd
 save_data <- function(data, taxon, output_dir) {
+  if (!file.exists(file.path(output_dir))) {
+    dir.create(file.path(output_dir), recursive = TRUE)
+  }
+  
+  
   arrow::write_parquet(x=data,
                        sink=file.path(output_dir, 
                                  paste0("Australia-", 
