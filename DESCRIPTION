@@ -35,4 +35,5 @@ Imports:
 Remotes: 
     traitecoevo/APCalign
 Suggests: 
-    job
+    job,
+    bsplus
