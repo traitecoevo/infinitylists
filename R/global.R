@@ -149,11 +149,3 @@ check_and_download_update <- function() {
     cat(paste0("You have the latest version (",latest_version,") of the data.\n"))
   }
 }
-
-#get data if necessary
-
-
-
-# Custom Github hyperlink icon
-target <- bsplus::shiny_iconlink(name = "github")
-target$attribs$href <- "https://github.com/traitecoevo/infinitylists"
