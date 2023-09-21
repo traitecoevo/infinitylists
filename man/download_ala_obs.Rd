@@ -22,8 +22,7 @@ for data retrieval. Default is from 1923 to 2023.}
 By default, raw data is not saved (\code{FALSE}).}
 
 \item{output_dir}{A character string specifying the directory where any saved data
-(raw or processed) will be stored. By default, data is saved
-in the \verb{data/} directory within the "infinitylists" package.}
+(raw or processed) will be stored. Default is \code{system.file(package = "infinitylists", "data/")}.}
 }
 \value{
 This function saves the processed data and returns invisibly. The structure and

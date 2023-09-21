@@ -11,8 +11,7 @@
 #' @param save_raw_data A logical value indicating whether to save the raw data. 
 #'                      By default, raw data is not saved (`FALSE`).
 #' @param output_dir A character string specifying the directory where any saved data 
-#'                   (raw or processed) will be stored. By default, data is saved 
-#'                   in the `data/` directory within the "infinitylists" package.
+#'                   (raw or processed) will be stored. Default is `system.file(package = "infinitylists", "data/")`.
 #'
 #' @details The function carries out the following steps:
 #' 1. Retrieve the data from the "Infinity List" source.
