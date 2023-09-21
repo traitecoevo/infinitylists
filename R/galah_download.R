@@ -218,7 +218,7 @@ process_data <- function(data) {
 #' @noRd
 save_data <- function(data, taxon, output_dir) {
   arrow::write_parquet(data,
-                       paste0(output_dir, "Australia-", taxon, "-", Sys.Date(), ".parquet"))
+                       file.path(output_dir, paste0("Australia-", taxon, "-", Sys.Date(), ".parquet")))
 }
 
 # galah_config(email = Sys.getenv("ALA_EMAIL"),
