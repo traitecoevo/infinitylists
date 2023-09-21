@@ -141,7 +141,7 @@ check_and_download_update <- function() {
       binary_url <- release_data$assets[i, "browser_download_url"]
       
       cat("Downloading:", asset_name, "\n")
-      download.file(binary_url, destfile = file.path(infinity_file_path,asset_name), mode = "w")
+      download.file(binary_url, destfile = file.path(infinity_file_path,asset_name), mode = "wb")
     }
     writeLines(latest_version, file.path(infinity_file_path,"infinitylistversion.txt")) #creating a bug elsewhere
     cat("Update complete.\n")
@@ -149,11 +149,3 @@ check_and_download_update <- function() {
     cat(paste0("You have the latest version (",latest_version,") of the data.\n"))
   }
 }
-
-#get data if necessary
-
-
-
-# Custom Github hyperlink icon
-target <- bsplus::shiny_iconlink(name = "github")
-target$attribs$href <- "https://github.com/traitecoevo/infinitylists"
