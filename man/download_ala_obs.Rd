@@ -8,7 +8,7 @@ download_ala_obs(
   taxon,
   year_range = c(1923, 2023),
   save_raw_data = FALSE,
-  output_dir = system.file(package = "infinitylists", "data/")
+  output_dir = file.path(system.file(package = "infinitylists"), "data/")
 )
 }
 \arguments{
@@ -22,7 +22,7 @@ for data retrieval. Default is from 1923 to 2023.}
 By default, raw data is not saved (\code{FALSE}).}
 
 \item{output_dir}{A character string specifying the directory where any saved data
-(raw or processed) will be stored. Default is \code{system.file(package = "infinitylists", "data/")}.}
+(raw or processed) will be stored. Default is \code{file.path(system.file(package = "infinitylists"), "data/")}.}
 }
 \value{
 This function saves the processed data and returns invisibly. The structure and
