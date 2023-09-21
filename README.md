@@ -9,9 +9,9 @@
 <!-- badges: end -->
 
 This shiny-based application allows users to extract plant occurrence
-data from the Atlas of Living Australia and generate a species list for
-any defined area. All records associated with either a physical voucher
-(stored in Australian herbaria or museum), a sound file, or a
+data from the Atlas of Living Australia (ALA) and generate a species
+list for any defined area. All records associated with either a physical
+voucher (stored in Australian herbaria or museum), a sound file, or a
 photographic voucher (stored in iNaturalist) are extracted. For each
 species within the defined area, the application will return voucher
 type, number of vouchers, date of the most recent voucher, spatial
@@ -42,9 +42,14 @@ infinitylistApp()
 
 InfinityList comes with 5 taxa loaded to start with: plants,
 butterflies, cicadas, marsupials, and dragonflies+damselflies. If you
-want to add another taxa of interest, you’ll need to download the data
-first via the galah interface to the Atlas of Living Australia. This is
-done in a few steps:
+want to add another taxon, you’ll need to download the data first via
+the [galah interface](https://github.com/AtlasOfLivingAustralia/galah-R)
+to the ALA. The function `download_ala_obs` will download the data and
+put into a directory where infinitylistapp can find it. The value for
+`taxon` needs to be a [valid taxonomic group as recognized by the
+ALA](https://support.ala.org.au/support/solutions/articles/6000261677-taxonomy-a-species-filing-system).
+The download step is fast for taxa with small number of observations in
+ALA and slower for taxa with millions of observations.
 
 ``` r
 
