@@ -156,7 +156,13 @@ infinity_server <- function(...){
       data <- intersect_data()
       
       total_species <- length(unique(data$Species))
+      total_genera <- length(unique(data$Genus))
+      total_family <- length(unique(data$Family))
       
+      native<-dplyr::filter(data, native_anywhere_in_aus=="native")
+      if(nrow(native)>0) total_native_species <- length(unique(native$Species))
+      else total_native_species<- "an unknown number"
+        
       collections <- data[data$`Voucher Type` == "Collection",]
       collections_count <- nrow(collections)
       collections_species <- length(unique(collections$Species))
@@ -166,18 +172,27 @@ infinity_server <- function(...){
       photographic_species <- length(unique(photographic$Species))
       
       
-      paste(
-        "There have been",
+      paste0(
+        "There have been ",
         total_species,
-        "species observed with",
+        " species observed ",
+        "(",
+        total_genera,
+        " genera; ",
+        total_family,
+        " families) with ",
         collections_count,
-        "collections of",
+        " collections of ",
         collections_species,
-        "species and",
+        " species and ",
         photographic_count,
-        "photographic or audio records of",
+        " photographic or audio records of ",
         photographic_species,
-        "species."
+        " species. Of the ",
+        total_species,
+        " species observed, ",
+        total_native_species,
+        " are considered native to Australia."
       )
     })
     
