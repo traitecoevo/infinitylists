@@ -190,7 +190,7 @@ infinity_server <- function(...){
         photographic_species,
         " species. Of the ",
         total_species,
-        "species observed ",
+        " species observed, ",
         total_native_species,
         " are considered native to Australia."
       )
