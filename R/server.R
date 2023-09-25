@@ -159,9 +159,10 @@ infinity_server <- function(...){
       total_genera <- length(unique(data$Genus))
       total_family <- length(unique(data$Family))
       
-      native<-dplyr::filter(data, `Establishment means`=="Native")
-      total_native_species <- length(unique(native$Species))
-      
+      native<-dplyr::filter(data, native_anywhere_in_aus=="native")
+      if(nrow(native)>0) total_native_species <- length(unique(native$Species))
+      else total_native_species<- "an unknown number"
+        
       collections <- data[data$`Voucher Type` == "Collection",]
       collections_count <- nrow(collections)
       collections_species <- length(unique(collections$Species))
@@ -187,7 +188,7 @@ infinity_server <- function(...){
         photographic_count,
         " photographic or audio records of ",
         photographic_species,
-        " species. Of the "
+        " species. Of the ",
         total_species,
         "species observed ",
         total_native_species,
