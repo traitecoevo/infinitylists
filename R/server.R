@@ -157,6 +157,7 @@ infinity_server <- function(...){
       
       total_species <- length(unique(data$Species))
       total_genera <- length(unique(data$Genus))
+      total_family <- length(unique(data$Family))
       
       collections <- data[data$`Voucher Type` == "Collection",]
       collections_count <- nrow(collections)
@@ -173,7 +174,9 @@ infinity_server <- function(...){
         " species observed ",
         "(",
         total_genera,
-        "genera) with ",
+        " genera; ",
+        total_family,
+        " families) with ",
         collections_count,
         " collections of ",
         collections_species,
@@ -181,7 +184,7 @@ infinity_server <- function(...){
         photographic_count,
         " photographic or audio records of ",
         photographic_species,
-        " species."
+        " species. "
       )
     })
     
