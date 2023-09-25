@@ -156,6 +156,7 @@ infinity_server <- function(...){
       data <- intersect_data()
       
       total_species <- length(unique(data$Species))
+      total_genera <- length(unique(data$Genus))
       
       collections <- data[data$`Voucher Type` == "Collection",]
       collections_count <- nrow(collections)
@@ -166,18 +167,21 @@ infinity_server <- function(...){
       photographic_species <- length(unique(photographic$Species))
       
       
-      paste(
-        "There have been",
+      paste0(
+        "There have been ",
         total_species,
-        "species observed with",
+        " species observed ",
+        "(",
+        total_genera,
+        "genera) with ",
         collections_count,
-        "collections of",
+        " collections of ",
         collections_species,
-        "species and",
+        " species and ",
         photographic_count,
-        "photographic or audio records of",
+        " photographic or audio records of ",
         photographic_species,
-        "species."
+        " species."
       )
     })
     
