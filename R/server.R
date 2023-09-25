@@ -159,6 +159,9 @@ infinity_server <- function(...){
       total_genera <- length(unique(data$Genus))
       total_family <- length(unique(data$Family))
       
+      native<-dplyr::filter(data, `Establishment means`=="Native")
+      total_native_species <- length(unique(native$Species))
+      
       collections <- data[data$`Voucher Type` == "Collection",]
       collections_count <- nrow(collections)
       collections_species <- length(unique(collections$Species))
@@ -184,7 +187,11 @@ infinity_server <- function(...){
         photographic_count,
         " photographic or audio records of ",
         photographic_species,
-        " species. "
+        " species. Of the "
+        total_species,
+        "species observed ",
+        total_native_species,
+        " are considered native to Australia."
       )
     })
     
