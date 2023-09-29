@@ -156,6 +156,9 @@ ui <- function(){
           tabPanel("Species records",
                    DT::DTOutput("table")
           ),
+          tabPanel("chooseaspot",
+                   leaflet::leafletOutput("choosemap"),
+                   verbatimTextOutput("coords")),
           tabPanel("FAQs",
                    h2("Frequently Asked Questions"),
                    

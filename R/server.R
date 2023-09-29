@@ -370,6 +370,27 @@ infinity_server <- function(...){
         leaflet::addPolygons(data = place_polygon, color = "red") |>
         leaflet::addPolygons(data = add_buffer(place_polygon, buffer), color = buffer_color)
     })
+    
+    output$choosemap <- leaflet::renderLeaflet({
+      leaflet::leaflet() #|>
+        leaflet::addTiles(urlTemplate = "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+                 attribution = 'Map data &copy; <a href="https://www.google.com/maps">Google Maps</a>'
+        )
+    })
+    
+    observeEvent(input$map_click, {
+      click <- input$map_click
+      showModal(modalDialog(
+        title = "You clicked at:",
+        paste0("Latitude: ", click$lat, "<br> Longitude: ", click$lng)
+      ))
+    })
+    
+    output$coords <- renderText({
+      click <- input$map_click
+      if(is.null(click)) return("Click on the map!")
+      paste0("Latitude: ", click$lat, "\nLongitude: ", click$lng)
+    })
   }
   
 }
