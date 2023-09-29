@@ -364,7 +364,7 @@ infinity_server <- function(...){
           data = filtered_data(),
           lng = ~ filtered_data()$Long,
           lat = ~ filtered_data()$Lat,
-          popup = ~ paste(filtered_data()$Species, filtered_data()$`Voucher Type`),
+          popup = ~ paste(filtered_data()$Species, filtered_data()$`Voucher type`),
           clusterOptions = leaflet::markerClusterOptions(maxClusterRadius = 20)
         ) |>
         leaflet::addPolygons(data = place_polygon, color = "red") |>
