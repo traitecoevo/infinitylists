@@ -48,10 +48,19 @@ download_ala_obs <- function(taxon,
 }
 
 
-#' Default ALA query
+#' ALA Query Function
 #'
-#' @param taxon
+#' This function fetches data from the ALA (Atlas of Living Australia) based on
+#' the provided taxon and year criteria.
+#'
+#' @param taxon A character string representing the name of the taxon to query.
+#' @param years A numeric vector specifying the year(s) for the data.
+#'
+#' @return A list containing the identify, filter, and select criteria to be
+#'         used with the ALA API.
+#'
 #' @noRd
+
 query <- function(taxon, years) {
   identify <- galah::galah_call() |>
     galah::galah_identify(taxon)
