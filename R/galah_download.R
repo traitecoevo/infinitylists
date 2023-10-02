@@ -4,24 +4,24 @@
 #' from the "Infinity List" source, processes and cleans the data, adds additional
 #' columns (e.g., establishment status), and optionally saves the raw and processed data.
 #'
-#' @param taxon A character vector or string specifying the taxon (e.g., species, genus) 
+#' @param taxon A character vector or string specifying the taxon (e.g., species, genus)
 #'             for which observations are to be downloaded.
-#' @param year_range A numeric vector of length 2 indicating the start and end years 
+#' @param year_range A numeric vector of length 2 indicating the start and end years
 #'                   for data retrieval. Default is from 1923 to 2023.
-#' @param save_raw_data A logical value indicating whether to save the raw data. 
+#' @param save_raw_data A logical value indicating whether to save the raw data.
 #'                      By default, raw data is not saved (`FALSE`).
-#' @param output_dir A character string specifying the directory where any saved data 
+#' @param output_dir A character string specifying the directory where any saved data
 #'                   (raw or processed) will be stored. Default is `file.path(system.file(package = "infinitylists"), "data/")`.
 #'
 #' @details The function carries out the following steps:
 #' 1. Retrieve the data from the "Infinity List" source.
 #' 2. Process and clean the retrieved data to remove any inconsistencies.
-#' 3. Add additional columns to the cleaned data, such as the establishment status 
+#' 3. Add additional columns to the cleaned data, such as the establishment status
 #'    for the given taxon.
 #' 4. If `save_raw_data` is `TRUE`, save the processed data to the specified `output_dir`.
 #'
-#' @return This function saves the processed data and returns invisibly. The structure and 
-#'         content of the returned value (if any) is determined by the functions called 
+#' @return This function saves the processed data and returns invisibly. The structure and
+#'         content of the returned value (if any) is determined by the functions called
 #'         within (e.g., `retrieve_data`, `process_data`).
 #'
 #' @export
@@ -50,14 +50,14 @@ download_ala_obs <- function(taxon,
 
 #' Default ALA query
 #'
-#' @param taxon 
+#' @param taxon
 #' @noRd
-query <- function(taxon, years){
-  identify <- galah::galah_call() |> 
+query <- function(taxon, years) {
+  identify <- galah::galah_call() |>
     galah::galah_identify(taxon)
   
   filter <- galah::galah_filter(
-    spatiallyValid == TRUE, 
+    spatiallyValid == TRUE,
     species != "",
     decimalLatitude != "",
     year == years,
@@ -65,9 +65,22 @@ query <- function(taxon, years){
   )
   
   select <- galah::galah_select(
-    recordID, species, genus, family, decimalLatitude, decimalLongitude, 
-    coordinateUncertaintyInMeters, eventDate, datasetName, basisOfRecord, 
-    references, institutionCode, recordedBy, outlierLayerCount, isDuplicateOf,sounds
+    recordID,
+    species,
+    genus,
+    family,
+    decimalLatitude,
+    decimalLongitude,
+    coordinateUncertaintyInMeters,
+    eventDate,
+    datasetName,
+    basisOfRecord,
+    references,
+    institutionCode,
+    recordedBy,
+    outlierLayerCount,
+    isDuplicateOf,
+    sounds
   )
   
   identify$filter <- filter
@@ -161,10 +174,10 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
     return(ala_cleaned)
   }
   if (!taxon %in% c("Cicadoidea",
-                   "Marsupialia",
-                   "Odonata",
-                   "Papilionoidea",
-                   "Plantae")) {
+                    "Marsupialia",
+                    "Odonata",
+                    "Papilionoidea",
+                    "Plantae")) {
     ala_cleaned$native_anywhere_in_aus <- "unknown"
   }
   return(ala_cleaned)
@@ -184,12 +197,15 @@ process_data <- function(data) {
       basisOfRecord == "PRESERVED_SPECIMEN" |
         datasetName %in% datasets_of_interest,
       is.na(coordinateUncertaintyInMeters) |
-        coordinateUncertaintyInMeters <= 1000,!is.na(eventDate),!stringr::str_detect(species, "spec.$")
+        coordinateUncertaintyInMeters <= 1000,
+      !is.na(eventDate),
+      !stringr::str_detect(species, "spec.$")
     ) |>
     dplyr::mutate(
       voucher_location = dplyr::if_else(!is.na(references), references, institutionCode),
       voucher_type = dplyr::case_when(
-        basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection",!is.na(sounds) ~ "Audio",
+        basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection",
+        !is.na(sounds) ~ "Audio",
         TRUE ~ "Photograph"
       ),
       lat = decimalLatitude,
@@ -222,23 +238,25 @@ save_data <- function(data, taxon, output_dir) {
   }
   
   
-  arrow::write_parquet(x=data,
-                       sink=file.path(output_dir, 
-                                 paste0("Australia-", 
-                                        taxon, 
-                                        "-", 
-                                        Sys.Date(), 
-                                        ".parquet")))
+  arrow::write_parquet(x = data,
+                       sink = file.path(
+                         output_dir,
+                         paste0("Australia-",
+                                taxon,
+                                "-",
+                                Sys.Date(),
+                                ".parquet")
+                       ))
 }
 
 # galah_config(email = Sys.getenv("ALA_EMAIL"),
 #              atlas = "Australia")
 #
 # requireNamespace("job", quietly = TRUE)
-#job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate"), {
-#   download_ala_obs(taxon = "Papilionoidea")
-#   download_ala_obs(taxon = "Odonata")
-#   download_ala_obs(taxon = "Marsupialia")
-#   download_ala_obs(taxon = "Cicadoidea")
-#   download_ala_obs(taxon = "Plantae")
-# })
+# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
+#    download_ala_obs(taxon = "Papilionoidea")
+#    download_ala_obs(taxon = "Odonata")
+#    download_ala_obs(taxon = "Marsupialia")
+#    download_ala_obs(taxon = "Cicadoidea")
+#    download_ala_obs(taxon = "Plantae")
+#  })
