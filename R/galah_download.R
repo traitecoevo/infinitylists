@@ -163,7 +163,7 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
     lookup <- dplyr::rename(lookup, Species = species)
     
     ala_cleaned <-
-      ala_cleaned |> dplyr::left_join(lookup, by = join_by("Species"))
+      ala_cleaned |> dplyr::left_join(lookup, by = dplyr::join_by("Species"))
     
     return(ala_cleaned)
   }
