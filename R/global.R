@@ -1,12 +1,15 @@
-# ----------------------
-# Data Preparation
-# ----------------------
+
 # To suppress warning messages when summarizing data
 # options(dplyr.summarise.inform = FALSE)
 
 
 
-# Function to add a buffer around a given geometry (polygon or multipolygon)
+#' Add buffer around a given geometry (polygon or multipolygon)
+#'
+#' @param geom Geometry to which the buffer will be added.
+#' @param buffer_size_meters Size of the buffer in meters.
+#' @return sf object with the buffered geometry.
+#' @noRd
 add_buffer <- function(geom, buffer_size_meters) {
   # Check if the input is an sfc_POLYGON, sfc_MULTIPOLYGON or their "sfg" equivalents
   if (!inherits(geom,
@@ -38,7 +41,11 @@ add_buffer <- function(geom, buffer_size_meters) {
 }
 
 
-# Function to load spatial data from a given file path
+#' Load spatial data from a given file path
+#'
+#' @param path Path to the spatial data file.
+#' @return Geometry of the spatial data from the file.
+#' @noRd
 load_place <- function(path) {
   tryCatch({
     geom <- sf::st_read(path, crs = 4326, quiet = TRUE)
@@ -51,7 +58,13 @@ load_place <- function(path) {
   })
 }
 
-# Function to create a circular polygon around a given lat-long coordinate with a specified radius
+#' Create a circular polygon around a given lat-long coordinate with a specified radius
+#'
+#' @param lat Latitude of the center of the circle.
+#' @param long Longitude of the center of the circle.
+#' @param radius_m Radius of the circle in meters.
+#' @return Circular polygon geometry.
+#' @noRd
 create_circle_polygon <- function(lat, long, radius_m) {
   # Create a point in a geographical coordinate system (WGS 84)
   pt <- sf::st_point(c(long, lat))
@@ -76,53 +89,90 @@ places <- list(
     "inst/extdata/places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
   "Fowlers Gap, UNSW" = load_place("inst/extdata/places/unsw-fowlers.kml"),
-  "UNSW Smiths Lake and Vicinity" = load_place("inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"),
-  "Australian Botanic Garden Mount Annan" = load_place("inst/extdata/places/mt-annan-australian-botanic-garden.kml"),
+  "UNSW Smiths Lake and Vicinity" = load_place(
+    "inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"
+  ),
+  "Australian Botanic Garden Mount Annan" = load_place(
+    "inst/extdata/places/mt-annan-australian-botanic-garden.kml"
+  ),
   "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
-  "North Head Sanctuary" = load_place("inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
+  "North Head Sanctuary" = load_place(
+    "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml"
+  )
 )
 
 
-# Function to filter data based on taxon of interest
+#' Filter data based on taxon of interest
+#'
+#' @param input User input for taxon of interest.
+#' @param ala_data Dataset containing the taxon information.
+#' @return Filtered dataset based on the taxon of interest.
+#' @noRd
 filter_by_taxon <- function(input, ala_data) {
   if (input$taxonOfInterest == "genus") {
     if (input$taxa_genus == "All") {
       return(ala_data())
     } else {
-      return(ala_data()[Genus == input$taxa_genus,])
+      return(ala_data()[Genus == input$taxa_genus, ])
     }
   } else if (input$taxonOfInterest == "family") {
     if (input$taxa_family == "All") {
       return(ala_data())
     } else {
-      return(ala_data()[Family == input$taxa_family,])
+      return(ala_data()[Family == input$taxa_family, ])
     }
   } else {
     return(ala_data())
   }
 }
 
-# Function to determine which points are inside the target polygon
+#' Determine which points are inside the target polygon
+#'
+#' @param points Set of points to check.
+#' @param place_polygon Target polygon geometry.
+#' @return Logical vector indicating which points are inside the target polygon.
+#' @noRd
 points_in_target <- function(points, place_polygon) {
   sf::st_intersects(points, place_polygon, sparse = FALSE)[, 1]
 }
 
-# Function to determine which points are inside the buffer
+#' Determine which points are inside the buffer
+#'
+#' @param points Set of points to check.
+#' @param place_polygon Polygon geometry around which the buffer is added.
+#' @param buffer_size Size of the buffer in meters.
+#' @return Logical vector indicating which points are inside the buffer.
+#' @noRd
 points_in_buffer <- function(points, place_polygon, buffer_size) {
   buffer_place <- add_buffer(place_polygon, buffer_size)
   sf::st_intersects(points, buffer_place, sparse = FALSE)[, 1]
 }
 
+#' Check for updates and download if available
+#'
+#' @return Message indicating the status of the update check and download.
+#' @noRd
 check_and_download_update <- function() {
-  infinity_file_path <- file.path(system.file(package = "infinitylists"), "data")
+  infinity_file_path <-
+    file.path(system.file(package = "infinitylists"), "data")
   
   current_version <- "0.0.0"
-  if (file.exists(file.path(infinity_file_path,"infinitylistversion.txt"))) current_version<- readLines(file.path(infinity_file_path,"infinitylistversion.txt"))
+  if (file.exists(file.path(infinity_file_path, "infinitylistversion.txt")))
+    current_version <-
+    readLines(file.path(infinity_file_path, "infinitylistversion.txt"))
   
   # Fetch the latest release information using the GitHub API
-  url <- paste0("https://api.github.com/repos/", "traitecoevo", "/", "infinitylists", "/releases/latest")
+  url <-
+    paste0(
+      "https://api.github.com/repos/",
+      "traitecoevo",
+      "/",
+      "infinitylists",
+      "/releases/latest"
+    )
   response <- httr::GET(url)
-  release_data <- jsonlite::fromJSON(httr::content(response, "text"))
+  release_data <-
+    jsonlite::fromJSON(httr::content(response, "text"))
   
   # Extract the latest version tag
   latest_version <- gsub("v", "", release_data$tag_name)
@@ -141,11 +191,20 @@ check_and_download_update <- function() {
       binary_url <- release_data$assets[i, "browser_download_url"]
       
       cat("Downloading:", asset_name, "\n")
-      download.file(binary_url, destfile = file.path(infinity_file_path,asset_name), mode = "wb")
+      download.file(
+        binary_url,
+        destfile = file.path(infinity_file_path, asset_name),
+        mode = "wb"
+      )
     }
-    writeLines(latest_version, file.path(infinity_file_path,"infinitylistversion.txt")) #creating a bug elsewhere
+    writeLines(latest_version,
+               file.path(infinity_file_path, "infinitylistversion.txt")) #creating a bug elsewhere
     cat("Update complete.\n")
   } else {
-    cat(paste0("You have the latest version (",latest_version,") of the data.\n"))
+    cat(paste0(
+      "You have the latest version (",
+      latest_version,
+      ") of the data.\n"
+    ))
   }
 }
