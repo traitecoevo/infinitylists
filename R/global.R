@@ -1,5 +1,6 @@
 
 # To suppress warning messages when summarizing data
+# not sure if this is needed or not
 # options(dplyr.summarise.inform = FALSE)
 
 
@@ -84,6 +85,7 @@ create_circle_polygon <- function(lat, long, radius_m) {
 
 
 # Load predefined spatial boundaries for various places
+# should maybe be a function, but working as a global variable right now. 
 places <- list(
   "Wategora Reserve" = load_place(
     "inst/extdata/places/wategora-reserve-survey-area-approximate-boundaries.kml"
