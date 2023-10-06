@@ -167,7 +167,7 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
   if (taxon == "Plantae") {
     resources <- APCalign::load_taxonomic_resources()
     lookup <-
-      APCalign::native_anywhere_in_australia(ala_cleaned$Species, resources = resources)
+      APCalign::native_anywhere_in_australia(unique(ala_cleaned$Species), resources = resources)
     
     lookup <- dplyr::rename(lookup, Species = species)
     
@@ -258,14 +258,13 @@ save_data <- function(data, taxon, output_dir) {
                        ))
 }
 
-# galah_config(email = Sys.getenv("ALA_EMAIL"),
-#              atlas = "Australia")
-#
-# requireNamespace("job", quietly = TRUE)
-# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
-#    download_ala_obs(taxon = "Papilionoidea")
-#    download_ala_obs(taxon = "Odonata")
-#    download_ala_obs(taxon = "Marsupialia")
-#    download_ala_obs(taxon = "Cicadoidea")
-#    download_ala_obs(taxon = "Plantae")
-#  })
+#  galah::galah_config(email = "wcornwell@gmail.com")
+# 
+#  requireNamespace("job", quietly = TRUE)
+#  job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
+#     download_ala_obs(taxon = "Papilionoidea")
+#     download_ala_obs(taxon = "Odonata")
+#     download_ala_obs(taxon = "Marsupialia")
+#     download_ala_obs(taxon = "Cicadoidea")
+#     download_ala_obs(taxon = "Plantae")
+#   })
