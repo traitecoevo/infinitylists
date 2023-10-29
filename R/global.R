@@ -99,9 +99,8 @@ places <- list(
   ),
   "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
   "North Head Sanctuary" = load_place(
-    "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml"
+    "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
   )
-)
 
 
 #' Filter data based on taxon of interest
@@ -135,7 +134,14 @@ filter_by_taxon <- function(input, ala_data) {
 #' @return Logical vector indicating which points are inside the target polygon.
 #' @noRd
 points_in_target <- function(points, place_polygon) {
-  sf::st_intersects(points, place_polygon, sparse = FALSE)[, 1]
+  
+  # Get the sparse list representation of intersections
+  intersects_list <- sf::st_intersects(points, place_polygon)
+  
+  # Create a logical vector indicating whether each point intersects with any polygon
+  result_vector <- sapply(intersects_list, function(x) length(x) > 0)
+  
+  return(result_vector)
 }
 
 #' Determine which points are inside the buffer
@@ -147,7 +153,9 @@ points_in_target <- function(points, place_polygon) {
 #' @noRd
 points_in_buffer <- function(points, place_polygon, buffer_size) {
   buffer_place <- add_buffer(place_polygon, buffer_size)
-  sf::st_intersects(points, buffer_place, sparse = FALSE)[, 1]
+  intersects_list <- sf::st_intersects(points, buffer_place)
+  result_vector <- sapply(intersects_list, function(x) length(x) > 0)
+  return(result_vector)
 }
 
 #' Check for updates and download if available
