@@ -99,7 +99,9 @@ places <- list(
   ),
   "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
   "North Head Sanctuary" = load_place(
-    "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml")
+    "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml"),
+  "Lord Howe Island and Surroundings" = load_place(
+    "inst/extdata/places/lord-howe-island-and-surrounding-islands.kml")
   )
 
 
