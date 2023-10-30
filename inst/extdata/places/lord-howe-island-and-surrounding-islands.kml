@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>Lord Howe Island and surrounding islands</name>
+	<gx:CascadingStyle kml:id="__managed_style_1A1BFB56DE2CB3548359">
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>2.66667</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+				<displayMode>hide</displayMode>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_2C91CC5D472CB3548359">
+		<Style>
+			<IconStyle>
+				<scale>1.2</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+				<displayMode>hide</displayMode>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_049D0B06EB2CB3548359">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_1A1BFB56DE2CB3548359</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_2C91CC5D472CB3548359</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Placemark id="07FC52152F2CB3548358">
+		<name>Untitled polygon</name>
+		<LookAt>
+			<longitude>159.1071675199151</longitude>
+			<latitude>-31.53961752003499</latitude>
+			<altitude>0.4051818089901582</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99996891999999</gx:fovy>
+			<range>2171.360020276916</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_049D0B06EB2CB3548359</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						159.1049698273831,-31.54030908300751,0 159.1058601417922,-31.54239345162026,0 159.1079902699377,-31.54272003911236,0 159.1096920373097,-31.53979039109343,0 159.1096694684067,-31.53879143982178,0 159.1090383409682,-31.53855131872571,0 159.105296679439,-31.53955026916571,0 159.1049698273831,-31.54030908300751,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="08C5B660852CB354B6C5">
+		<name>Untitled polygon</name>
+		<LookAt>
+			<longitude>159.0734030632467</longitude>
+			<latitude>-31.48913777906881</latitude>
+			<altitude>-0.7583085731051376</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99996891999999</gx:fovy>
+			<range>3263.760514415335</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_049D0B06EB2CB3548359</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						159.0697459954494,-31.48880566048419,0 159.0707449152702,-31.48903668816485,0 159.0725734620233,-31.48773732481462,0 159.0726073325541,-31.48655343864498,0 159.0692788689549,-31.48563382611796,0 159.0697459954494,-31.48880566048419,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0DCBA333D42CB354FD99">
+		<name>Untitled polygon</name>
+		<LookAt>
+			<longitude>159.0691903600545</longitude>
+			<latitude>-31.49643422915667</latitude>
+			<altitude>1.619854584632394</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99996891999999</gx:fovy>
+			<range>4590.422938748379</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_049D0B06EB2CB3548359</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						159.0653303237783,-31.4970436755158,0 159.0631855198906,-31.50137112979286,0 159.0677370245098,-31.50533137181919,0 159.0735034615332,-31.50340290921529,0 159.0746471611749,-31.50179781147094,0 159.0709657861505,-31.49321212061685,0 159.0653303237783,-31.4970436755158,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0AA58DC16A2CB35556CD">
+		<name>Untitled polygon</name>
+		<LookAt>
+			<longitude>159.2527066050528</longitude>
+			<latitude>-31.75235066091791</latitude>
+			<altitude>1.60267588951434</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99996891999999</gx:fovy>
+			<range>6805.264320845017</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_049D0B06EB2CB3548359</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						159.2342613363234,-31.75180744326116,0 159.2360303365588,-31.75846086907163,0 159.2549017575114,-31.75966595390643,0 159.2574154660146,-31.75798003879449,0 159.2542643168486,-31.75220013327155,0 159.2495204456649,-31.7504239731104,0 159.2350759902109,-31.75030232330647,0 159.2342613363234,-31.75180744326116,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="034D9F76582CB356BD05">
+		<name>Lord Howe Island and surrounding islands</name>
+		<LookAt>
+			<longitude>159.0505378325308</longitude>
+			<latitude>-31.51369250104268</latitude>
+			<altitude>148.6644259078191</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>34.99996891999999</gx:fovy>
+			<range>8056.439343692038</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_049D0B06EB2CB3548359</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						159.0370441502477,-31.51140553919375,0 159.0358519013024,-31.51343763939055,0 159.0359359224717,-31.52047795307081,0 159.0376810106507,-31.52345410596205,0 159.0444501471736,-31.52447105146492,0 159.0478980260384,-31.5326364480255,0 159.0542850402239,-31.54548652279242,0 159.060134213541,-31.5514393699661,0 159.0664592881761,-31.5593865014866,0 159.0684027441422,-31.56348686378494,0 159.0724929365678,-31.57020202928782,0 159.069941230089,-31.573151295185,0 159.0674020359092,-31.57846987990841,0 159.0654593277343,-31.58666539162852,0 159.0664054498757,-31.591983894616,0 159.0699559587657,-31.6001350349415,0 159.0731129862471,-31.60047134958548,0 159.0749547564091,-31.59825868406546,0 159.0747576111048,-31.5960739566066,0 159.081761653345,-31.59204123305409,0 159.086111106639,-31.58578302424296,0 159.0907395864157,-31.58094726161193,0 159.0909363803161,-31.57831602103639,0 159.0939303386972,-31.5737473201319,0 159.1006024031367,-31.57540295698429,0 159.1012598749988,-31.57361031675406,0 159.0990571659616,-31.56870870874831,0 159.1022130314134,-31.56772834121275,0 159.1059277408163,-31.56719601985024,0 159.1077351593745,-31.56366645232169,0 159.1057625014183,-31.56139779215234,0 159.105400585433,-31.55826075745537,0 159.1023434605688,-31.55613222230513,0 159.0992537100224,-31.55593626025738,0 159.0984976733679,-31.55414369503211,0 159.0984642912621,-31.55137071975204,0 159.0955715594476,-31.54845781414785,0 159.0965244695038,-31.54582486575427,0 159.0953740101833,-31.54425639232158,0 159.091463004203,-31.54411646953686,0 159.0865006009537,-31.54184770768358,0 159.0838049788103,-31.53714234102451,0 159.0827858263291,-31.5330530103358,0 159.0823906976338,-31.5272270022551,0 159.081338950264,-31.52560252798593,0 159.0770671667874,-31.52507062362573,0 159.0748652998799,-31.51876865582127,0 159.0710527253277,-31.51549207864996,0 159.0666826491522,-31.51543662106961,0 159.0659919848072,-31.51022687809346,0 159.064381862677,-31.50809829823213,0 159.0620163280312,-31.50767838476266,0 159.0604723811647,-31.51045150276537,0 159.0439796856433,-31.51117962268014,0 159.0389528117707,-31.51148721929233,0 159.0370441502477,-31.51140553919375,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+</Document>
+</kml>
