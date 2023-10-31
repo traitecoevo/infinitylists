@@ -40,52 +40,12 @@
 infinity_server <- function(...){
   server <- function(input, output, session) {
     
-    # Load predefined spatial boundaries for various places
-    # should maybe be a function, but working as a global variable right now. 
-    places <- list(
-      "Wategora Reserve" = load_place(
-        "inst/extdata/places/wategora-reserve-survey-area-approximate-boundaries.kml"
-      ),
-      "Fowlers Gap, UNSW" = load_place("inst/extdata/places/unsw-fowlers.kml"),
-      "UNSW Smiths Lake and Vicinity" = load_place(
-        "inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"
-      ),
-      "Australian Botanic Garden Mount Annan" = load_place(
-        "inst/extdata/places/mt-annan-australian-botanic-garden.kml"
-      ),
-      "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
-      "North Head Sanctuary" = load_place(
-        "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml"),
-      "Lord Howe Island and Surroundings" = load_place(
-        "inst/extdata/places/lord-howe-island-and-surrounding-islands.kml")
-    )
-
-    
     
     # Observer to handle uploaded KML files
-    observe({
-      inFile <- input$uploadKML
-      if (is.null(inFile))
-        return(NULL)
-      
-      uploaded_place <- tryCatch({
-        load_place(inFile$datapath)
-      }, error = function(e) {
-        showNotification(paste("Error processing KML:", e$message), type = "error")
-        return(NULL)
-      })
-      
-      if (!is.null(uploaded_place)) {
-        places[[inFile$name]] <<- uploaded_place
-        updateSelectizeInput(
-          session,
-          "place",
-          choices = names(places),
-          selected = inFile$name,
-          server = FALSE
-        )
-      }
+    uploaded_place <- eventReactive(input$uploadKML,{
+      load_place(input$uploadKML$datapath)
     })
+    
     
     circle_polygon <- eventReactive(input$executeButton, {
       lat <- tryCatch(as.numeric(input$latitude), error = function(e) NA)
@@ -102,7 +62,6 @@ infinity_server <- function(...){
     
     selected_polygon <- reactive({
       switch(input$inputType,
-             
              "preloaded" = {
                return(places[[input$place]])
              },
@@ -112,16 +71,10 @@ infinity_server <- function(...){
              },
              
              "upload" = {
-               if (!is.null(places[[input$place]])) {
-                 return(places[[input$place]])
-               } else {
-                 return(NULL)
-               }
+                 return(uploaded_place())
              },
-             
-             {
                return(NULL)
-             }
+             
       )
     })
     
