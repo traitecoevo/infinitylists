@@ -6,23 +6,7 @@
 # Define the user interface for the Shiny app
 ui <- function(){
   
-  places <- list(
-    "Wategora Reserve" = load_place(
-      "inst/extdata/places/wategora-reserve-survey-area-approximate-boundaries.kml"
-    ),
-    "Fowlers Gap, UNSW" = load_place("inst/extdata/places/unsw-fowlers.kml"),
-    "UNSW Smiths Lake and Vicinity" = load_place(
-      "inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"
-    ),
-    "Australian Botanic Garden Mount Annan" = load_place(
-      "inst/extdata/places/mt-annan-australian-botanic-garden.kml"
-    ),
-    "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
-    "North Head Sanctuary" = load_place(
-      "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml"),
-    "Lord Howe Island and Surroundings" = load_place(
-      "inst/extdata/places/lord-howe-island-and-surrounding-islands.kml")
-  )
+
   
   files_in_directory <- list.files(path = system.file(package = "infinitylists", "data/"), pattern = ".parquet")
   
