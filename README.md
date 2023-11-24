@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/traitecoevo/infinitylists/branch/master/graph/badge.svg)](https://app.codecov.io/gh/traitecoevo/infinitylists?branch=master)
 <!-- badges: end -->
 
 This shiny-based application allows users to extract plant occurrence
