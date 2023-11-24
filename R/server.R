@@ -35,7 +35,6 @@
 #' @seealso 
 #' \code{\link{infinitylistApp}}: Main function that launches the Infinity List Shiny app.
 #'
-#' @export
 #'
 infinity_server <- function(...){
   server <- function(input, output, session) {
