@@ -3,7 +3,7 @@ test_that("Download exceutes", {
   galah::galah_config(email = Sys.getenv("ALA_EMAIL"))
   
   odonata <- download_ala_obs(taxon = "Odonata",
-                   year_range = c(2022, 2023)
+                   year_range = c(1923, 1924)
                    )
   
   expect_snapshot(odonata)
