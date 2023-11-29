@@ -32,24 +32,36 @@
 #' It does not have a direct return value, but rather, it sets up reactive outputs,
 #' observers, and expressions that the Shiny app will utilize.
 #'
-#' @seealso 
+#' @seealso
 #' \code{\link{infinitylistApp}}: Main function that launches the Infinity List Shiny app.
 #'
 #'
-infinity_server <- function(...){
+infinity_server <- function(...) {
   server <- function(input, output, session) {
-    
-    
     # Observer to handle uploaded KML files
-    uploaded_place <- eventReactive(input$uploadKML,{
+    uploaded_place <- eventReactive(input$uploadKML, {
       load_place(input$uploadKML$datapath)
     })
     
     
     circle_polygon <- eventReactive(input$executeButton, {
-      lat <- tryCatch(as.numeric(input$latitude), error = function(e) NA)
-      long <- tryCatch(as.numeric(input$longitude), error = function(e) NA)
-      radius_m <- tryCatch(as.numeric(input$radiusChoice), error = function(e) NA)
+      lat <- tryCatch(
+        as.numeric(input$latitude),
+        error = function(e)
+          NA
+      )
+      long <-
+        tryCatch(
+          as.numeric(input$longitude),
+          error = function(e)
+            NA
+        )
+      radius_m <-
+        tryCatch(
+          as.numeric(input$radiusChoice),
+          error = function(e)
+            NA
+        )
       
       if (is.na(lat) || is.na(long) || is.na(radius_m)) {
         return(NULL)
@@ -60,20 +72,21 @@ infinity_server <- function(...){
     
     
     selected_polygon <- reactive({
-      switch(input$inputType,
-             "preloaded" = {
-               return(places[[input$place]])
-             },
-             
-             "choose" = {
-               return(circle_polygon())
-             },
-             
-             "upload" = {
-                 return(uploaded_place())
-             },
-               return(NULL)
-             
+      switch(
+        input$inputType,
+        "preloaded" = {
+          return(places[[input$place]])
+        },
+        
+        "choose" = {
+          return(circle_polygon())
+        },
+        
+        "upload" = {
+          return(uploaded_place())
+        },
+        return(NULL)
+        
       )
     })
     
@@ -82,14 +95,16 @@ infinity_server <- function(...){
       long_buffer <- 0.578 #50 km approx
       lat_buffer <- 0.45 #50 km approx
       place_polygon <- selected_polygon()
-      arrow::open_dataset(file.path(system.file(package = "infinitylists", "data",input$ala_path))) |>
+      arrow::open_dataset(file.path(
+        system.file(package = "infinitylists", "data", input$ala_path)
+      )) |>
         dplyr::filter(
           Lat < sf::st_bbox(place_polygon)$ymax + lat_buffer &
             Lat > sf::st_bbox(place_polygon)$ymin - lat_buffer &
             Long < sf::st_bbox(place_polygon)$xmax + long_buffer &
             Long > sf::st_bbox(place_polygon)$xmin - long_buffer
         ) |>
-        dplyr::collect() |> data.table::data.table() 
+        dplyr::collect() |> data.table::data.table()
     })
     
     intersect_data <- reactive({
@@ -102,12 +117,15 @@ infinity_server <- function(...){
       }
       
       if (nrow(data) > 0) {
-        points <- sf::st_as_sf(data, coords = c("Long", "Lat"), crs = 4326)
+        points <- sf::st_as_sf(data,
+                               coords = c("Long", "Lat"),
+                               crs = 4326)
         
         in_target <- points_in_target(points, place_polygon)
         
         buffer_size <- as.numeric(input$buffer_size)
-        in_buffer_all <- points_in_buffer(points, place_polygon, buffer_size)
+        in_buffer_all <-
+          points_in_buffer(points, place_polygon, buffer_size)
         
         in_buffer_only <- in_buffer_all & !in_target
         
@@ -118,7 +136,7 @@ infinity_server <- function(...){
         data$`In target area` <- NA
       }
       
-      data <- dplyr::filter(data, !is.na(`In target area`))
+      data <- dplyr::filter(data,!is.na(`In target area`))
       return(data)
     })
     
@@ -131,15 +149,17 @@ infinity_server <- function(...){
       total_genera <- length(unique(data$Genus))
       total_family <- length(unique(data$Family))
       
-      native<-dplyr::filter(data, native_anywhere_in_aus=="native")
-      if(nrow(native)>0) total_native_species <- length(unique(native$Species))
-      else total_native_species<- "an unknown number"
-        
-      collections <- data[data$`Voucher Type` == "Collection",]
+      native <- dplyr::filter(data, native_anywhere_in_aus == "native")
+      if (nrow(native) > 0)
+        total_native_species <- length(unique(native$Species))
+      else
+        total_native_species <- "an unknown number"
+      
+      collections <- data[data$`Voucher Type` == "Collection", ]
       collections_count <- nrow(collections)
       collections_species <- length(unique(collections$Species))
       
-      photographic <- data[data$`Voucher Type` == "Photograph", ]
+      photographic <- data[data$`Voucher Type` == "Photograph",]
       photographic_count <- nrow(photographic)
       photographic_species <- length(unique(photographic$Species))
       
@@ -173,27 +193,40 @@ infinity_server <- function(...){
     })
     
     
-# Observe changes in intersect_data() and update choic
-    observeEvent(list(input$place,input$buffer_size,
-                      input$inputType,input$taxonOfInterest,
-                      input$uploadKML,input$latitude,input$ala_path,input$executeButton),{
-      
-      updateSelectizeInput(
-        session,
-        "taxa_genus",
-        selected = "All",
-        choices = c("All", sort(unique(intersect_data()$Genus))),
-        server = TRUE
-      )
-      
-      updateSelectizeInput(
-        session,
-        "taxa_family",
-        choices = c("All", sort(unique(intersect_data()$Family))),
-        selected = "All",
-        server = TRUE
-      )
-    })
+    # Observe changes in intersect_data() and update choic
+    observeEvent(
+      list(
+        input$place,
+        input$buffer_size,
+        input$inputType,
+        input$taxonOfInterest,
+        input$uploadKML,
+        input$latitude,
+        input$ala_path,
+        input$executeButton
+      ),
+      {
+        updateSelectizeInput(
+          session,
+          "taxa_genus",
+          selected = "All",
+          choices = c("All", sort(unique(
+            intersect_data()$Genus
+          ))),
+          server = TRUE
+        )
+        
+        updateSelectizeInput(
+          session,
+          "taxa_family",
+          choices = c("All", sort(unique(
+            intersect_data()$Family
+          ))),
+          selected = "All",
+          server = TRUE
+        )
+      }
+    )
     
     
     # Reactive expression to summarize and filter data
@@ -217,8 +250,7 @@ infinity_server <- function(...){
       
       # Sort the data by 'in target area' and 'Collection Date'
       result <-
-        result[order(-as.integer(`In target area` == "in target"),
-                     -`Collection Date`)]
+        result[order(-as.integer(`In target area` == "in target"),-`Collection Date`)]
       
       result <- result[, .(
         `In target area` = `In target area`[1],
@@ -243,19 +275,26 @@ infinity_server <- function(...){
           ),
           paste0(
             "<a href='",
-            "https://biocache.ala.org.au/occurrences/",`Record Id`[1],
+            "https://biocache.ala.org.au/occurrences/",
+            `Record Id`[1],
             "' target='_blank'>",
             `Voucher Location`[1],
             "</a>"
-          )),
+          )
+        ),
         `Recorded by` = `Recorded by`[1]
       ),
-      by = .(Species, `Establishment means` = native_anywhere_in_aus,`Voucher type`=`Voucher Type`)]
+      by = .(Species,
+             `Establishment means` = native_anywhere_in_aus,
+             `Voucher type` = `Voucher Type`)]
       
       
-      #removing rows from buffer that are in the target polygon.  
-      target_species <- result[`In target area` == "in target", unique(Species)]
-      result2 <- result[!(Species %in% target_species & `In target area` == "only in buffer")]
+      #removing rows from buffer that are in the target polygon.
+      target_species <-
+        result[`In target area` == "in target", unique(Species)]
+      result2 <-
+        result[!(Species %in% target_species &
+                   `In target area` == "only in buffer")]
       
       return(result2)
     })
@@ -265,11 +304,12 @@ infinity_server <- function(...){
     output$table <- DT::renderDT({
       data <- filtered_data()
       #preliminaries
-      n_index <- which(names(data)=="N")-1 #not sure why this has to be off by 1
+      n_index <-
+        which(names(data) == "N") - 1 #not sure why this has to be off by 1
       default_page_length <- 25
-      date_index <- which(names(data)=="Most recent obs.")
+      date_index <- which(names(data) == "Most recent obs.")
       data$N <- as.numeric(data$N)
-      setorder(data,-N)  # sort by the "N" column in descending order
+      setorder(data, -N)  # sort by the "N" column in descending order
       
       #entres
       DT::datatable(
@@ -285,9 +325,16 @@ infinity_server <- function(...){
             className = 'dt-left', targets = '_all'
           ))
         )
-      ) |> DT::formatDate(date_index, method = "toLocaleDateString", 
-                          params = list('en-AU', list(day = 'numeric', month = 'short', year = 'numeric'))
-      )
+      ) |> DT::formatDate(date_index,
+                          method = "toLocaleDateString",
+                          params = list(
+                            'en-AU',
+                            list(
+                              day = 'numeric',
+                              month = 'short',
+                              year = 'numeric'
+                            )
+                          ))
     })
     
     # Handle CSV download
@@ -296,7 +343,9 @@ infinity_server <- function(...){
         name_bits <- gsub(".parquet", "", input$ala_path)
         name_bits <- gsub("Australia-", "", name_bits)
         paste(input$place,
-              "-",input$buffer_size,"m-buffer-",
+              "-",
+              input$buffer_size,
+              "m-buffer-",
               name_bits,
               ".csv",
               sep = "")
@@ -308,10 +357,21 @@ infinity_server <- function(...){
           data$`Voucher Location`
           ,
           paste0(
-            "https://biocache.ala.org.au/occurrences/",data$`Record Id`
-          ))
-        data<-rename(data,'Establishment means'=native_anywhere_in_aus,
-                     'Repository'=`Voucher Location`)
+            "https://biocache.ala.org.au/occurrences/",
+            data$`Record Id`
+          )
+        )
+        data <-
+          rename(data,
+                 'Establishment means' = native_anywhere_in_aus,
+                 'Repository' = `Voucher Location`)
+        collectionDate_partial = lubridate::ymd_hms(data$`Collection Date`, tz = "UTC", quiet = TRUE)
+        collectionDate_all = dplyr::if_else(
+          is.na(collectionDate_partial),
+          lubridate::ymd(data$`Collection Date`, tz = "UTC", quiet = TRUE),
+          collectionDate_partial
+        )
+        data$`Collection Date` <- paste(lubridate::year(collectionDate_all),lubridate::month(collectionDate_all),lubridate::day(collectionDate_all),sep="-")
         write.csv(data, file, row.names = FALSE)
       }
     )
@@ -338,11 +398,15 @@ infinity_server <- function(...){
           data = filtered_data(),
           lng = ~ filtered_data()$Long,
           lat = ~ filtered_data()$Lat,
-          popup = ~ paste(filtered_data()$Species, filtered_data()$`Voucher type`),
+          popup = ~ paste(
+            filtered_data()$Species,
+            filtered_data()$`Voucher type`
+          ),
           clusterOptions = leaflet::markerClusterOptions(maxClusterRadius = 20)
         ) |>
         leaflet::addPolygons(data = place_polygon, color = "red") |>
-        leaflet::addPolygons(data = add_buffer(place_polygon, buffer), color = buffer_color)
+        leaflet::addPolygons(data = add_buffer(place_polygon, buffer),
+                             color = buffer_color)
     })
   }
   
