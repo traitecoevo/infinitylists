@@ -136,7 +136,7 @@ infinity_server <- function(...) {
         data$`In target area` <- NA
       }
       
-      data <- dplyr::filter(data,!is.na(`In target area`))
+      data <- dplyr::filter(data, !is.na(`In target area`))
       return(data)
     })
     
@@ -149,17 +149,18 @@ infinity_server <- function(...) {
       total_genera <- length(unique(data$Genus))
       total_family <- length(unique(data$Family))
       
-      native <- dplyr::filter(data, native_anywhere_in_aus == "native")
+      native <-
+        dplyr::filter(data, native_anywhere_in_aus == "native")
       if (nrow(native) > 0)
         total_native_species <- length(unique(native$Species))
       else
         total_native_species <- "an unknown number"
       
-      collections <- data[data$`Voucher Type` == "Collection", ]
+      collections <- data[data$`Voucher Type` == "Collection",]
       collections_count <- nrow(collections)
       collections_species <- length(unique(collections$Species))
       
-      photographic <- data[data$`Voucher Type` == "Photograph",]
+      photographic <- data[data$`Voucher Type` == "Photograph", ]
       photographic_count <- nrow(photographic)
       photographic_species <- length(unique(photographic$Species))
       
@@ -250,7 +251,8 @@ infinity_server <- function(...) {
       
       # Sort the data by 'in target area' and 'Collection Date'
       result <-
-        result[order(-as.integer(`In target area` == "in target"),-`Collection Date`)]
+        result[order(-as.integer(`In target area` == "in target"),
+                     -`Collection Date`)]
       
       result <- result[, .(
         `In target area` = `In target area`[1],
@@ -309,7 +311,7 @@ infinity_server <- function(...) {
       default_page_length <- 25
       date_index <- which(names(data) == "Most recent obs.")
       data$N <- as.numeric(data$N)
-      setorder(data, -N)  # sort by the "N" column in descending order
+      setorder(data,-N)  # sort by the "N" column in descending order
       
       #entres
       DT::datatable(
@@ -371,7 +373,13 @@ infinity_server <- function(...) {
           lubridate::ymd(data$`Collection Date`, tz = "UTC", quiet = TRUE),
           collectionDate_partial
         )
-        data$`Collection Date` <- paste(lubridate::year(collectionDate_all),lubridate::month(collectionDate_all),lubridate::day(collectionDate_all),sep="-")
+        data$`Collection Date` <-
+          paste(
+            lubridate::year(collectionDate_all),
+            lubridate::month(collectionDate_all),
+            lubridate::day(collectionDate_all),
+            sep = "-"
+          )
         write.csv(data, file, row.names = FALSE)
       }
     )
