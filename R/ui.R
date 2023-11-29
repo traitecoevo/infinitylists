@@ -34,7 +34,6 @@ ui <- function(){
     
     sidebarLayout(
       sidebarPanel(
-        selectInput("ala_path", "Choose a taxa:", choices = files_in_directory, selected = files_in_directory["Plantae"]),
         radioButtons(
           "inputType",
           "Choose a place:",
@@ -60,7 +59,7 @@ ui <- function(){
           condition = "input.inputType == 'upload'",
           fileInput(
             "uploadKML",
-            "Upload your own KML (within NSW only)",
+            "Upload your own KML",
             accept = c(".kml")
           )),
         conditionalPanel(
@@ -96,7 +95,22 @@ ui <- function(){
           ),
           actionButton("executeButton", "Go")
         ),
-        
+        selectInput(
+          inputId = "buffer_size",
+          label = "Choose a buffer:",
+          choices = c(
+            "0m (ie. no buffer)" = 0,
+            "100m" = 100,
+            "500m" = 500,
+            "1km" = 1000,
+            "2km" = 2000,
+            "5km" = 5000,
+            "10km" = 10000,
+            "50km" = 50000
+          ),
+          selected = 0
+        ),
+        selectInput("ala_path", "Choose a taxon:", choices = files_in_directory, selected = files_in_directory["Plantae"]),
         radioButtons(
           "taxonOfInterest",
           "Taxonomic level:",
@@ -127,21 +141,7 @@ ui <- function(){
             options = list(maxOptions = 600L)
           )
         ),
-        selectInput(
-          inputId = "buffer_size",
-          label = "Choose a buffer:",
-          choices = c(
-            "0m (ie. no buffer)" = 0,
-            "100m" = 100,
-            "500m" = 500,
-            "1km" = 1000,
-            "2km" = 2000,
-            "5km" = 5000,
-            "10km" = 10000,
-            "50km" = 50000
-          ),
-          selected = 0
-        ),
+        
         downloadButton('downloadData', 'Download all obs CSV'),
         width=3
       ),
