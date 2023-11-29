@@ -209,7 +209,7 @@ infinity_server <- function(...){
             Long = numeric(0),
             Lat = numeric(0),
             `Voucher location` = character(0),
-            `Observed by` = character(0),
+            `Recorded by` = character(0),
             Native = character(0)
           )
         )
@@ -248,7 +248,7 @@ infinity_server <- function(...){
             `Voucher Location`[1],
             "</a>"
           )),
-        `Observed by` = `Recorded by`[1]
+        `Recorded by` = `Recorded by`[1]
       ),
       by = .(Species, `Establishment means` = native_anywhere_in_aus,`Voucher type`=`Voucher Type`)]
       
@@ -310,6 +310,8 @@ infinity_server <- function(...){
           paste0(
             "https://biocache.ala.org.au/occurrences/",data$`Record Id`
           ))
+        data<-rename(data,'Establishment means'=native_anywhere_in_aus,
+                     'Repository'=`Voucher Location`)
         write.csv(data, file, row.names = FALSE)
       }
     )
