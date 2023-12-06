@@ -364,7 +364,7 @@ infinity_server <- function(...) {
           )
         )
         data <-
-          rename(data,
+          dplyr::rename(data,
                  'Establishment means' = native_anywhere_in_aus,
                  'Repository' = `Voucher Location`)
         collectionDate_partial = lubridate::ymd_hms(data$`Collection Date`, tz = "UTC", quiet = TRUE)
