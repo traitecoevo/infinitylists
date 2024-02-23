@@ -236,6 +236,9 @@ process_data <- function(data) {
       recordedBy,
       recordID
     ) |>
+    mutate(link = case_when(grepl("https", voucher_location) ~ voucher_location,
+                            TRUE ~ paste0("https://biocache.ala.org.au/occurrences/", recordID))
+    ) |> 
     janitor::clean_names("title")
 }
 
