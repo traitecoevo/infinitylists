@@ -242,7 +242,7 @@ infinity_server <- function(...) {
             N = integer(0),
             Long = numeric(0),
             Lat = numeric(0),
-            `Voucher location` = character(0),
+            `Repository` = character(0),
             `Recorded by` = character(0),
             Native = character(0)
           )
@@ -266,21 +266,20 @@ infinity_server <- function(...) {
         },
         Lat = Lat[1],
         Long = Long[1],
-        `Repository` = ifelse(
-          grepl("https", `Voucher Location`[1]),
+        Repository = ifelse(
+          grepl("https", Repository[1]),
           paste0(
             "<a href='",
-            `Voucher Location`[1],
+            Link[1],
             "' target='_blank'>",
             "iNat",
             "</a>"
           ),
           paste0(
             "<a href='",
-            "https://biocache.ala.org.au/occurrences/",
-            `Record Id`[1],
+            Link[1],
             "' target='_blank'>",
-            `Voucher Location`[1],
+            Repository[1],
             "</a>"
           )
         ),
@@ -363,15 +362,12 @@ infinity_server <- function(...) {
             data$`Record Id`
           )
         )
-        data <-
-          dplyr::rename(data,
-                        'Repository' = `Voucher Location`)
+    
         collectionDate_partial = lubridate::ymd_hms(data$`Collection Date`, tz = "UTC", quiet = TRUE)
         collectionDate_all = dplyr::if_else(
           is.na(collectionDate_partial),
           lubridate::ymd(data$`Collection Date`, tz = "UTC", quiet = TRUE),
-          collectionDate_partial
-        )
+          collectionDate_partial)
         data$`Collection Date` <-
           paste(
             lubridate::year(collectionDate_all),

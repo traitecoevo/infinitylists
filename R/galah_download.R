@@ -214,7 +214,7 @@ process_data <- function(data) {
       !stringr::str_detect(species, "spec.$")
     ) |>
     dplyr::mutate(
-      voucher_location = dplyr::if_else(!is.na(references), references, institutionCode),
+      repository = dplyr::if_else(!is.na(references), references, institutionCode),
       voucher_type = dplyr::case_when(
         basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection",
         !is.na(sounds) ~ "Audio",
@@ -235,11 +235,11 @@ process_data <- function(data) {
       lat,
       long,
       voucher_type,
-      voucher_location,
+      repository,
       recordedBy,
       recordID
     ) |>
-    mutate(link = case_when(grepl("https", voucher_location) ~ voucher_location,
+    mutate(link = case_when(grepl("https", repository) ~ repository,
                             TRUE ~ paste0("https://biocache.ala.org.au/occurrences/", recordID))
     ) |> 
     janitor::clean_names("title")
