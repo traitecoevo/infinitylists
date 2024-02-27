@@ -180,7 +180,6 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
     ala_cleaned$native_anywhere_in_aus <- "native"
     ala_cleaned$native_anywhere_in_aus[ala_cleaned$Species %in% c("Danaus plexippus", "Pieris rapae")] <-
       "introduced"
-    return(ala_cleaned)
   }
   if (!taxon %in% c("Cicadoidea",
                     "Marsupialia",
@@ -189,6 +188,10 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
                     "Plantae")) {
     ala_cleaned$native_anywhere_in_aus <- "unknown"
   }
+  # Rename native_anywhere_in_aus
+  ala_cleaned <- dplyr::rename(ala_cleaned,
+                `Establishment means` = native_anywhere_in_aus)
+  
   return(ala_cleaned)
 }
 

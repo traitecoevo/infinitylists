@@ -150,7 +150,7 @@ infinity_server <- function(...) {
       total_family <- length(unique(data$Family))
       
       native <-
-        dplyr::filter(data, native_anywhere_in_aus == "native")
+        dplyr::filter(data, `Establishment means` == "native")
       if (nrow(native) > 0)
         total_native_species <- length(unique(native$Species))
       else
@@ -287,7 +287,7 @@ infinity_server <- function(...) {
         `Recorded by` = `Recorded by`[1]
       ),
       by = .(Species,
-             `Establishment means` = native_anywhere_in_aus,
+             `Establishment means`,
              `Voucher type` = `Voucher Type`)]
       
       
@@ -365,8 +365,7 @@ infinity_server <- function(...) {
         )
         data <-
           dplyr::rename(data,
-                 'Establishment means' = native_anywhere_in_aus,
-                 'Repository' = `Voucher Location`)
+                        'Repository' = `Voucher Location`)
         collectionDate_partial = lubridate::ymd_hms(data$`Collection Date`, tz = "UTC", quiet = TRUE)
         collectionDate_all = dplyr::if_else(
           is.na(collectionDate_partial),
