@@ -353,16 +353,7 @@ infinity_server <- function(...) {
       },
       content = function(file) {
         data <- intersect_data()
-        data$`Voucher Location` = ifelse(
-          grepl("https", data$`Voucher Location`),
-          data$`Voucher Location`
-          ,
-          paste0(
-            "https://biocache.ala.org.au/occurrences/",
-            data$`Record Id`
-          )
-        )
-    
+        # Fixing the date
         collectionDate_partial = lubridate::ymd_hms(data$`Collection Date`, tz = "UTC", quiet = TRUE)
         collectionDate_all = dplyr::if_else(
           is.na(collectionDate_partial),
