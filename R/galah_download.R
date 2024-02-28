@@ -166,15 +166,15 @@ retrieve_data <- function(taxon,
 get_establishment_status <- function(ala_cleaned, taxon = taxon) {
   if (taxon == "Plantae") {
     resources <- APCalign::load_taxonomic_resources()
+    suppressWarnings(
     lookup <-
       APCalign::native_anywhere_in_australia(unique(ala_cleaned$Species), resources = resources)
+    )
     
     lookup <- dplyr::rename(lookup, Species = species)
     
     ala_cleaned <-
       ala_cleaned |> dplyr::left_join(lookup, by = dplyr::join_by("Species"))
-    
-    return(ala_cleaned)
   }
   if (taxon %in% c("Cicadoidea", "Marsupialia", "Odonata", "Papilionoidea")) {
     ala_cleaned$native_anywhere_in_aus <- "native"
