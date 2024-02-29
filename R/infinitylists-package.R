@@ -57,6 +57,9 @@ utils::globalVariables(
     "str_detect",
     "voucher_location",
     "voucher_type",
-    "write.csv"
+    "write.csv",
+    "Link", 
+    "Repository",
+    "Establishment means"
   )
 )
