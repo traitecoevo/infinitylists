@@ -189,8 +189,7 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
     ala_cleaned$native_anywhere_in_aus <- "unknown"
   }
   # Rename native_anywhere_in_aus
-  ala_cleaned <- dplyr::rename(ala_cleaned,
-                `Establishment means` = native_anywhere_in_aus)
+  ala_cleaned <- dplyr::rename(ala_cleaned,"Establishment means" = native_anywhere_in_aus)
   
   return(ala_cleaned)
 }
@@ -239,7 +238,7 @@ process_data <- function(data) {
       recordedBy,
       recordID
     ) |>
-    mutate(link = case_when(grepl("https", repository) ~ repository,
+    dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
                             TRUE ~ paste0("https://biocache.ala.org.au/occurrences/", recordID))
     ) |> 
     janitor::clean_names("title")
