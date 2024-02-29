@@ -239,7 +239,7 @@ process_data <- function(data) {
       recordedBy,
       recordID
     ) |>
-    mutate(link = case_when(grepl("https", repository) ~ repository,
+    dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
                             TRUE ~ paste0("https://biocache.ala.org.au/occurrences/", recordID))
     ) |> 
     janitor::clean_names("title")

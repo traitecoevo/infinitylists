@@ -14,3 +14,6 @@ test_that("Loading a place successfully", {
 })
 
 
+test_that("Circle draws", {
+  
+})
