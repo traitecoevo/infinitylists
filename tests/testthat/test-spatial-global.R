@@ -34,7 +34,7 @@ test_that("Circle or buffer is added", {
 })
 
 test_that("Intersections are working", {
-  occ <- tibble::tibble(lat = 33.9679, long = 151.2511)
+  occ <- dplyr::tibble(lat = 33.9679, long = 151.2511)
   occ_sf <- sf::st_as_sf(occ, coords = c("long", "lat"), crs = 4326)
   
   expect_true(points_in_target(occ_sf, create_circle_polygon(lat = 33.9679, long = 151.2511, 10)))
