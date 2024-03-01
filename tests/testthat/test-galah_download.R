@@ -10,3 +10,10 @@ test_that("Download exceutes", {
   expect_named(odonata)
   expect_s3_class(odonata, "tbl_df")
 })
+
+
+test_that("Fails gracefully", {
+  # in my tests
+  Sys.setenv("NETWORK_UP" = TRUE)
+  expect_message(check_and_download_update()) 
+})
