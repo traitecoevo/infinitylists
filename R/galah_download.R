@@ -166,21 +166,20 @@ retrieve_data <- function(taxon,
 get_establishment_status <- function(ala_cleaned, taxon = taxon) {
   if (taxon == "Plantae") {
     resources <- APCalign::load_taxonomic_resources()
+    suppressWarnings(
     lookup <-
       APCalign::native_anywhere_in_australia(unique(ala_cleaned$Species), resources = resources)
+    )
     
     lookup <- dplyr::rename(lookup, Species = species)
     
     ala_cleaned <-
       ala_cleaned |> dplyr::left_join(lookup, by = dplyr::join_by("Species"))
-    
-    return(ala_cleaned)
   }
   if (taxon %in% c("Cicadoidea", "Marsupialia", "Odonata", "Papilionoidea")) {
     ala_cleaned$native_anywhere_in_aus <- "native"
     ala_cleaned$native_anywhere_in_aus[ala_cleaned$Species %in% c("Danaus plexippus", "Pieris rapae")] <-
       "introduced"
-    return(ala_cleaned)
   }
   if (!taxon %in% c("Cicadoidea",
                     "Marsupialia",
@@ -189,6 +188,9 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
                     "Plantae")) {
     ala_cleaned$native_anywhere_in_aus <- "unknown"
   }
+  # Rename native_anywhere_in_aus
+  ala_cleaned <- dplyr::rename(ala_cleaned,"Establishment means" = native_anywhere_in_aus)
+  
   return(ala_cleaned)
 }
 
@@ -211,7 +213,7 @@ process_data <- function(data) {
       !stringr::str_detect(species, "spec.$")
     ) |>
     dplyr::mutate(
-      voucher_location = dplyr::if_else(!is.na(references), references, institutionCode),
+      repository = dplyr::if_else(!is.na(references), references, institutionCode),
       voucher_type = dplyr::case_when(
         basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection",
         !is.na(sounds) ~ "Audio",
@@ -232,10 +234,13 @@ process_data <- function(data) {
       lat,
       long,
       voucher_type,
-      voucher_location,
+      repository,
       recordedBy,
       recordID
     ) |>
+    dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
+                            TRUE ~ paste0("https://biocache.ala.org.au/occurrences/", recordID))
+    ) |> 
     janitor::clean_names("title")
 }
 

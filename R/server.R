@@ -150,7 +150,7 @@ infinity_server <- function(...) {
       total_family <- length(unique(data$Family))
       
       native <-
-        dplyr::filter(data, native_anywhere_in_aus == "native")
+        dplyr::filter(data, `Establishment means` == "native")
       if (nrow(native) > 0)
         total_native_species <- length(unique(native$Species))
       else
@@ -242,7 +242,7 @@ infinity_server <- function(...) {
             N = integer(0),
             Long = numeric(0),
             Lat = numeric(0),
-            `Voucher location` = character(0),
+            `Repository` = character(0),
             `Recorded by` = character(0),
             Native = character(0)
           )
@@ -266,28 +266,27 @@ infinity_server <- function(...) {
         },
         Lat = Lat[1],
         Long = Long[1],
-        `Repository` = ifelse(
-          grepl("https", `Voucher Location`[1]),
+        Repository = ifelse(
+          grepl("https", Repository[1]),
           paste0(
             "<a href='",
-            `Voucher Location`[1],
+            Link[1],
             "' target='_blank'>",
             "iNat",
             "</a>"
           ),
           paste0(
             "<a href='",
-            "https://biocache.ala.org.au/occurrences/",
-            `Record Id`[1],
+            Link[1],
             "' target='_blank'>",
-            `Voucher Location`[1],
+            Repository[1],
             "</a>"
           )
         ),
         `Recorded by` = `Recorded by`[1]
       ),
       by = .(Species,
-             `Establishment means` = native_anywhere_in_aus,
+             `Establishment means`,
              `Voucher type` = `Voucher Type`)]
       
       
@@ -354,25 +353,12 @@ infinity_server <- function(...) {
       },
       content = function(file) {
         data <- intersect_data()
-        data$`Voucher Location` = ifelse(
-          grepl("https", data$`Voucher Location`),
-          data$`Voucher Location`
-          ,
-          paste0(
-            "https://biocache.ala.org.au/occurrences/",
-            data$`Record Id`
-          )
-        )
-        data <-
-          dplyr::rename(data,
-                 'Establishment means' = native_anywhere_in_aus,
-                 'Repository' = `Voucher Location`)
+        # Fixing the date
         collectionDate_partial = lubridate::ymd_hms(data$`Collection Date`, tz = "UTC", quiet = TRUE)
         collectionDate_all = dplyr::if_else(
           is.na(collectionDate_partial),
           lubridate::ymd(data$`Collection Date`, tz = "UTC", quiet = TRUE),
-          collectionDate_partial
-        )
+          collectionDate_partial)
         data$`Collection Date` <-
           paste(
             lubridate::year(collectionDate_all),
