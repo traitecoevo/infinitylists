@@ -180,6 +180,14 @@ check_and_download_update <- function() {
       "infinitylists",
       "/releases/latest"
     )
+  
+  # Simulate network down
+  network_down <- as.logical(Sys.getenv("NETWORK_UP", unset = TRUE)) 
+  
+  if(httr::http_error(url)| network_down){
+    message("No internet connection or data source down, try again later")
+    return(NULL)
+  } 
   response <- httr::GET(url)
   release_data <-
     jsonlite::fromJSON(httr::content(response, "text"))
