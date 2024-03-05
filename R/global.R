@@ -182,7 +182,7 @@ check_and_download_update <- function() {
     )
   
   # Simulate network down
-  network_down <- as.logical(Sys.getenv("NETWORK_UP", unset = TRUE)) 
+  network_down <- as.logical(Sys.getenv("NETWORK_UP", unset = FALSE)) 
   
   if(httr::http_error(url)| network_down){
     message("No internet connection or data source down, try again later")
