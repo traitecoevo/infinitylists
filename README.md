@@ -23,7 +23,7 @@ displayed both in a table and on a map, and are downloadable as a CSV.
 ## Use the app
 
 The app can be accessed
-here:<https://posit-connect-unsw.intersect.org.au/infinitylists/>
+here: https://unsw.shinyapps.io/infinitylists/
 
 ## Local Installation
 
