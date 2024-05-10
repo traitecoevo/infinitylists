@@ -5,9 +5,7 @@
 # ----------------------
 # Define the user interface for the Shiny app
 ui <- function(){
-  
 
-  
   files_in_directory <- list.files(path = system.file(package = "infinitylists", "data/"), pattern = ".parquet")
   
   taxa_names <-
@@ -20,6 +18,27 @@ ui <- function(){
   # Custom Github hyperlink icon
   target <- bsplus::shiny_iconlink(name = "github")
   target$attribs$href <- "https://github.com/traitecoevo/infinitylists"
+  
+  # Get Geolocation
+  tags$script('
+  $(document).ready(function () {
+    navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+    function onError (err) {
+    Shiny.onInputChange("geolocation", false);
+    }
+    
+   function onSuccess (position) {
+      setTimeout(function () {
+          var coords = position.coords;
+          console.log(coords.latitude + ", " + coords.longitude);
+          Shiny.onInputChange("geolocation", true);
+          Shiny.onInputChange("lat", coords.latitude);
+          Shiny.onInputChange("long", coords.longitude);
+      }, 1100)
+  }
+  });
+')
   
   fluidPage(
     theme = shinythemes::shinytheme("cosmo"),
@@ -40,6 +59,7 @@ ui <- function(){
           choices = list(
             "Preloaded Place" = "preloaded",
             "Upload KML" = "upload",
+            "Use current location" = "current",
             "Choose a lat/long" = "choose"
           ),
           selected = "preloaded",
@@ -55,6 +75,7 @@ ui <- function(){
             selected = "Fowlers Gap, UNSW"
           )
         ),
+        
         conditionalPanel(
           condition = "input.inputType == 'upload'",
           fileInput(
@@ -62,6 +83,15 @@ ui <- function(){
             "Upload your own KML",
             accept = c(".kml")
           )),
+        
+        conditionalPanel(
+          condition = "input.inputType == 'current'",
+          verbatimTextOutput("lat"),
+          verbatimTextOutput("long"),
+          verbatimTextOutput("geolocation")
+        ),
+        
+        
         conditionalPanel(
           condition = "input.inputType == 'choose'",
           numericInput(
