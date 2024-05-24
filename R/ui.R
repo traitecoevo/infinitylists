@@ -69,6 +69,13 @@ ui <- function(){
           # Get Geolocation
           tags$script('
   $(document).ready(function () {
+  
+                var options = {
+                  enableHighAccuracy: true,
+                  timeout: 5000,
+                  maximumAge: 0
+                };
+  
     navigator.geolocation.getCurrentPosition(onSuccess, onError);
 
     function onError (err) {
@@ -78,15 +85,33 @@ ui <- function(){
    function onSuccess (position) {
       setTimeout(function () {
           var coords = position.coords;
-          console.log(coords.latitude + ", " + coords.longitude);
+          console.log(coords.latitude + ", " + coords.longitude, "," + coords.accuracy);
           Shiny.onInputChange("geolocation", true);
           Shiny.onInputChange("latitude", coords.latitude);
           Shiny.onInputChange("longitude", coords.longitude);
+          Shiny.onInputChange("accuracy", coords.accuracy);
       }, 1100)
   }
   });
-')
+  
+
+'),
+          selectInput(
+            inputId = "radiusChoice",
+            label = "Choose a radius:",
+            choices = c(
+              "100m" = 100,
+              "500m" = 500,
+              "1km" = 1000,
+              "2km" = 2000,
+              "5km" = 5000,
+              "10km" = 10000,
+              "50km" = 50000
+            ),
+            selected = 100
+          ),
           
+          actionButton("executeButton", "Go")
         ),
         
         
@@ -228,7 +253,7 @@ ui <- function(){
                      tags$li("Records considered to have spatial issues by ALA")
                    ),
                    p("More information can be found on these ", tags$a("here", href = "https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters")),
-                     
+                   
                    
                    h4("13. Does the app reveal the location of species with sensitive locations?"),
                    p("Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA itself) are excluded from the app."),
@@ -249,6 +274,7 @@ ui <- function(){
                  
                  verbatimTextOutput("lat"),
                  verbatimTextOutput("long"),
+                 verbatimTextOutput("accuracy"),
                  verbatimTextOutput("geolocation")
                  ),
         )

@@ -39,13 +39,17 @@
 infinity_server <- function(...) {
   server <- function(input, output, session) {
     
-    # Render text
+    # Render coordinates text
     output$lat <- renderText({
       input$latitude
     })
     
     output$long <- renderText({
       input$longitude
+    })
+    
+    output$accuracy <- renderText({
+      input$accuracy
     })
     
     output$geolocation <- renderText({
