@@ -19,27 +19,6 @@ ui <- function(){
   target <- bsplus::shiny_iconlink(name = "github")
   target$attribs$href <- "https://github.com/traitecoevo/infinitylists"
   
-  # Get Geolocation
-  tags$script('
-  $(document).ready(function () {
-    navigator.geolocation.getCurrentPosition(onSuccess, onError);
-
-    function onError (err) {
-    Shiny.onInputChange("geolocation", false);
-    }
-    
-   function onSuccess (position) {
-      setTimeout(function () {
-          var coords = position.coords;
-          console.log(coords.latitude + ", " + coords.longitude);
-          Shiny.onInputChange("geolocation", true);
-          Shiny.onInputChange("lat", coords.latitude);
-          Shiny.onInputChange("long", coords.longitude);
-      }, 1100)
-  }
-  });
-')
-  
   fluidPage(
     theme = shinythemes::shinytheme("cosmo"),
     titlePanel(
@@ -86,9 +65,28 @@ ui <- function(){
         
         conditionalPanel(
           condition = "input.inputType == 'current'",
-          verbatimTextOutput("lat"),
-          verbatimTextOutput("long"),
-          verbatimTextOutput("geolocation")
+          
+          # Get Geolocation
+          tags$script('
+  $(document).ready(function () {
+    navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+    function onError (err) {
+    Shiny.onInputChange("geolocation", false);
+    }
+    
+   function onSuccess (position) {
+      setTimeout(function () {
+          var coords = position.coords;
+          console.log(coords.latitude + ", " + coords.longitude);
+          Shiny.onInputChange("geolocation", true);
+          Shiny.onInputChange("latitude", coords.latitude);
+          Shiny.onInputChange("longitude", coords.longitude);
+      }, 1100)
+  }
+  });
+')
+          
         ),
         
         
@@ -246,7 +244,13 @@ ui <- function(){
                    
                    h4("17. Why is the app called 'An Infinity of Lists'?"),
                    p("The app's name is a reference to the book ", tags$a(href = "https://en.wikipedia.org/wiki/The_Infinity_of_Lists", 'The Infinity of Lists'), " by Italian author Umberto Eco."),
-          )
+          ),
+        tabPanel("Coords",
+                 
+                 verbatimTextOutput("lat"),
+                 verbatimTextOutput("long"),
+                 verbatimTextOutput("geolocation")
+                 ),
         )
       )
     ),

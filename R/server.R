@@ -38,6 +38,21 @@
 #'
 infinity_server <- function(...) {
   server <- function(input, output, session) {
+    
+    # Render text
+    output$lat <- renderText({
+      input$latitude
+    })
+    
+    output$long <- renderText({
+      input$longitude
+    })
+    
+    output$geolocation <- renderText({
+      input$geolocation
+    })
+    
+    
     # Observer to handle uploaded KML files
     uploaded_place <- eventReactive(input$uploadKML, {
       load_place(input$uploadKML$datapath)
@@ -79,6 +94,10 @@ infinity_server <- function(...) {
         },
         
         "choose" = {
+          return(circle_polygon())
+        },
+        
+        "current" = {
           return(circle_polygon())
         },
         
