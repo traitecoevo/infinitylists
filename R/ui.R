@@ -144,7 +144,7 @@ ui <- function(){
               "10km" = 10000,
               "50km" = 50000
             ),
-            selected = 5000
+            selected = 100
           ),
           actionButton("executeButton", "Go")
         ),
