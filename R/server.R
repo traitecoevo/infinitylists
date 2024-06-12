@@ -41,11 +41,11 @@ infinity_server <- function(...) {
     
     # Render coordinates text
     output$lat <- renderText({
-      input$latitude
+      input$geolat
     })
     
     output$long <- renderText({
-      input$longitude
+      input$geolong
     })
     
     output$accuracy <- renderText({
@@ -63,7 +63,7 @@ infinity_server <- function(...) {
     })
     
     
-    circle_polygon <- eventReactive(input$executeButton, {
+    circle_polygon_choose <- eventReactive(input$executeButton, {
       lat <- tryCatch(
         as.numeric(input$latitude),
         error = function(e)
@@ -90,6 +90,33 @@ infinity_server <- function(...) {
     })
     
     
+    circle_polygon_geo <-eventReactive(input$executeButton, {
+      lat <- tryCatch(
+        as.numeric(input$geolat),
+        error = function(e)
+          NA
+      )
+      long <-
+        tryCatch(
+          as.numeric(input$geolong),
+          error = function(e)
+            NA
+        )
+      radius_m <-
+        tryCatch(
+          as.numeric(input$radiusChoice),
+          error = function(e)
+            NA
+        )
+      
+      if (is.na(lat) || is.na(long) || is.na(radius_m)) {
+        return(NULL)
+      }
+      
+      return(create_circle_polygon(lat, long, radius_m))
+    })
+    
+    
     selected_polygon <- reactive({
       switch(
         input$inputType,
@@ -98,11 +125,11 @@ infinity_server <- function(...) {
         },
         
         "choose" = {
-          return(circle_polygon())
+          return(circle_polygon_choose())
         },
         
         "current" = {
-          return(circle_polygon())
+          return(circle_polygon_geo())
         },
         
         "upload" = {

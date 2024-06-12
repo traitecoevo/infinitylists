@@ -87,8 +87,8 @@ ui <- function(){
           var coords = position.coords;
           console.log(coords.latitude + ", " + coords.longitude, "," + coords.accuracy);
           Shiny.onInputChange("geolocation", true);
-          Shiny.onInputChange("latitude", coords.latitude);
-          Shiny.onInputChange("longitude", coords.longitude);
+          Shiny.onInputChange("geolat", coords.latitude);
+          Shiny.onInputChange("geolong", coords.longitude);
           Shiny.onInputChange("accuracy", coords.accuracy);
       }, 1100)
   }
@@ -120,14 +120,14 @@ ui <- function(){
           numericInput(
             "latitude",
             "Latitude",
-            value = -33.8688,
+            value = -34.1182,
             min = -90,
             max = 90,
             step = 0.00001),
           numericInput(
             "longitude",
             "Longitude",
-            value = 148.2093,
+            value = 151.0636,
             min = -180,
             max = 180,
             step = 0.00001
