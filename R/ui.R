@@ -272,10 +272,9 @@ ui <- function(){
           ),
         tabPanel("Coords",
                  
-                 verbatimTextOutput("lat"),
-                 verbatimTextOutput("long"),
-                 verbatimTextOutput("accuracy"),
-                 verbatimTextOutput("geolocation")
+                 h5("Latitude:"), verbatimTextOutput("lat"),
+                 h5("Longitude:"), verbatimTextOutput("long"),
+                 h5("Accuracy (m):"), verbatimTextOutput("accuracy")
                  ),
         )
       )
