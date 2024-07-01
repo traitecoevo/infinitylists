@@ -7,7 +7,7 @@
 #' @param taxon A character vector or string specifying the taxon (e.g., species, genus)
 #'             for which observations are to be downloaded.
 #' @param year_range A numeric vector of length 2 indicating the start and end years
-#'                   for data retrieval. Default is from 1923 to 2023.
+#'                   for data retrieval. Default is from 1923 to the current year
 #' @param save_raw_data A logical value indicating whether to save the raw data.
 #'                      By default, raw data is not saved (`FALSE`).
 #' @param output_dir A character string specifying the directory where any saved data
