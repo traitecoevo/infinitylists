@@ -6,7 +6,7 @@
 \usage{
 download_ala_obs(
   taxon,
-  year_range = c(1923, 2023),
+  year_range = c(1923, as.numeric(format(Sys.Date(), "\%Y"))),
   save_raw_data = FALSE,
   output_dir = file.path(system.file(package = "infinitylists"), "data/")
 )
@@ -16,7 +16,7 @@ download_ala_obs(
 for which observations are to be downloaded.}
 
 \item{year_range}{A numeric vector of length 2 indicating the start and end years
-for data retrieval. Default is from 1923 to 2023.}
+for data retrieval. Default is from 1923 to the current year}
 
 \item{save_raw_data}{A logical value indicating whether to save the raw data.
 By default, raw data is not saved (\code{FALSE}).}

@@ -7,7 +7,7 @@
 #' @param taxon A character vector or string specifying the taxon (e.g., species, genus)
 #'             for which observations are to be downloaded.
 #' @param year_range A numeric vector of length 2 indicating the start and end years
-#'                   for data retrieval. Default is from 1923 to 2023.
+#'                   for data retrieval. Default is from 1923 to the current year
 #' @param save_raw_data A logical value indicating whether to save the raw data.
 #'                      By default, raw data is not saved (`FALSE`).
 #' @param output_dir A character string specifying the directory where any saved data
@@ -27,7 +27,7 @@
 #' @export
 #'
 download_ala_obs <- function(taxon,
-                             year_range = c(1923, 2023),
+                             year_range = c(1923, as.numeric(format(Sys.Date(), "%Y"))),
                              save_raw_data = FALSE,
                              output_dir = file.path(system.file(package = "infinitylists"), "data/")) {
   # 1. Data retrieval
@@ -266,10 +266,10 @@ save_data <- function(data, taxon, output_dir) {
 #  galah::galah_config(email = "wcornwell@gmail.com")
 # 
 #  requireNamespace("job", quietly = TRUE)
-#  job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
-#     download_ala_obs(taxon = "Papilionoidea")
-#     download_ala_obs(taxon = "Odonata")
-#     download_ala_obs(taxon = "Marsupialia")
-#     download_ala_obs(taxon = "Cicadoidea")
-#     download_ala_obs(taxon = "Plantae")
-#   })
+# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
+#    download_ala_obs(taxon = "Papilionoidea")
+#    download_ala_obs(taxon = "Odonata")
+#    download_ala_obs(taxon = "Marsupialia")
+#    download_ala_obs(taxon = "Cicadoidea")
+#    download_ala_obs(taxon = "Plantae")
+#  })
