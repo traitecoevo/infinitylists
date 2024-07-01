@@ -5,9 +5,7 @@
 # ----------------------
 # Define the user interface for the Shiny app
 ui <- function(){
-  
 
-  
   files_in_directory <- list.files(path = system.file(package = "infinitylists", "data/"), pattern = ".parquet")
   
   taxa_names <-
@@ -40,6 +38,7 @@ ui <- function(){
           choices = list(
             "Preloaded Place" = "preloaded",
             "Upload KML" = "upload",
+            "Use current location" = "current",
             "Choose a lat/long" = "choose"
           ),
           selected = "preloaded",
@@ -55,6 +54,7 @@ ui <- function(){
             selected = "Fowlers Gap, UNSW"
           )
         ),
+        
         conditionalPanel(
           condition = "input.inputType == 'upload'",
           fileInput(
@@ -62,19 +62,72 @@ ui <- function(){
             "Upload your own KML",
             accept = c(".kml")
           )),
+        
+        conditionalPanel(
+          condition = "input.inputType == 'current'",
+          
+          # Get Geolocation
+          tags$script('
+  $(document).ready(function () {
+  
+                var options = {
+                  enableHighAccuracy: true,
+                  timeout: 5000,
+                  maximumAge: 0
+                };
+  
+    navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+    function onError (err) {
+    Shiny.onInputChange("geolocation", false);
+    }
+    
+   function onSuccess (position) {
+      setTimeout(function () {
+          var coords = position.coords;
+          console.log(coords.latitude + ", " + coords.longitude, "," + coords.accuracy);
+          Shiny.onInputChange("geolocation", true);
+          Shiny.onInputChange("geolat", coords.latitude);
+          Shiny.onInputChange("geolong", coords.longitude);
+          Shiny.onInputChange("accuracy", coords.accuracy);
+      }, 1100)
+  }
+  });
+  
+
+'),
+          selectInput(
+            inputId = "radiusChoice",
+            label = "Choose a radius:",
+            choices = c(
+              "100m" = 100,
+              "500m" = 500,
+              "1km" = 1000,
+              "2km" = 2000,
+              "5km" = 5000,
+              "10km" = 10000,
+              "50km" = 50000
+            ),
+            selected = 100
+          ),
+          
+          actionButton("executeButton", "Go")
+        ),
+        
+        
         conditionalPanel(
           condition = "input.inputType == 'choose'",
           numericInput(
             "latitude",
             "Latitude",
-            value = -33.8688,
+            value = -34.1182,
             min = -90,
             max = 90,
             step = 0.00001),
           numericInput(
             "longitude",
             "Longitude",
-            value = 148.2093,
+            value = 151.0636,
             min = -180,
             max = 180,
             step = 0.00001
@@ -91,7 +144,7 @@ ui <- function(){
               "10km" = 10000,
               "50km" = 50000
             ),
-            selected = 5000
+            selected = 100
           ),
           actionButton("executeButton", "Go")
         ),
@@ -200,7 +253,7 @@ ui <- function(){
                      tags$li("Records considered to have spatial issues by ALA")
                    ),
                    p("More information can be found on these ", tags$a("here", href = "https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters")),
-                     
+                   
                    
                    h4("13. Does the app reveal the location of species with sensitive locations?"),
                    p("Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA itself) are excluded from the app."),
@@ -216,7 +269,13 @@ ui <- function(){
                    
                    h4("17. Why is the app called 'An Infinity of Lists'?"),
                    p("The app's name is a reference to the book ", tags$a(href = "https://en.wikipedia.org/wiki/The_Infinity_of_Lists", 'The Infinity of Lists'), " by Italian author Umberto Eco."),
-          )
+          ),
+        tabPanel("Coords",
+                 
+                 h5("Latitude:"), verbatimTextOutput("lat"),
+                 h5("Longitude:"), verbatimTextOutput("long"),
+                 h5("Accuracy (m):"), verbatimTextOutput("accuracy")
+                 ),
         )
       )
     ),
