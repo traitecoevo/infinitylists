@@ -1,6 +1,6 @@
 Package: infinitylists
 Title: A Shiny-Based Application for Generating Place-Based Species Lists for Australian Plants
-Version: 0.0.1
+Version: 1.0.0
 Authors@R: 
     c(
   person(given = "Thomas", family = "Mesaglio", role = c("aut", "cre", "cph"), email = "thomasmesaglio@gmail.com", comment = c(ORCID = "0000-0002-1096-6066")),
