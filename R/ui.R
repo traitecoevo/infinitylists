@@ -215,13 +215,16 @@ ui <- function(){
                    h2("Frequently Asked Questions"),
                    
                    h4("1. What does this app do?"),
-                   p("This app allows users to explore biodiversity across Australia. After selecting a taxonomic group and a location, the app will generate a species list."),
+                   p("This app allows users to explore biodiversity across Australia. After selecting a location and a taxonomic group and, the app will generate a species list."),
                    
                    h4("2. Which taxonomic groups can I generate lists for?"),
-                   p("You can generate lists for marsupials, plants, dragonflies + damselflies (Odonata), butterflies (Papilionoidea) or cicadas."),
+                   p("You can generate lists for marsupials, plants, dragonflies + damselflies (Odonata), butterflies (Papilionoidea) and cicadas."),
                    
-                   h4("4. What is a KML file?"),
+                   h4("3. What is a KML file?"),
                    p("KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as ", tags$a(href = "https://earth.google.com/", "Google Earth ")),
+                   
+                   h4("4. Why isn't the Use current location filter working?"),
+                   p("Before selecting Use current location, it is important that users allow location access on their mobile device or desktop for the browser they intend to use, otherwise this filter will not work and you will be disconnected from the app."),
                    
                    h4("5. Where can I find a KML file for the location I'm interested in?"),
                    p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as ", tags$a(href = "https://earth.google.com/", "Google Earth "),  "by drawing a polygon, and then exporting it as a KML."),
@@ -252,7 +255,7 @@ ui <- function(){
                      tags$li("All records with a coordinate uncertainty value of > 1000 m"),
                      tags$li("Records considered to have spatial issues by ALA")
                    ),
-                   p("More information can be found on these ", tags$a("here", href = "https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters")),
+                   p("More information on ALA spatial issues can be found ", tags$a("here", href = "https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters")),
                    
                    
                    h4("13. Does the app reveal the location of species with sensitive locations?"),
@@ -265,7 +268,7 @@ ui <- function(){
                    p("You can download any given generated list by clicking on the 'Download all obs CSV' button. This will download a CSV file containing all records within the target area (and buffer, if selected), not just the most recent records that are presented in the table."),
                    
                    h4("16. What do the different symbols on the map represent?"),
-                   p("The blue markers represent a single record. The coloured circles represent clusters of points; the number in the centre of each circle shows how many records are within that cluster. Zooming in on the map will resolve these clusters into their individual points. If a cluster remains at the maximum zoom level, clicking it will resolve it into its individual points."),
+                   p("The blue markers represent a single record. The coloured circles represent clusters of points; the number in the centre of each circle shows how many records are within that cluster. Zooming in on the map will resolve these clusters into their individual points. If a cluster remains even when at the maximum zoom level, clicking it will resolve it into its individual points."),
                    
                    h4("17. Why is the app called 'An Infinity of Lists'?"),
                    p("The app's name is a reference to the book ", tags$a(href = "https://en.wikipedia.org/wiki/The_Infinity_of_Lists", 'The Infinity of Lists'), " by Italian author Umberto Eco."),
