@@ -211,6 +211,12 @@ ui <- function(){
           tabPanel("Species records",
                    DT::DTOutput("table")
           ),
+          tabPanel("Coords",
+                   
+                   h5("Latitude:"), verbatimTextOutput("lat"),
+                   h5("Longitude:"), verbatimTextOutput("long"),
+                   h5("Accuracy (m):"), verbatimTextOutput("accuracy")
+          ),
           tabPanel("FAQs",
                    h2("Frequently Asked Questions"),
                    
@@ -273,12 +279,6 @@ ui <- function(){
                    h4("17. Why is the app called 'An Infinity of Lists'?"),
                    p("The app's name is a reference to the book ", tags$a(href = "https://en.wikipedia.org/wiki/The_Infinity_of_Lists", 'The Infinity of Lists'), " by Italian author Umberto Eco."),
           ),
-        tabPanel("Coords",
-                 
-                 h5("Latitude:"), verbatimTextOutput("lat"),
-                 h5("Longitude:"), verbatimTextOutput("long"),
-                 h5("Accuracy (m):"), verbatimTextOutput("accuracy")
-                 ),
         )
       )
     ),
