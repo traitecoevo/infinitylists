@@ -67,6 +67,7 @@ load_place <- function(path) {
 #' @return Circular polygon geometry.
 #' @noRd
 create_circle_polygon <- function(lat, long, radius_m) {
+  
   # Create a point in a geographical coordinate system (WGS 84)
   pt <- sf::st_point(c(long, lat))
   pt <- sf::st_sfc(pt, crs = 4326)  # Assign WGS 84 CRS
