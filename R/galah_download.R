@@ -27,7 +27,7 @@
 #' @export
 #'
 download_ala_obs <- function(taxon,
-                             year_range = c(1923, 2023),
+                             year_range = c(1923, as.numeric(format(Sys.Date(), "%Y"))),
                              save_raw_data = FALSE,
                              output_dir = file.path(system.file(package = "infinitylists"), "data/")) {
   # 1. Data retrieval
@@ -261,10 +261,10 @@ save_data <- function(data, taxon, output_dir) {
 #  galah::galah_config(email = "wcornwell@gmail.com")
 # 
 #  requireNamespace("job", quietly = TRUE)
-#  job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
-#     download_ala_obs(taxon = "Papilionoidea")
-#     download_ala_obs(taxon = "Odonata")
-#     download_ala_obs(taxon = "Marsupialia")
-#     download_ala_obs(taxon = "Cicadoidea")
-#     download_ala_obs(taxon = "Plantae")
-#   })
+# job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
+#    download_ala_obs(taxon = "Papilionoidea")
+#    download_ala_obs(taxon = "Odonata")
+#    download_ala_obs(taxon = "Marsupialia")
+#    download_ala_obs(taxon = "Cicadoidea")
+#    download_ala_obs(taxon = "Plantae")
+#  })
