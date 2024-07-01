@@ -100,7 +100,21 @@ places <- list(
   "North Head Sanctuary" = load_place(
     "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml"),
   "Lord Howe Island and Surroundings" = load_place(
-    "inst/extdata/places/lord-howe-island-and-surrounding-islands.kml")
+    "inst/extdata/places/lord-howe-island-and-surrounding-islands.kml"),
+  "Cape Liptrap Coastal Park" = load_place(
+    "inst/extdata/places/cape-liptrap-coastal-park.kml"),
+  "Charles Dawin National Park" = load_place(
+    "inst/extdata/places/charles-darwin-national-park.kml"),
+  "Heron Island" = load_place(
+    "inst/extdata/places/heron-island.kml"),
+  "Kaisertuhl Conservation Park" = load_place(
+    "inst/extdata/places/kaiserstuhl-conservation-park.kml"),
+  "Maria Island National Park" = load_place(
+    "inst/extdata/places/maria-island-national-park.kml"),
+  "Molonglo Gorge" = load_place(
+    "inst/extdata/places/molonglo-gorge.kml"),
+  "Yeo Lake Nature Reserve" = load_place(
+    "inst/extdata/places/yeo-lake-nature-reserve.kml")
 )
 
 
