@@ -103,7 +103,7 @@ places <- list(
     "inst/extdata/places/lord-howe-island-and-surrounding-islands.kml"),
   "Cape Liptrap Coastal Park" = load_place(
     "inst/extdata/places/cape-liptrap-coastal-park.kml"),
-  "Charles Dawin National Park" = load_place(
+  "Charles Darwin National Park" = load_place(
     "inst/extdata/places/charles-darwin-national-park.kml"),
   "Heron Island" = load_place(
     "inst/extdata/places/heron-island.kml"),
