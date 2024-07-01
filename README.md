@@ -6,15 +6,13 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml)
-[![Codecov test
-coverage](https://codecov.io/gh/traitecoevo/infinitylists/branch/master/graph/badge.svg)](https://app.codecov.io/gh/traitecoevo/infinitylists?branch=master)
 <!-- badges: end -->
 
-This shiny-based application allows users to extract plant occurrence
+This shiny-based application allows users to extract species occurrence
 data from the Atlas of Living Australia (ALA) and generate a species
 list for any defined area. All records associated with either a physical
-voucher (stored in Australian herbaria or museum), a sound file, or a
-photographic voucher (stored in iNaturalist) are extracted. For each
+voucher (stored in Australian herbaria or museums), or a photographic
+voucher or audio file uploaded to iNaturalist are extracted. For each
 species within the defined area, the application will return voucher
 type, number of vouchers, date of the most recent voucher, spatial
 coordinates, voucher location, and the voucher collector. Records are
@@ -22,8 +20,7 @@ displayed both in a table and on a map, and are downloadable as a CSV.
 
 ## Use the app
 
-The app can be accessed
-here: https://unsw.shinyapps.io/infinitylists/
+The app can be accessed here: <https://unsw.shinyapps.io/infinitylists/>
 
 ## Local Installation
 
@@ -42,12 +39,12 @@ infinitylistApp()
 
 ## Adding new taxa
 
-InfinityList comes with 5 taxa loaded to start with: plants,
-butterflies, cicadas, marsupials, and dragonflies+damselflies. If you
+infinitylists comes with 5 taxa loaded to start with: plants,
+butterflies, cicadas, marsupials, and dragonflies + damselflies. If you
 want to add another taxon, you’ll need to download the data first via
 the [galah interface](https://github.com/AtlasOfLivingAustralia/galah-R)
 to the ALA. The function `download_ala_obs` will download the data and
-put into a directory where infinitylistapp can find it. The value for
+put it into a directory where infinitylists can find it. The value for
 `taxon` needs to be a [valid taxonomic group as recognized by the
 ALA](https://support.ala.org.au/support/solutions/articles/6000261677-taxonomy-a-species-filing-system).
 The download step is fast for taxa with small number of observations in
