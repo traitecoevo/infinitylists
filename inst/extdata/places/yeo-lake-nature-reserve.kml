@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+  
+  <Document>
+    <Placemark>
+  <name>Yeo Lake Nature Reserve Border</name>
+  <styleUrl>https://www.inaturalist.org/assets/index.kml#place</styleUrl>
+<MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>124.007864622596699,-27.78448471749569 123.996065946088393,-27.7980443125604 123.9960719365843,-28.08133627671948 124.076161851274193,-28.081336304838061 124.076164381980405,-28.232542283784571 124.404742869352305,-28.23253839990101 124.404745206417303,-28.2550971761911 124.665717330688807,-28.255094050813291 124.665710202363599,-27.782009109046299 124.011016545177,-27.782018820098681 124.007864622596699,-27.78448471749569</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry></Placemark>
+
+  </Document>
+</kml>

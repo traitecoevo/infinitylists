@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<Document>
+	<name>Northern Territory Parks and Reserves</name>
+	<open>1</open>
+	<description><![CDATA[<b><font color = red>Please read me!</b></font> <br> <br>This file displays the boundary extents of <b>Northern Territory Parks and Reserves.</b>  <br>The data is current as at 25 May 2022. <br>A reduced set of attributes are supplied in this public dataset, referred to as <b>NT_Parks_g94.</b> <br><br>For more information about the spatial data and a description of attribute values, please review the <a href=http://www.ntlis.nt.gov.au/metadata/export_data?type=html&metadata_id=2DBCB77120CA06B6E040CD9B0F274EFE>Metadata Record</a>. <br><br><hr /> <br><b><font color = green>LICENCE USE AND CONDITIONS</b></font> <br>You are licensed to use this geospatial product on the terms and conditions set out in Creative Commons Attribution 4.0 International Public License (CC BY 4.0) at https://creativecommons.org/licenses/by/4.0/legalcode <br><br>You are free to copy, communicate and adapt the licensed material, provided that you abide by the licence terms (including Attribution) and attribute the licensed material using the statement: <br><b>Supplied by Parks and Wildlife Commission of the Northern Territory. © Northern Territory Government.</b> <br><br><hr /> <br><b><font color = green>QUERIES / MORE INFORMATION</b></font> <br>The custodian of this spatial dataset is the Parks and Wildlife Commission of the Northern Territory. <br><br>If you require further assistance, please contact Land Information Manager <br>Parks and Wildlife Commission of the Northern Territory <br>Department of Environment, Parks and Water Security <br>Telephone: +61 8 8999 4407 <br> Website: https://nt.gov.au/parks  <br><br>]]></description>
+	<atom:author>
+<atom:name>Department of Environment, Parks and Water Security</atom:name>
+</atom:author><atom:link href="https://nt.gov.au/parks"></atom:link>
+	<Schema name="2 Park boundary" id="kml_schema_ft_2_Park_boundary">
+		<SimpleField type="xsd:string" name="NAME">
+			<displayName>NAME</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="TYPE">
+			<displayName>TYPE</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="TYPE_ABBR">
+			<displayName>TYPE_ABBR</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="IUCN">
+			<displayName>IUCN</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="STATE">
+			<displayName>STATE</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="AUTHORITY">
+			<displayName>AUTHORITY</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="REGION">
+			<displayName>REGION</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="SUB_NAME">
+			<displayName>SUB_NAME</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:string" name="ENVIRON">
+			<displayName>ENVIRON</displayName>
+		</SimpleField>
+		<SimpleField type="xsd:double" name="GIS_AREA">
+			<displayName>GIS_AREA</displayName>
+		</SimpleField>
+	</Schema>
+	<Style id="Parks575">
+		<IconStyle>
+			<scale>0</scale>
+		</IconStyle>
+		<LabelStyle>
+			<color>ff00ff00</color>
+			<scale>0.7</scale>
+		</LabelStyle>
+		<LineStyle>
+			<color>ff00ff00</color>
+			<width>2</width>
+		</LineStyle>
+		<PolyStyle>
+			<color>0000ff00</color>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<Style id="Parks192">
+		<IconStyle>
+			<scale>0</scale>
+		</IconStyle>
+		<LabelStyle>
+			<color>ff00ff00</color>
+			<scale>0.7</scale>
+		</LabelStyle>
+		<LineStyle>
+			<color>ff00ff00</color>
+			<width>2</width>
+		</LineStyle>
+		<PolyStyle>
+			<color>0000ff00</color>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<StyleMap id="Parks418">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#Parks575</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#Parks192</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Placemark id="kml_245">
+		<name>Charles Darwin National Park</name>
+		<snippet></snippet>
+		<description><![CDATA[<center><table><tr><th colspan='2' align='center'><em>Attributes</em></th></tr><tr bgcolor="#E3E3F3">
+<th>NAME</th>
+<td>Charles Darwin National Park</td>
+</tr><tr bgcolor="">
+<th>TYPE</th>
+<td>National Park</td>
+</tr><tr bgcolor="#E3E3F3">
+<th>TYPE_ABBR</th>
+<td>NP</td>
+</tr><tr bgcolor="">
+<th>IUCN</th>
+<td>V</td>
+</tr><tr bgcolor="#E3E3F3">
+<th>STATE</th>
+<td>NT</td>
+</tr><tr bgcolor="">
+<th>AUTHORITY</th>
+<td>NT_PWCNT</td>
+</tr><tr bgcolor="#E3E3F3">
+<th>REGION</th>
+<td>DARWIN</td>
+</tr><tr bgcolor="">
+<th>ENVIRON</th>
+<td>T</td>
+</tr><tr bgcolor="#E3E3F3">
+<th>GIS_AREA</th>
+<td>1302.81688032</td>
+</tr></table></center>]]></description>
+		<styleUrl>#Parks418</styleUrl>
+		<ExtendedData>
+			<SchemaData schemaUrl="#kml_schema_ft_2_Park_boundary">
+				<SimpleData name="NAME">Charles Darwin National Park</SimpleData>
+				<SimpleData name="TYPE">National Park</SimpleData>
+				<SimpleData name="TYPE_ABBR">NP</SimpleData>
+				<SimpleData name="IUCN">V</SimpleData>
+				<SimpleData name="STATE">NT</SimpleData>
+				<SimpleData name="AUTHORITY">NT_PWCNT</SimpleData>
+				<SimpleData name="REGION">DARWIN</SimpleData>
+				<SimpleData name="ENVIRON">T</SimpleData>
+				<SimpleData name="GIS_AREA">1302.81688032</SimpleData>
+			</SchemaData>
+		</ExtendedData>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						130.878136611,-12.4698429539999,0 130.895943454,-12.465796446,0 130.894493832,-12.4553489799999,0 130.891854087,-12.456045172,0 130.889855215,-12.4590053769999,0 130.88877185,-12.4590673709999,0 130.888192013,-12.457236324,0 130.889931492,-12.455380471,0 130.889168546,-12.4527740899999,0 130.891487854,-12.450832405,0 130.892754321,-12.450398478,0 130.89348672,-12.4465790199999,0 130.894676895,-12.4465437289999,0 130.896675755,-12.4411335409999,0 130.896675747,-12.4393167969999,0 130.894417465,-12.4393597219999,0 130.886528724,-12.4370556869999,0 130.886528709,-12.4337121139999,0 130.876671612,-12.4337808229999,0 130.876366438,-12.433773195,0 130.862542089,-12.4338781609999,0 130.862557348,-12.4339954619999,0 130.862633641,-12.434076524,0 130.862847263,-12.4341385119999,0 130.863121919,-12.434190009,0 130.863167695,-12.434234831,0 130.863152437,-12.4343254299999,0 130.863045627,-12.434525702,0 130.862786232,-12.4349243369999,0 130.862648905,-12.435151312,0 130.862542095,-12.435305807,0 130.862465803,-12.435460302,0 130.862435287,-12.435758802,0 130.862465805,-12.435984822,0 130.862633653,-12.436489313,0 130.86292357,-12.437092986,0 130.863244005,-12.4376966589999,0 130.864144272,-12.4389650379999,0 130.865410747,-12.440303034,0 130.865563336,-12.44071788,0 130.865670149,-12.441150846,0 130.865700668,-12.4415933499999,0 130.865685411,-12.442027271,0 130.865593861,-12.442462145,0 130.865441277,-12.4428788999999,0 130.865242916,-12.4432775359999,0 130.86498352,-12.443632303,0 130.864678348,-12.4439594139999,0 130.8643274,-12.4442331189999,0 130.863945935,-12.444462002,0 130.863518693,-12.444636526,0 130.863091451,-12.444748107,0 130.86264895,-12.444795793,0 130.858147645,-12.4450170649999,0 130.857766178,-12.44506475,0 130.857399971,-12.4451753779999,0 130.857049022,-12.4453499009999,0 130.85674385,-12.445568293,0 130.856469195,-12.4458419979999,0 130.856087732,-12.446503848,0 130.85619459,-12.456780613,0 130.856194598,-12.4584075769999,0 130.878136611,-12.4698429539999,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+</Document>
+</kml>
