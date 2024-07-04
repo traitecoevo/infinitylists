@@ -263,12 +263,11 @@ ui <- function(){
                    ),
                    p("More information on ALA spatial issues can be found ", tags$a("here", href = "https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters")),
                    
-                   
                    h4("13. Does the app reveal the location of species with sensitive locations?"),
                    p("Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA itself) are excluded from the app."),
                    
                    h4("14. How often is the app updated?"),
-                   p("Our major data files from the ALA are re-downloaded roughly once every month."),
+                   p("Our major data files from the ALA are re-downloaded roughly once every month. The current data returned by the app was downloaded on 1st July 2024."),
                    
                    h4("15. How can I download data from the app?"),
                    p("You can download any given generated list by clicking on the 'Download all obs CSV' button. This will download a CSV file containing all records within the target area (and buffer, if selected), not just the most recent records that are presented in the table."),
