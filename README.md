@@ -17,12 +17,24 @@ species within the defined area, the application will return voucher
 type, number of vouchers, date of the most recent voucher, spatial
 coordinates, voucher location, and the voucher collector. Records are
 displayed both in a table and on a map, and are downloadable as a CSV.
+The app is currently using data downloaded from the ALA on 1st July
+2024.
+
+## Which records are returned?
+
+The map and table outputs will only display the **most recent record per
+species per voucher type**. Each species will therefore be represented
+on the map and in the table by a maximum of 3 records (for species with
+a physical voucher, photographic voucher and audio voucher in the target
+area). The text statement indicates the total number of records, and the
+downloadable CSV file contains **all records from the target area**, not
+just the most recent records.
 
 ## Use the app
 
 The app can be accessed here: <https://unsw.shinyapps.io/infinitylists/>
 
-## Local Installation
+## Local installation
 
 You can install the development version of ‘infinitylists’ from
 [GitHub](https://github.com/traitecoevo/infinitylists) with:
@@ -63,3 +75,11 @@ download_ala_obs(taxon = "Orthoptera")
 
 infinitylistApp()
 ```
+
+## Why did I get disconnected from the server?
+
+If infinitylists is left open but idle in your browser for too long, you
+will be disconnected from the server. Applying the *Use my location*
+filter without having given your browser access to your current location
+will also disconnect you from the server. If this occurs, please amend
+your settings.
