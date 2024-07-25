@@ -203,7 +203,7 @@ check_and_download_update <- function() {
     message("No internet connection or data source down, try again later")
     return(NULL)
   } 
-  response <- httr::GET(url)
+  response <- httr::GET(url, httr::timeout(200))
   release_data <-
     jsonlite::fromJSON(httr::content(response, "text"))
   
@@ -219,6 +219,13 @@ check_and_download_update <- function() {
     cat("New version found:", latest_version, "\n")
     
     # Download binary files
+    
+    # Get original timeout option
+    original_timeout <- getOption("timeout")
+    
+    # Increase timeout
+    options(timeout = 300)
+
     for (i in 1:nrow(release_data$assets)) {
       asset_name <- release_data$assets[i, "name"]
       binary_url <- release_data$assets[i, "browser_download_url"]
@@ -230,6 +237,10 @@ check_and_download_update <- function() {
         mode = "wb"
       )
     }
+    
+    # Burn down
+    options(timeout = original_timeout)
+    
     writeLines(latest_version,
                file.path(infinity_file_path, "infinitylistversion.txt")) #creating a bug elsewhere
     cat("Update complete.\n")
