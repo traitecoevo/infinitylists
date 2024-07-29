@@ -114,7 +114,7 @@ retrieve_data_by_years <- function(taxon,
       download,
       paste0(
         output_dir,
-        "ALA-Australia-",
+        "Living-Atlas",
         taxon,
         "-",
         first(years),
@@ -255,7 +255,7 @@ save_data <- function(data, taxon, output_dir) {
   arrow::write_parquet(x = data,
                        sink = file.path(
                          output_dir,
-                         paste0("Australia-",
+                         paste0("Living-Atlas-",
                                 taxon,
                                 "-",
                                 Sys.Date(),
