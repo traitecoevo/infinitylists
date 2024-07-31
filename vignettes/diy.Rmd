@@ -74,9 +74,66 @@ galah::galah_config(email = Sys.getenv("GBIF_EMAIL"),
 
 ### Check if specific fields are available
 
+infinitylists downloads a specific subset of data from the Living Atlas. We need to check if these fields of data are available in the atlas you have selected. [See here]() to see the differences between the available atlases. 
+
+The fields we need are found in `R/galah_download.R`, specifically under the `query()` function. 
+
+I've included a list of data field names here too so you don't need to flip back and forth between files: 
+
+- spatiallyValid
+- species
+- decimalLatitude
+- year
+- basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
+- recordID
+- species
+- genus
+- family
+- decimalLatitude
+- decimalLongitude
+- coordinateUncertaintyInMeters
+- eventDate
+- datasetName
+- basisOfRecord
+- references
+- institutionCode
+- recordedBy
+- sounds
+
+Remember how I said there are inconsistencies between Living Atlases? For example, The Austria atlass uses snake_case (lower case words, seperated by an underscore), whereas Australia uses camelCase (second word in the string is capitalised). Another common difference example is where some atlases uses `spatiallyValid` while others uses `geospatial_kosher`. 
+
+To deal with these consistencies, I use a combination of `search_()` and `show_()` functions from {galah} to determine whether the field we need for infinitylists is available and how the data is formatted. If it's not, we may need remove some of the functionality of the app.
+
+Here, I am looking for field names that contains the partial string "spatial"
+
+```{r}
+# Look for a certain string in field names
+search_fields("spatial")
+```
+
+You can search across other  entities by using `search_all()` instead. Check out the helpfile for details on what is captured in the search `?search_all()`
 
 
 ### Check fields are formatted 
+
+You can pipe the contents of the search into `show_values()` to see the values the data field holds
+
+For example, here I am searching for fields that contain the partial string `coord` and I want to see what values each matching field looks like. This will help me narrow down finding the corresponding field I need. 
+
+```{r}
+# Search across fields for "coord" 
+search_all(fields, "coord") |>
+  show_values() # Display the field values
+```
+
+Another option is to  look across all the fields the Living Atlas has data for and see if you can spot the ones that resemble the ones in the list above.
+
+```{r} 
+# Display all the fields available
+show_all_fields() |>
+  print(n = Inf) # Print all of these in the console
+```
+
 ### Check base URL for each record
 ```{r}
 
