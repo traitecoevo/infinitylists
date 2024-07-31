@@ -5,3 +5,4 @@
 .DS_Store
 ignore/
 inst/data
+inst/doc
