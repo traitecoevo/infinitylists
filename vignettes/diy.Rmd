@@ -27,8 +27,9 @@ If you have any questions about this process, please do not hesitate and reach o
 We are going to need a few packages to create your own infinitylists. Go ahead and install these if you don't have these in your version of R. Otherwise, load them and we can get started 
 
 ```{r setup}
-# install.packages("remotes")
-remotes::install_github("traitecoevo/infinitylists")
+# install.packages("devtools")
+devtools::install_github("traitecoevo/infinitylists")
+library(devtools)
 library(infinitylists)
 library(galah)
 library(tidyverse)
@@ -134,10 +135,122 @@ show_all_fields() |>
   print(n = Inf) # Print all of these in the console
 ```
 
-### Check base URL for each record
+#### Edit the download functions
+
+So you found some differences with field names for our chosen Living Atlas and the Australian infinitylists code? Thats totally okay. 
+
+We will now edit the files that uses these field names directly. 
+
+The two functions you will need to refactor are in `galah_download.R`: 
+
+- `query()` 
+- `process_data()` 
+
+Systemically, edit each function
+
+### A test run
+
+Before we launch in and download all the records for large taxonomic group, let's do a test run first. Just to make sure it works. 
+
+We will make use of the internal function `query()` function from infinitylists. We need to use the `:::` to access this function. 
+
+The `query()` function is where we specify what taxonomic group we want to download data for. As an example, I have selected a genus of lizards found across Europe "Podarcis". You also need to decide what year interval you want data for. I'm going for 2023 - 2024 here. 
+
+Here you can see the `query()` function produce the search query we need for the app
+
 ```{r}
+# Create a download query
+infinitylists:::query("Podarics", c(2023, 2024)) 
+```
+
+Next, I will pipe the results of the query into `atlas_counts` to see how many observations we will be downloading.
+
+```{r}
+infinitylists:::query("Podarics", c(2023, 2024)) 
+```
+
+Now we are ready download our test dataset
+
+```{r}
+podarcis_test <- infinitylists:::query("Podarics", c(2023, 2024)) |> 
+  atlas_occurrences()
+```
+
+### Check data processing
+
+infinitylists doesn't work with the raw data downloaded from the Living Atlas. There is code to process it down, filtering it, creating some new useful variables before saving it for use later. 
+
+#### Inclusions and exclusions
+
+This step is handled by the function `process_data()`. This function keeps the data for records where: 
+
+- The `basisOfRecord` is a preserved specimen **OR**
+- The`datasetName` contains: 
+  - "Australia's Virtual Herbarium"
+  - "iNaturalist observations"
+  - "iNaturalist research-grade observations"
+  
+The function also filters for records where: 
+- the `coordinateUncertaintyInMeters` is either  NA **OR** have a value of less than or equal to 1000. 
+
+This is because some iNaturalist records have NA for `coordinateUncertaintyInMeters`. 
+
+The function also excludes records where: 
+- eventDate is missing
+- the subspecies is in the `species` field. e.g. "Acacia longifolia spec." would be excluded. 
+
+#### Create a few useful variables
+
+
+
+
+### Determine establishment means
+
+One key feature in the Australian infinitylist is the data field 'Establishment means' which denotes whether a species is native, introduced or unkown. This information is also summarised in the bolded statement at the lower portion of the app. For Plantae, establishment means is determined by the R package [APCalign](), for the other taxa (XX, XX, XX), these were manually coded by hand using a series of `if` statements.
+
+We suspect this feature of the Australian infinitylis is not completely transferable using other Living Atlases as knowledge of establishment means of taxa is required beforehand. 
+
+We suggest relying on the Global Register of Introduced and Invasive Species (GRIIS) list and we present the workflow below
+
+```{r establishment}
 
 ```
 
 
-## 
+
+### Check base URL for each record 
+
+Another important feature of infinitylists is the ability for each record to be linked to the original GBIF/iNaturalist page. This allows the user to dig deeper about the record or review photos taken by citizen scientists.
+
+For the Australian's infinitylist, the URL for specimen records takes the user to the Atlas of Living Australia. This URL will need to change according to the Living Atlas you choose. 
+
+This is where you will need to do some investigating. Finding these record specific pages is a bit tricky. I clicked around the GBIF Spain website to find... 
+
+In some cases the recordID provided by galah may not match the unique identifier used by pages, sometimes this identifier is located under `GBIF_id`. This means you may need to add `GBIF_id` into the `query()` function so you can access this data later. 
+
+<!-- Investigate recordId and GBIF_id -->
+ <!-- https://registros.gbif.es/occurrences/1dfb057c-6e0d-494f-a3f2-812770d49bfd -->
+
+Once I found the correct base URL, I took note of it, and started testing it out with different unique identifiers to see if I can get the correct page to match the occurrence record. 
+
+```{r}
+
+```
+
+Now that I'm happy with the base URL and how it works with the identifiers, I'm ready to update the code. 
+
+You will need to update in this line of code in `process_data()` function in `R/galah_download`. Replace `https://biocache.ala.org.au/occurrences/` with your base URL. 
+
+```
+TRUE ~ paste0("https://biocache.ala.org.au/occurrences/", recordID))
+```
+
+## Relevant regions of interest
+
+infinitylists comes preloaded with XX regions of interest. These were created from `.kml` files. If you want your version of infinitylist to come up preloaded regions of interest, you will need to find/create `.kml` files of your own. 
+
+You can download these from: 
+
+Alternatively, you can hand draw these using Google Earth and export these. Follow this website for more details
+
+## Default location input
