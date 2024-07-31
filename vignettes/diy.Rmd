@@ -1,0 +1,86 @@
+---
+title: "Create your own infinitylists"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{DIY infinitylists}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+One major benefit of infinitylists utilising a Living Atlas node is that is gives users the potential to create their own version of infinitylists for whichever Living Atlas you would like to use. Unfortunately, there are some slight inconsistencies in data coverage and naming between Living Atlas data providers. This makes creating your own infinitylists not an entirely straightforward process but I hope this article will be able to give you some guidance.
+
+Here, I will walk through the process on how to adapt the source code of infinitylists so you can create your own version of infinitylists. 
+
+I recommend using git and Github to streamline the refactoring process but it is not a necessity. In this article, we will operate as if we are not using git/Github, but I will leave some prompts for git users. If you want to learn how to use git/Github alongside your R coding projects, I highly recommend Happy with Git by Jenny Bryan if you want to add these tools to your arsenal. 
+
+If you have any questions about this process, please do not hesitate and reach out but submitting an issue at the [infinitylists repository](XX).
+
+## Load dependencies
+
+We are going to need a few packages to create your own infinitylists. Go ahead and install these if you don't have these in your version of R. Otherwise, load them and we can get started 
+
+```{r setup}
+# install.packages("remotes")
+remotes::install_github("traitecoevo/infinitylists")
+library(infinitylists)
+library(galah)
+library(tidyverse)
+```
+
+## Download source code of infinitylist
+
+First things first, we need to get our hands on a version of the infinitylists source code. The app's source code lives at the [GitHub repository](). Head over to the repository's website and find the big green botton labelled **"Code"**.
+
+1) Click on the **"Code"** button
+2) Click on the option to download code as a `.zip` file
+3) Locate the `.zip` file in your Downloads folder and move it to where you want the code to live in your computer. 
+4) Once you are happy with the location, double click on the `.zip` file to unzip it. 
+
+Hooray! We have a copy of the source code now!
+
+If you are a git/Github user, I would suggest you to fork the infinitylist repository and clone it locally to where you want. 
+
+### The key files
+
+infinitylists is a Shiny R package. Totally okay if you not written a shiny app or R package, I will point one which are the important files for you edit and explain what they do as we go along. The most important folder we will be using is the 'R/' folder. It holds all the code to download biodiversity data and create the the application. 
+
+Within this folder, you will find: 
+- `ui.R`, this file controls the overall look of the application. ui stands for user interface. 
+- `server.R`, this file controls how the app behaves. e.g. Clicking "Go" will trigger a specific spatial filter process and update the map and observations table. 
+- `global.R`, contains some functions that are used across the application. 
+
+These are the three major files we will refactor so you can create your own version of infinitylists
+
+## Download Living Atlas data
+
+The next thing we need to decide which Living Atlas we want to use. Here, we will use [Spain's Living Atlas](). Note that some living atlas will require you to sign up for an account so you can download occurrence records. I signed up for an account for the Spain Living atlas [here](). 
+
+### Configure galah
+
+We will be using {galah} to download occurrence records used our infinitylist. To do so, we need to configure the settings so it knows which Living Atlas to target. Here I've saved the credentials in my R environment so its not shared publicly. I can call on these environment variables using `Sys.getenv()`. You can also do so with `usethis::edit_r_environ`. See [here]() to learn more about editting your R environment. 
+
+```{r}
+galah::galah_config(email = Sys.getenv("GBIF_EMAIL"),
+                    password = Sys.getenv("GBIF_PWD"),
+                    atlas = "Spain")
+```
+
+### Check if specific fields are available
+
+
+
+### Check fields are formatted 
+### Check base URL for each record
+```{r}
+
+```
+
+
+## 
