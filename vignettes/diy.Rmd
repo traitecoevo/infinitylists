@@ -10,11 +10,12 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
-One major benefit of infinitylists utilising a Living Atlas node is that is gives users the potential to create their own version of infinitylists for whichever Living Atlas you would like to use. Unfortunately, there are some slight inconsistencies in data coverage and naming between Living Atlas data providers. This makes creating your own infinitylists not an entirely straightforward process but I hope this article will be able to give you some guidance.
+One major benefit of infinitylists using a Living Atlas node is that is gives users the potential to create their own version of infinitylists for whichever Living Atlas you would like to use. Unfortunately, there are some slight inconsistencies in data coverage and naming between Living Atlas data providers. This makes creating your own infinitylists not an entirely straightforward process but I hope this article will be able to give you some guidance.
 
 Here, I will walk through the process on how to adapt the source code of infinitylists so you can create your own version of infinitylists. 
 
@@ -53,6 +54,7 @@ If you are a git/Github user, I would suggest you to fork the infinitylist repos
 infinitylists is a Shiny R package. Totally okay if you not written a shiny app or R package, I will point one which are the important files for you edit and explain what they do as we go along. The most important folder we will be using is the 'R/' folder. It holds all the code to download biodiversity data and create the the application. 
 
 Within this folder, you will find: 
+
 - `ui.R`, this file controls the overall look of the application. ui stands for user interface. 
 - `server.R`, this file controls how the app behaves. e.g. Clicking "Go" will trigger a specific spatial filter process and update the map and observations table. 
 - `global.R`, contains some functions that are used across the application. 
@@ -65,7 +67,11 @@ The next thing we need to decide which Living Atlas we want to use. Here, we wil
 
 ### Configure galah
 
-We will be using {galah} to download occurrence records used our infinitylist. To do so, we need to configure the settings so it knows which Living Atlas to target. Here I've saved the credentials in my R environment so its not shared publicly. I can call on these environment variables using `Sys.getenv()`. You can also do so with `usethis::edit_r_environ`. See [here]() to learn more about editting your R environment. 
+We will be using {galah} to download occurrence records used our infinitylist. To do so, we need to configure the settings so it knows which Living Atlas to target.
+
+Note that some atlases like Spain, will require you to sign up with an account even if it is a GBIF node and you have a GFIF account. This is the [link](https://auth.gbif.es/userdetails/registration/createAccount?lang=en) to the GBIF Spain registration portal
+
+Here I've saved the credentials in my R environment so its not shared publicly. I can call on these environment variables using `Sys.getenv()`. You can also do so with `usethis::edit_r_environ`. See [here]() to learn more about editting your R environment. 
 
 ```{r}
 galah::galah_config(email = Sys.getenv("GBIF_EMAIL"),
@@ -85,7 +91,7 @@ I've included a list of data field names here too so you don't need to flip back
 - species
 - decimalLatitude
 - year
-- basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
+- basisOfRecord
 - recordID
 - species
 - genus
@@ -101,9 +107,9 @@ I've included a list of data field names here too so you don't need to flip back
 - recordedBy
 - sounds
 
-Remember how I said there are inconsistencies between Living Atlases? For example, The Austria atlass uses snake_case (lower case words, seperated by an underscore), whereas Australia uses camelCase (second word in the string is capitalised). Another common difference example is where some atlases uses `spatiallyValid` while others uses `geospatial_kosher`. 
+Remember how I said there are inconsistencies between Living Atlases? For example, The Austria atlas uses `snake_case` (lower case words, seperated by an underscore), whereas Australia uses `camelCase` (subsequent words in the string are capitalised). Another common difference example is where some atlases uses `spatiallyValid` while others uses `geospatial_kosher`. 
 
-To deal with these consistencies, I use a combination of `search_()` and `show_()` functions from {galah} to determine whether the field we need for infinitylists is available and how the data is formatted. If it's not, we may need remove some of the functionality of the app.
+To deal with these consistencies, I use the `search_fields()` and `show_all()` functions from {galah} to determine whether the field we need for infinitylists is available and how the data is formatted. If it's not availability, we may need remove some of the functionality of the app.
 
 Here, I am looking for field names that contains the partial string "spatial"
 
@@ -112,22 +118,19 @@ Here, I am looking for field names that contains the partial string "spatial"
 search_fields("spatial")
 ```
 
-You can search across other  entities by using `search_all()` instead. Check out the helpfile for details on what is captured in the search `?search_all()`
-
-
 ### Check fields are formatted 
 
 You can pipe the contents of the search into `show_values()` to see the values the data field holds
 
-For example, here I am searching for fields that contain the partial string `coord` and I want to see what values each matching field looks like. This will help me narrow down finding the corresponding field I need. 
+For example, here I am searching for fields that contain the partial string `basis` and I want to see what values each matching field looks like. This will help me narrow down finding the corresponding field I need. 
 
 ```{r}
-# Search across fields for "coord" 
-search_all(fields, "coord") |>
+# Search across fields for "basis" 
+search_all(fields, "basis") |>
   show_values() # Display the field values
 ```
 
-Another option is to  look across all the fields the Living Atlas has data for and see if you can spot the ones that resemble the ones in the list above.
+Another option is to look across all the fields the Living Atlas has data for and see if you can spot the ones that resemble the ones in the list above.
 
 ```{r} 
 # Display all the fields available
@@ -166,7 +169,8 @@ infinitylists:::query("Podarics", c(2023, 2024))
 Next, I will pipe the results of the query into `atlas_counts` to see how many observations we will be downloading.
 
 ```{r}
-infinitylists:::query("Podarics", c(2023, 2024)) 
+infinitylists:::query("Podarics", c(2023, 2024)) |> 
+  atlas_counts()
 ```
 
 Now we are ready download our test dataset
@@ -178,39 +182,52 @@ podarcis_test <- infinitylists:::query("Podarics", c(2023, 2024)) |>
 
 ### Check data processing
 
-infinitylists doesn't work with the raw data downloaded from the Living Atlas. There is code to process it down, filtering it, creating some new useful variables before saving it for use later. 
+infinitylists doesn't work with the raw data downloaded from the Living Atlas. We have writtencode to process it down, filtering it, creating a few useful variables before saving it for use in the application. 
 
 #### Inclusions and exclusions
 
 This step is handled by the function `process_data()`. This function keeps the data for records where: 
 
 - The `basisOfRecord` is a preserved specimen **OR**
-- The`datasetName` contains: 
+- The `datasetName` contains: 
   - "Australia's Virtual Herbarium"
   - "iNaturalist observations"
   - "iNaturalist research-grade observations"
   
 The function also filters for records where: 
+
 - the `coordinateUncertaintyInMeters` is either  NA **OR** have a value of less than or equal to 1000. 
 
 This is because some iNaturalist records have NA for `coordinateUncertaintyInMeters`. 
 
 The function also excludes records where: 
+
 - eventDate is missing
 - the subspecies is in the `species` field. e.g. "Acacia longifolia spec." would be excluded. 
 
-#### Create a few useful variables
+Feel free to change these to suit your needs.
 
+#### Creating useful variables
 
+`process_data()` creates a number of variables to display in the data tab. 
+
+It creates a: 
+
+- `respository` field which is a combination of the original `references` and `institionCode` fields. 
+- `voucher_type` field which tells the user whether the record was collected/photographed or its sound recorded 
+
+The function also formats the column names, renames a few variables and arranges them in a logical manner for presentation in the final table. Feel free to adjust these to your preferences.
 
 
 ### Determine establishment means
 
-One key feature in the Australian infinitylist is the data field 'Establishment means' which denotes whether a species is native, introduced or unkown. This information is also summarised in the bolded statement at the lower portion of the app. For Plantae, establishment means is determined by the R package [APCalign](), for the other taxa (XX, XX, XX), these were manually coded by hand using a series of `if` statements.
+One key feature in the Australian infinitylist is the data field 'Establishment means' which denotes whether a species is native, introduced or unknown. This information is summarised in the text statement at the lower portion of the app. For Plantae, establishment means is determined by the R package [APCalign](https://github.com/traitecoevo/APCalign), for the other taxa (Cicadoidea, Odonata, Papilionoidea, Marsupialia), these were manually coded by hand using a series of `if` statements.
 
-We suspect this feature of the Australian infinitylis is not completely transferable using other Living Atlases as knowledge of establishment means of taxa is required beforehand. 
+We suspect this feature of the Australian infinitylis will not completely transferable using other Living Atlases as knowledge of establishment means of taxa is required beforehand. 
 
-We suggest relying on the Global Register of Introduced and Invasive Species (GRIIS) list and we present the workflow below
+We suggest relying on the Global Register of Introduced and Invasive Species (GRIIS) list and we present the workflow below. 
+
+Navigate to this website: https://griis.org/download
 
 ```{r establishment}
 
