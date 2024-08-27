@@ -101,7 +101,6 @@ I've included a list of data field names here too so you don't need to flip back
 - coordinateUncertaintyInMeters
 - eventDate
 - datasetName
-- basisOfRecord
 - references
 - institutionCode
 - recordedBy
@@ -169,15 +168,20 @@ infinitylists:::query("Podarics", c(2023, 2024))
 Next, I will pipe the results of the query into `atlas_counts` to see how many observations we will be downloading.
 
 ```{r}
-infinitylists:::query("Podarics", c(2023, 2024)) |> 
+infinitylists:::query("Podarcis", c(2023, 2024)) |> 
   atlas_counts()
 ```
 
 Now we are ready download our test dataset
 
 ```{r}
-podarcis_test <- infinitylists:::query("Podarics", c(2023, 2024)) |> 
+podarcis_test <- infinitylists:::query("Podarcis", c(2023, 2024)) |> 
   atlas_occurrences()
+```
+
+
+```{r}
+download_ala_obs("Podarcis", c(2023, 2024), save_raw_data = TRUE, output_dir = "data/")
 ```
 
 ### Check data processing
@@ -219,40 +223,23 @@ It creates a:
 The function also formats the column names, renames a few variables and arranges them in a logical manner for presentation in the final table. Feel free to adjust these to your preferences.
 
 
-### Determine establishment means
-
-One key feature in the Australian infinitylist is the data field 'Establishment means' which denotes whether a species is native, introduced or unknown. This information is summarised in the text statement at the lower portion of the app. For Plantae, establishment means is determined by the R package [APCalign](https://github.com/traitecoevo/APCalign), for the other taxa (Cicadoidea, Odonata, Papilionoidea, Marsupialia), these were manually coded by hand using a series of `if` statements.
-
-We suspect this feature of the Australian infinitylis will not completely transferable using other Living Atlases as knowledge of establishment means of taxa is required beforehand. 
-
-We suggest relying on the Global Register of Introduced and Invasive Species (GRIIS) list and we present the workflow below. 
-
-Navigate to this website: https://griis.org/download
-
-```{r establishment}
-
-```
-
-
-
 ### Check base URL for each record 
 
 Another important feature of infinitylists is the ability for each record to be linked to the original GBIF/iNaturalist page. This allows the user to dig deeper about the record or review photos taken by citizen scientists.
 
 For the Australian's infinitylist, the URL for specimen records takes the user to the Atlas of Living Australia. This URL will need to change according to the Living Atlas you choose. 
 
-This is where you will need to do some investigating. Finding these record specific pages is a bit tricky. I clicked around the GBIF Spain website to find... 
+This is where you will need to do some investigating. Finding these record specific pages is a bit tricky. I clicked around the GBIF Spain website to find their [Data Access Portal](http://datos.gbif.es/). 
+
+In the portal I searched for "Podarcis" and clicked on the "Occurrences: 33,669" which took me to all the "Podarcis" records. 
+
+I then clicked on "View record" of the first occurrence record (Podarcis liolepsis), which took me the website with the URL: https://registros.gbif.es/occurrences/42b00c45-615e-4b66-8ca0-bee59a470c9c
+
+This is what we are looking for. We want to unique webpage for each record that we can go back to. 
+
+Replacing the unique identifier in the last portion of the URL "42b00c45-615e-4b66-8ca0-bee59a470c9c" with another identifier (e.g. 00001eb3-4fa3-42ea-befa-88c5704c4c27) from the column `recordID` takes us to the [new page](https://registros.gbif.es/occurrences/00001eb3-4fa3-42ea-befa-88c5704c4c27) relevant to the new identifier.
 
 In some cases the recordID provided by galah may not match the unique identifier used by pages, sometimes this identifier is located under `GBIF_id`. This means you may need to add `GBIF_id` into the `query()` function so you can access this data later. 
-
-<!-- Investigate recordId and GBIF_id -->
- <!-- https://registros.gbif.es/occurrences/1dfb057c-6e0d-494f-a3f2-812770d49bfd -->
-
-Once I found the correct base URL, I took note of it, and started testing it out with different unique identifiers to see if I can get the correct page to match the occurrence record. 
-
-```{r}
-
-```
 
 Now that I'm happy with the base URL and how it works with the identifiers, I'm ready to update the code. 
 
@@ -261,6 +248,25 @@ You will need to update in this line of code in `process_data()` function in `R/
 ```
 TRUE ~ paste0("https://biocache.ala.org.au/occurrences/", recordID))
 ```
+
+
+### Determine establishment means
+
+One key feature in the Australian infinitylist is the data field 'Establishment means' which denotes whether a species is native, introduced or unknown. This information is summarised in the text statement at the lower portion of the app. For Plantae, establishment means is determined by the R package [APCalign](https://github.com/traitecoevo/APCalign), for the other taxa (Cicadoidea, Odonata, Papilionoidea, Marsupialia), these were manually coded by hand using a series of `if` statements.
+
+We suspect this feature of the Australian infinitylis will not completely transferable using other Living Atlases as knowledge of establishment means of taxa is required beforehand. 
+
+We suggest relying on the Global Register of Introduced and Invasive Species (GRIIS) list and we present the workflow below. 
+
+1. Navigate to this website: https://griis.org/download and locate the country that matches the Living Atlas you are using. 
+
+2. Click on the Download button on the right hand side. This will download a .csv of 
+
+```{r establishment}
+
+```
+
+
 
 ## Relevant regions of interest
 
