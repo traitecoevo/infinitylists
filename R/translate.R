@@ -152,7 +152,10 @@ gbif_global_es_parakeet_2000 |>
     is.na(collectionDate),
     lubridate::ymd(eventDate, tz = "UTC", quiet = TRUE),
     collectionDate
-  )
+  ) 
+  ) 
+  dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
+                                        TRUE ~ paste0("https://www.gbif.org/dataset/", datasetKey))
   ) |> 
   dplyr::select(
     species, genus, family,
@@ -161,19 +164,35 @@ gbif_global_es_parakeet_2000 |>
     long,
     voucher_type,
     repository,
-    recordedBy,
-    datasetKey,
+    recordedBy
+    # datasetKey,
     # institutionCode, 
     # occurrenceID
   ) |> 
-  dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
-                                        TRUE ~ paste0("https://www.gbif.org/dataset/", datasetKey))
-  ) |> 
-  janitor::clean_names("title") |> 
+  janitor::clean_names("title") -> cleaned_parakeet
+
   write_csv("data/test_GBIF_parakeet_ES.csv")
   
   # filter(!str_detect(repository, "inat")) |> 
   # select(institutionCode, occurrenceID, repository, link) |>  
   # print(n = 400)
 
-         
+### Sorting out dates
+  
+  gbif_global_es_parakeet_2000 |> 
+    filter(!is.na(eventDate)) |> 
+    select(eventDate, occurrenceID, datasetKey) |> 
+    print(n = 100) |> 
+    mutate(collectionDate = case_when(str_detect(eventDate, "T") ~ lubridate::ymd_hms(eventDate),
+                                      TRUE ~ lubridate::ymd(eventDate))
+    )
+  
+  
+  gbif_global_es_parakeet_2000 |> 
+    filter(!is.na(eventDate), str_detect(eventDate, "T")) |> 
+    select(eventDate, occurrenceID, datasetKey) |> 
+    print(n = 100) |> 
+    mutate(collectionDate = lubridate::ymd_hms(eventDate))
+  
+  
+  
