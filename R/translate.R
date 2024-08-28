@@ -6,7 +6,7 @@ galah_config(
 )
 
 # Search fields
-search_fields("datasetName") 
+search_fields("datasetName") |> 
   show_values()
 
 show_all_fields() |> print(n = Inf)
@@ -42,17 +42,17 @@ snakecase_query <- function(taxon, min_year, country_code = NULL){
 }
 
 # Camel case
-camelcase_query<- function(taxon, min_year, country_code = NULL){
+camelcase_query<- function(taxon, min_year){
   galah::galah_call() |>
   galah::galah_identify(taxon) |> 
   galah::galah_filter(
-    country == country_code,
     spatiallyValid == TRUE,
     species != "",
     decimalLatitude != "",
     year >= min_year,
     basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
-  ) |> galah::galah_select(
+    ) |> 
+  galah::galah_select(
     recordID,
     species,
     genus,
@@ -102,57 +102,78 @@ global_camelcase_query<- function(taxon, min_year, country_code = NULL){
 
 # Check counts
 global_camelcase_query("Podarcis", 1923, "ES") |> atlas_counts()
-global_es_pod <- global_camelcase_query("Podarcis", 2023, "ES") |> atlas_occurrences()
-
+gbif_global_es_parakeet_2000 <- global_camelcase_query("Myiopsitta", 2000, "ES") |> atlas_occurrences()
 
 snakecase_query("Odonata", 1923) |> atlas_counts()
 gt_odonata <- snakecase_query("Odonata", 1923) |> atlas_occurrences()
 gt_odonata <- camelcase_query("Odonata", 1923, "ES") |> atlas_counts()
 
+# Check data
+gbif_global_es_parakeet_2000 |> 
+  count(basisOfRecord)
+
+gbif_global_es_parakeet_2000 |> 
+  count(institutionCode, basisOfRecord, mediaType) |> 
+  print(n = Inf)
+
 # Process data
-global_es_pod |> 
-  filter(is.na(mediaType)) |> 
-  dplyr:::pull(occurrenceID)
 
-global_es_pod |> 
+gbif_global_es_parakeet_2000 |> 
+  filter(!is.na(occurrenceID)) |> 
   count(institutionCode)
+  print(n = Inf)
 
-global_es_pod |> 
+gbif_global_es_parakeet_2000 |> 
   dplyr::filter(
     basisOfRecord == "PRESERVED_SPECIMEN" |
-      # datasetName %in% datasets_of_interest,
+      str_detect(institutionCode, regex("inaturalist", ignore_case = TRUE)),
     is.na(coordinateUncertaintyInMeters) |
       coordinateUncertaintyInMeters <= 1000,
     !is.na(eventDate),
     !stringr::str_detect(species, "spec.$")
-  ) |>
+  ) |> 
   dplyr::mutate(
-    repository = dplyr::if_else(!is.na(references), references, institutionCode),
-    voucher_type = dplyr::case_when(
-      basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection",
-      !is.na(sounds) ~ "Audio",
-      TRUE ~ "Photograph"
-    ),
-    lat = decimalLatitude,
-    long = decimalLongitude,
-    collectionDate = lubridate::ymd_hms(eventDate, tz = "UTC", quiet = TRUE),
-    collectionDate = dplyr::if_else(
-      is.na(collectionDate),
-      lubridate::ymd(eventDate, tz = "UTC", quiet = TRUE),
-      collectionDate
-    )
-  ) |>
+    repository = dplyr::case_when(grepl("inatur", occurrenceID) ~ occurrenceID,
+                                  TRUE ~ institutionCode)
+    )  |> 
+  mutate(sounds = case_when(
+    grepl("Sound", mediaType) ~ 1, 
+    TRUE ~ 0
+  ),
+  voucher_type = dplyr::case_when(
+    basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection",
+    sounds == 1 ~ "Audio",
+    TRUE ~ "Photograph"
+  ),
+  lat = decimalLatitude,
+  long = decimalLongitude,
+  collectionDate = lubridate::ymd_hms(eventDate, tz = "UTC", quiet = TRUE),
+  collectionDate = dplyr::if_else(
+    is.na(collectionDate),
+    lubridate::ymd(eventDate, tz = "UTC", quiet = TRUE),
+    collectionDate
+  )
+  ) |> 
   dplyr::select(
-    species:family,
+    species, genus, family,
     collectionDate,
     lat,
     long,
     voucher_type,
     repository,
     recordedBy,
-    recordID
-  ) |>
-  dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
-                                        TRUE ~ paste0("https://registros.gbif.es/occurrences/", recordID))
+    datasetKey,
+    # institutionCode, 
+    # occurrenceID
   ) |> 
-  janitor::clean_names("title")
+  dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
+                                        TRUE ~ paste0("https://www.gbif.org/dataset/", datasetKey))
+  ) |> 
+  janitor::clean_names("title") |> 
+  write_csv("data/test_GBIF_parakeet_ES.csv")
+  
+  # filter(!str_detect(repository, "inat")) |> 
+  # select(institutionCode, occurrenceID, repository, link) |>  
+  # print(n = 400)
+
+         
