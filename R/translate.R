@@ -117,12 +117,6 @@ gbif_global_es_parakeet_2000 |>
   print(n = Inf)
 
 # Process data
-
-gbif_global_es_parakeet_2000 |> 
-  filter(!is.na(occurrenceID)) |> 
-  count(institutionCode)
-  print(n = Inf)
-
 gbif_global_es_parakeet_2000 |> 
   dplyr::filter(
     basisOfRecord == "PRESERVED_SPECIMEN" |
@@ -130,16 +124,25 @@ gbif_global_es_parakeet_2000 |>
     is.na(coordinateUncertaintyInMeters) |
       coordinateUncertaintyInMeters <= 1000,
     !is.na(eventDate),
-    !stringr::str_detect(species, "spec.$")
+    !stringr::str_detect(species, "spec.$"),
+    !str_count(eventDate) <= 7, # Exclude strings with 7 or fewer characters, these are years or year + month e.g 2006-06 or just 2006
+    !str_count(eventDate) > 16
+    ) |> # Exclude strings with greater than 16 characters - a few records had date ranges e.g. 2017-12-10T00:00Z/2017-12-23T00:00Z
+  mutate(
+    eventDate_as_date = as_date(eventDate), # Convert to dates
+    eventDate_ymd = ymd_hm(eventDate, tz = "UTC", quiet = TRUE), # Convert dates that have time zones
+    collectionDate = coalesce(eventDate_as_date, eventDate_ymd) # Put the two date columns together as one complete one. 
   ) |> 
   dplyr::mutate(
-    repository = dplyr::case_when(grepl("inatur", occurrenceID) ~ occurrenceID,
-                                  TRUE ~ institutionCode)
-    )  |> 
-  mutate(sounds = case_when(
-    grepl("Sound", mediaType) ~ 1, 
-    TRUE ~ 0
-  ),
+    repository = dplyr::case_when(grepl("inatur", occurrenceID) ~ occurrenceID, # Create Repository column, if occurrence ID contains "inatur", keep occurrenceID
+                                  TRUE ~ institutionCode),  # Otherwise take institutionCode
+    link = dplyr::case_when(grepl("https", repository) ~ repository, # Create link
+                            TRUE ~ paste0("https://www.gbif.org/dataset/", datasetKey)
+                            ),
+    sounds = case_when( # Logical variable to determine if there voucher_type
+      grepl("Sound", mediaType) ~ 1, 
+      TRUE ~ 0
+    ),
   voucher_type = dplyr::case_when(
     basisOfRecord == "PRESERVED_SPECIMEN" ~ "Collection",
     sounds == 1 ~ "Audio",
@@ -147,15 +150,6 @@ gbif_global_es_parakeet_2000 |>
   ),
   lat = decimalLatitude,
   long = decimalLongitude,
-  collectionDate = lubridate::ymd_hms(eventDate, tz = "UTC", quiet = TRUE),
-  collectionDate = dplyr::if_else(
-    is.na(collectionDate),
-    lubridate::ymd(eventDate, tz = "UTC", quiet = TRUE),
-    collectionDate
-  ) 
-  ) 
-  dplyr::mutate(link = dplyr::case_when(grepl("https", repository) ~ repository,
-                                        TRUE ~ paste0("https://www.gbif.org/dataset/", datasetKey))
   ) |> 
   dplyr::select(
     species, genus, family,
@@ -165,11 +159,10 @@ gbif_global_es_parakeet_2000 |>
     voucher_type,
     repository,
     recordedBy
-    # datasetKey,
-    # institutionCode, 
-    # occurrenceID
   ) |> 
-  janitor::clean_names("title") -> cleaned_parakeet
+  janitor::clean_names("title") 
+
+
 
   write_csv("data/test_GBIF_parakeet_ES.csv")
   
