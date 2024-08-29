@@ -101,12 +101,12 @@ global_camelcase_query<- function(taxon, min_year, country_code = NULL){
 }
 
 # Check counts
-global_camelcase_query("Podarcis", 1923, "ES") |> atlas_counts()
-gbif_global_es_parakeet_2000 <- global_camelcase_query("Myiopsitta", 2000, "ES") |> atlas_occurrences()
-
-snakecase_query("Odonata", 1923) |> atlas_counts()
-gt_odonata <- snakecase_query("Odonata", 1923) |> atlas_occurrences()
-gt_odonata <- camelcase_query("Odonata", 1923, "ES") |> atlas_counts()
+# global_camelcase_query("Podarcis", 1923, "ES") |> atlas_counts()
+# gbif_global_es_parakeet_2000 <- global_camelcase_query("Myiopsitta", 2000, "ES") |> atlas_occurrences()
+# 
+# snakecase_query("Odonata", 1923) |> atlas_counts()
+# gt_odonata <- snakecase_query("Odonata", 1923) |> atlas_occurrences()
+# gt_odonata <- camelcase_query("Odonata", 1923, "ES") |> atlas_counts()
 
 # Check data
 gbif_global_es_parakeet_2000 |> 
@@ -163,29 +163,3 @@ gbif_global_es_parakeet_2000 |>
   janitor::clean_names("title") 
 
 
-
-  write_csv("data/test_GBIF_parakeet_ES.csv")
-  
-  # filter(!str_detect(repository, "inat")) |> 
-  # select(institutionCode, occurrenceID, repository, link) |>  
-  # print(n = 400)
-
-### Sorting out dates
-  
-  gbif_global_es_parakeet_2000 |> 
-    filter(!is.na(eventDate)) |> 
-    select(eventDate, occurrenceID, datasetKey) |> 
-    print(n = 100) |> 
-    mutate(collectionDate = case_when(str_detect(eventDate, "T") ~ lubridate::ymd_hms(eventDate),
-                                      TRUE ~ lubridate::ymd(eventDate))
-    )
-  
-  
-  gbif_global_es_parakeet_2000 |> 
-    filter(!is.na(eventDate), str_detect(eventDate, "T")) |> 
-    select(eventDate, occurrenceID, datasetKey) |> 
-    print(n = 100) |> 
-    mutate(collectionDate = lubridate::ymd_hms(eventDate))
-  
-  
-  
