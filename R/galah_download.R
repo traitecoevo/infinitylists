@@ -289,7 +289,8 @@ gbif_process_data <- function(data){
       long,
       voucher_type,
       repository,
-      recordedBy
+      recordedBy, 
+      establishmentMeans
     ) |> 
     janitor::clean_names("title")
 }
