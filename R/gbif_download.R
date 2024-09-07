@@ -52,9 +52,13 @@ retrieve_gbif_data_by_year_range <- function(taxon, min_year, max_year, country_
       )
     )
   
-  return(download)
+  return(format_date_as_character(download))
 }
 
+format_date_as_character <- function(data){
+  data |> 
+    dplyr::mutate(eventDate = as.character(eventDate))
+}
 
 
 retrieve_gbif_data <- function(taxon, min_year, max_year,
@@ -70,7 +74,7 @@ retrieve_gbif_data <- function(taxon, min_year, max_year,
   
   # If less than 1 mil records
   if (n_obs < 1000000){
-    retrieve_gbif_data_by_year_range(taxon, 
+    download <- retrieve_gbif_data_by_year_range(taxon, 
                                      min_year, max_year,
                                      country_code,
                                      save_raw_data,
@@ -78,8 +82,7 @@ retrieve_gbif_data <- function(taxon, min_year, max_year,
                                      output_dir)
   } else {
     
-    this_year <- lubridate::now() |> lubridate::year()
-    years <- seq(min_year, this_year)
+    years <- seq(min_year, max_year)
     length(years)
     
     # Split years
@@ -94,7 +97,8 @@ retrieve_gbif_data <- function(taxon, min_year, max_year,
                                                                  save_raw_data,
                                                                  # output_dir = file.path(system.file(package = "infinitylists"), "data/")
                                                                  output_dir)
-                            )
+                            ) |> 
+                              purrr::list_rbind()
                             )
                             
   }
