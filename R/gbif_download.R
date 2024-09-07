@@ -27,7 +27,7 @@ query_gbif_global<- function(taxon,
   return(query)
 }
 
-
+#' Download GBIF data and save as output
 retrieve_gbif_data_by_year_range <- function(taxon, min_year, max_year, country_code= NULL, 
                                              save_raw_data = FALSE, output_dir){
   
@@ -55,11 +55,27 @@ retrieve_gbif_data_by_year_range <- function(taxon, min_year, max_year, country_
   return(format_date_as_character(download))
 }
 
+#' @noRd
+#' @keywords internal
 format_date_as_character <- function(data){
   data |> 
     dplyr::mutate(eventDate = as.character(eventDate))
 }
 
+
+#' Title
+#'
+#' @param taxon 
+#' @param min_year 
+#' @param max_year 
+#' @param country_code 
+#' @param save_raw_data 
+#' @param output_dir 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
 retrieve_gbif_data <- function(taxon, min_year, max_year,
                                country_code = NULL,
@@ -96,13 +112,12 @@ retrieve_gbif_data <- function(taxon, min_year, max_year,
                                                                  country_code,
                                                                  save_raw_data,
                                                                  # output_dir = file.path(system.file(package = "infinitylists"), "data/")
-                                                                 output_dir)
+                                                                 output_dir))
                             ) |> 
-                              purrr::list_rbind()
-                            )
+      purrr::list_rbind()
                             
   }
-
+ return(download)
 }
 
 #' Process downloaded data from Atlas of Living Australia 
