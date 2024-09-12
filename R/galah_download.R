@@ -189,7 +189,7 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
     ala_cleaned$native_anywhere_in_aus <- "unknown"
   }
   # Rename native_anywhere_in_aus
-  ala_cleaned <- dplyr::rename(ala_cleaned,"Establishment means" = native_anywhere_in_aus)
+  ala_cleaned <- dplyr::rename(ala_cleaned,"Establishment Means" = native_anywhere_in_aus)
   
   return(ala_cleaned)
 }

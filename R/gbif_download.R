@@ -85,7 +85,7 @@ retrieve_gbif_data <- function(taxon, min_year, max_year,
                                ){
   
   n_obs <- query_gbif_global(taxon, min_year, max_year, country_code) |> 
-    atlas_counts() |> 
+    galah::atlas_counts() |> 
     dplyr::pull(count)
   
   # If less than 1 mil records
@@ -124,20 +124,21 @@ retrieve_gbif_data <- function(taxon, min_year, max_year,
 #' @noRd
 gbif_process_data <- function(data){
   data |> 
+    tidyr::drop_na(decimalLatitude) |> 
     dplyr::filter(
       basisOfRecord == "PRESERVED_SPECIMEN" |
-        str_detect(institutionCode, regex("inaturalist", ignore_case = TRUE)),
+        stringr::str_detect(institutionCode, stringr::regex("inaturalist", ignore_case = TRUE)),
       is.na(coordinateUncertaintyInMeters) |
         coordinateUncertaintyInMeters <= 1000,
       !is.na(eventDate),
       !stringr::str_detect(species, "spec.$"),
-      !str_count(eventDate) <= 7, # Exclude strings with 7 or fewer characters, these are years or year + month e.g 2006-06 or just 2006
-      !str_count(eventDate) > 16
+      !stringr::str_count(eventDate) <= 7, # Exclude strings with 7 or fewer characters, these are years or year + month e.g 2006-06 or just 2006
+      !stringr::str_count(eventDate) > 16
     ) |> # Exclude strings with greater than 16 characters - a few records had date ranges e.g. 2017-12-10T00:00Z/2017-12-23T00:00Z
-    mutate(
-      eventDate_as_date = as_date(eventDate), # Convert to dates
-      eventDate_ymd = ymd_hm(eventDate, tz = "UTC", quiet = TRUE), # Convert dates that have time zones
-      collectionDate = coalesce(eventDate_as_date, eventDate_ymd) # Put the two date columns together as one complete one. 
+    dplyr::mutate(
+      eventDate_as_date = lubridate::as_date(eventDate), # Convert to dates
+      eventDate_ymd = lubridate::ymd_hm(eventDate, tz = "UTC", quiet = TRUE), # Convert dates that have time zones
+      collectionDate = dplyr::coalesce(eventDate_as_date, eventDate_ymd) # Put the two date columns together as one complete one. 
     ) |> 
     dplyr::mutate(
       repository = dplyr::case_when(grepl("inatur", occurrenceID) ~ occurrenceID, # Create Repository column, if occurrence ID contains "inatur", keep occurrenceID
@@ -145,7 +146,7 @@ gbif_process_data <- function(data){
       link = dplyr::case_when(grepl("https", repository) ~ repository, # Create link
                               TRUE ~ paste0("https://www.gbif.org/dataset/", datasetKey)
       ),
-      sounds = case_when( # Logical variable to determine if there voucher_type
+      sounds = dplyr::case_when( # Logical variable to determine if there voucher_type
         grepl("Sound", mediaType) ~ 1, 
         TRUE ~ 0
       ),
@@ -165,7 +166,10 @@ gbif_process_data <- function(data){
       voucher_type,
       repository,
       recordedBy, 
-      establishmentMeans
+      establishmentMeans,
+      link
     ) |> 
     janitor::clean_names("title")
 }
+
+
