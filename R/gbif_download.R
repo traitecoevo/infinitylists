@@ -1,3 +1,33 @@
+
+#' Download observations from GB
+#'
+#' @param taxon 
+#' @param min_year 
+#' @param max_year 
+#' @param country_code ISO 3166 country codes
+#' @param save_raw_data 
+#' @param output_dir 
+#' @export
+#'
+#' @examples
+download_gbif_obs <- function(taxon,
+                              min_year = 1923,
+                              max_year = as.numeric(format(Sys.Date(), "%Y")),
+                              country_code= NULL,
+                              save_raw_data = FALSE,
+                              output_dir = file.path(system.file(package = "infinitylists"), "data/")){
+  # 1. Data retrieval
+  gbif_obs <-
+    retrieve_gbif_data(taxon, min_year, max_year, country_code, save_raw_data, output_dir)
+  
+  # 2. Filtering and processing
+  gbif_cleaned <- gbif_process_data(gbif_obs)
+  
+  # 4. Save processed data
+  save_data(gbif_cleaned, taxon, output_dir)
+}
+
+
 #' Generate galah query for Global GBIF Node
 #'
 #' @param taxon character, genus/family/kingdom
