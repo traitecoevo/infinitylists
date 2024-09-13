@@ -38,8 +38,7 @@ download_gbif_obs <- function(taxon,
 #' @param taxon character, genus/family/kingdom
 #' @param min_year numeric, year cut off for query, only records where year >= min_year will be included 
 #' @param country_code character, code for country
-#' @noRd
-#' @keywords internal
+#' @export
 
 query_gbif_global<- function(taxon, 
                              min_year,
@@ -65,6 +64,8 @@ query_gbif_global<- function(taxon,
 }
 
 #' Download GBIF data and save as output
+#' @noRd
+#' @keywords internal
 retrieve_gbif_data_by_year_range <- function(taxon, min_year, max_year, country_code= NULL, 
                                              save_raw_data = FALSE, output_dir){
   
@@ -77,7 +78,7 @@ retrieve_gbif_data_by_year_range <- function(taxon, min_year, max_year, country_
       download,
       paste0(
         output_dir,
-        "GBIF-",
+        "GBIF-preprocessed-",
         taxon,
         "-",
         min_year,
@@ -114,8 +115,7 @@ format_date_as_character <- function(data){
 retrieve_gbif_data <- function(taxon, min_year, max_year,
                                country_code = NULL,
                                save_raw_data = FALSE,
-                               # output_dir = file.path(system.file(package = "infinitylists"), "data/")
-                               output_dir = "./"
+                               output_dir = file.path(system.file(package = "infinitylists"), "data/")
                                ){
   
   n_obs <- query_gbif_global(taxon, min_year, max_year, country_code) |> 
