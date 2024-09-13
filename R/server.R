@@ -392,10 +392,8 @@ infinity_server <- function(...) {
     output$downloadData <- downloadHandler(
       filename = function() {
         name_bits <- gsub(".parquet", "", input$ala_path)
-        name_bits <- gsub("Australia-", "", name_bits)
-        paste(input$place,
-              "-",
-              input$buffer_size,
+        name_bits <- gsub("infinitylists-", "", name_bits)
+        paste(input$buffer_size,
               "m-buffer-",
               name_bits,
               ".csv",
