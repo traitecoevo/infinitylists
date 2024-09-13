@@ -1,15 +1,20 @@
-
-#' Download observations from GB
+#' Download and Process GBIF Observations
 #'
-#' @param taxon 
-#' @param min_year 
-#' @param max_year 
-#' @param country_code ISO 3166 country codes
-#' @param save_raw_data 
-#' @param output_dir 
+#' This function retrieves, processes, and saves GBIF (Global Biodiversity Information Facility) observation data for a specified taxon.
+#'
+#' @param taxon Character. The taxon (species, genus, etc.) for which to retrieve GBIF data.
+#' @param min_year Numeric. The minimum year for the observations to be retrieved. Default is 1923.
+#' @param max_year Numeric. The maximum year for the observations to be retrieved. Default is the current year.
+#' @param country_code Character. The ISO 3166-1 alpha-2 country code to filter observations by country. Default is NULL (no country filter).
+#' @param save_raw_data Logical. Whether to save the raw data retrieved from GBIF. Default is FALSE.
+#' @param output_dir Character. The directory where the processed data will be saved. Default is a "data" directory within the "infinitylists" package.
+#'
+#' @return None. The function saves the processed data to the specified output directory.
 #' @export
 #'
 #' @examples
+#' download_gbif_obs("Puma concolor")
+#' download_gbif_obs("Puma concolor", min_year = 2000, country_code = "US", save_raw_data = TRUE)
 download_gbif_obs <- function(taxon,
                               min_year = 1923,
                               max_year = as.numeric(format(Sys.Date(), "%Y")),
@@ -21,7 +26,7 @@ download_gbif_obs <- function(taxon,
     retrieve_gbif_data(taxon, min_year, max_year, country_code, save_raw_data, output_dir)
   
   # 2. Filtering and processing
-  gbif_cleaned <- gbif_process_data(gbif_obs)
+  gbif_cleaned <- suppressWarnings(gbif_process_data(gbif_obs))
   
   # 4. Save processed data
   save_data(gbif_cleaned, taxon, output_dir)
@@ -33,6 +38,8 @@ download_gbif_obs <- function(taxon,
 #' @param taxon character, genus/family/kingdom
 #' @param min_year numeric, year cut off for query, only records where year >= min_year will be included 
 #' @param country_code character, code for country
+#' @noRd
+#' @keywords internal
 
 query_gbif_global<- function(taxon, 
                              min_year,
@@ -93,7 +100,7 @@ format_date_as_character <- function(data){
 }
 
 
-#' Title
+#' Retrieve GBIF records 
 #'
 #' @param taxon 
 #' @param min_year 
@@ -101,11 +108,8 @@ format_date_as_character <- function(data){
 #' @param country_code 
 #' @param save_raw_data 
 #' @param output_dir 
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @noRd
+#' @keywords internal
 
 retrieve_gbif_data <- function(taxon, min_year, max_year,
                                country_code = NULL,
@@ -152,6 +156,8 @@ retrieve_gbif_data <- function(taxon, min_year, max_year,
 
 #' Process downloaded data from Atlas of Living Australia 
 #' @noRd
+#' @keywords internal
+
 gbif_process_data <- function(data){
   data |> 
     tidyr::drop_na(decimalLatitude) |> 
