@@ -8,7 +8,7 @@
 ^\.github$
 ^codecov\.yml$
 ^inst/data$
-^ignore/$
+^ignore$
 
 
 

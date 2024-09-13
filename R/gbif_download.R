@@ -11,10 +11,7 @@
 #'
 #' @return None. The function saves the processed data to the specified output directory.
 #' @export
-#'
-#' @examples
-#' download_gbif_obs("Puma concolor")
-#' download_gbif_obs("Puma concolor", min_year = 2000, country_code = "US", save_raw_data = TRUE)
+
 download_gbif_obs <- function(taxon,
                               min_year = 1923,
                               max_year = as.numeric(format(Sys.Date(), "%Y")),
@@ -37,6 +34,7 @@ download_gbif_obs <- function(taxon,
 #'
 #' @param taxon character, genus/family/kingdom
 #' @param min_year numeric, year cut off for query, only records where year >= min_year will be included 
+#' @param max_year numeric, year cut off for query, only records where year <= max_year will be included 
 #' @param country_code character, code for country
 #' @export
 
