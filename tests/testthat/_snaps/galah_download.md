@@ -14,5 +14,5 @@
       6 Hemico~ Hemi~ Cordu~ 1924-10-10 00:00:00 -28.7  152. Collection     QM        
       7 Synthe~ Synt~ Synth~ 1924-01-01 00:00:00 -41.9  145. Collection     QM        
       # i 4 more variables: `Recorded by` <chr>, `Record Id` <chr>, Link <chr>,
-      #   `Establishment means` <chr>
+      #   `Establishment Means` <chr>
 

@@ -32,7 +32,3 @@ None. The function saves the processed data to the specified output directory.
 \description{
 This function retrieves, processes, and saves GBIF (Global Biodiversity Information Facility) observation data for a specified taxon.
 }
-\examples{
-download_gbif_obs("Puma concolor")
-download_gbif_obs("Puma concolor", min_year = 2000, country_code = "US", save_raw_data = TRUE)
-}

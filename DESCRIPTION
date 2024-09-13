@@ -32,14 +32,16 @@ Imports:
     shiny,
     shinybusy,
     stringr,
-    shinythemes
+    shinythemes,
+    tidyr
 Remotes: 
     traitecoevo/APCalign
 Suggests: 
-    job,
     bsplus,
-    testthat (>= 3.0.0),
+    here,
+    job,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

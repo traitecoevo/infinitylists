@@ -11,6 +11,8 @@ query_gbif_global(taxon, min_year, max_year, country_code = NULL)
 
 \item{min_year}{numeric, year cut off for query, only records where year >= min_year will be included}
 
+\item{max_year}{numeric, year cut off for query, only records where year <= max_year will be included}
+
 \item{country_code}{character, code for country}
 }
 \description{
