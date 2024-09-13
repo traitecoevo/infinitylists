@@ -13,6 +13,11 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+
+library(infinitylists)
+library(galah)
+library(arrow)
+library(tidyverse)
 ```
 
 One major benefit of infinitylists using a Living Atlas node is that is gives users the ability to create their own version of infinitylists for whichever Living Atlas you would like to use. Unfortunately, there are some slight inconsistencies in data coverage and naming between Living Atlas data providers. This makes creating your own infinitylists not an entirely straightforward process but I hope this article will be able to give you some guidance.
@@ -117,7 +122,7 @@ gbif_podarcis <- arrow::read_parquet(here::here("inst/data/Living-Atlas-Podarcis
 ```
 
 ```{r, eval=TRUE}
-gbif_podarcis
+gbif_podarcis |> print(n = 10)
 ```
 
 
