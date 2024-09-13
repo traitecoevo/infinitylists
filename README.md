@@ -79,6 +79,16 @@ download_ala_obs(taxon = "Orthoptera")
 infinitylistApp()
 ```
 
+## Adapt infinitylist for other countries
+
+We have developed functions to assist users to create their own
+infinitylist for their chosen taxa and country. Check out the vignette
+which shows you how to do so!
+
+``` r
+vignette("diy")
+```
+
 ## Why did I get disconnected from the server?
 
 If `infinitylists` is left open but idle in your browser for too long,
