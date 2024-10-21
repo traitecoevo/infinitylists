@@ -172,8 +172,7 @@ gbif_process_data <- function(data){
     dplyr::mutate(
       eventDate_as_date = lubridate::as_date(eventDate), # Convert to dates
       eventDate_ymd = lubridate::ymd_hm(eventDate, tz = "UTC", quiet = TRUE), # Convert dates that have time zones
-      collectionDate = dplyr::coalesce(eventDate_as_date, eventDate_ymd), # Put the two date columns together as one complete one. 
-      collectionDate = as.character(collectionDate) |> stringr::str_extract(pattern = stringr::regex("[0-9]{4}\\-[0-9]{2}\\-[0-9]{2}"))
+      collectionDate = dplyr::coalesce(eventDate_as_date, eventDate_ymd) # Put the two date columns together as one complete one. 
     ) |> 
     dplyr::mutate(
       repository = dplyr::case_when(grepl("inatur", occurrenceID) ~ occurrenceID, # Create Repository column, if occurrence ID contains "inatur", keep occurrenceID
