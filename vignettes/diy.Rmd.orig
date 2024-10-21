@@ -7,7 +7,20 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
 
+library(infinitylists)
+library(galah)
+library(arrow)
+library(dplyr)
+
+
+```
 
 One major benefit of infinitylists using a Living Atlas node is that is gives users the ability to create their own version of infinitylists for whichever Living Atlas you would like to use. Unfortunately, there are some slight inconsistencies in data coverage and naming between Living Atlas data providers. This makes creating your own infinitylists not an entirely straightforward process but I hope this article will be able to give you some guidance.
 
@@ -19,8 +32,7 @@ If you have any questions about this process, please do not hesitate and reach o
 
 We are going to need a few packages to create your own infinitylists. Go ahead and install these if you don't have these in your version of R. Otherwise, load them and we can get started 
 
-
-``` r
+```{r setup}
 # install.packages("devtools")
 devtools::install_github("traitecoevo/infinitylists")
 library(infinitylists)
@@ -37,8 +49,7 @@ We will be using [{galah}](https://galah.ala.org.au/R/) to download occurrence r
 
 Here I've saved the credentials in my R environment so its not shared publicly. I can call on these environment variables using `Sys.getenv()`. You can also do so with `usethis::edit_r_environ`.
 
-
-``` r
+```{r}
 # Set atlas
 galah_config(
   atlas = "Global",
@@ -55,8 +66,7 @@ Once we have all that set up, we can request data from GBIF Global. Here I am do
 
 Note that depending on how many records are requested, the download will take some time.
 
-
-``` r
+```{r}
 download_gbif_obs("Arachnida",
                   min_year = 2000,
                   max_year = 2024,
@@ -67,8 +77,7 @@ download_gbif_obs("Arachnida",
 
 You can check roughly how big your download is but using the `query()` function with `galah::atlas_counts()`. Note this will not be the find number of records that goes into infinitylist as we do further exclusions and data cleaning behind the scenes. 
 
-
-``` r
+```{r}
 query_gbif_global("Arachnida",
                   min_year = 2000,
                   max_year = 2024,
@@ -86,8 +95,7 @@ To make your viewing experience more flexible, we recommend uploading a .KML. fi
 
 Once the download is complete, you are all set! Launch infinitylist and you will find your download under the dropdown menu "taxa"
 
-
-``` r
+```{r}
 infinitylistApp()
 ```
 
@@ -102,8 +110,7 @@ If you specified `save_raw_data = TRUE` in `download_gbif_obs()`, this code will
 - `"GBIF-preprocessed-"` is the raw download **before** our data cleaning. 
 - `"Living-Atlas-"` is the final **cleaned** download of the data you view in the app. 
 
-
-``` r
+```{r}
 # Locate file path of downloads
 system.file(package = "infinitylists") |> 
   file.path("data") |> 
@@ -112,31 +119,16 @@ system.file(package = "infinitylists") |>
 
 Copy the file path and pasted it in the `read_parquet()` function to open the download in R. 
 
-
-``` r
+```{r}
 gbif_spiders <- arrow::read_parquet("infinitylists/inst/data/Living-Atlas-Arachnida-2024-10-16.parquet")
 ```
 
+```{r include=FALSE, eval=TRUE}
+gbif_spiders <- arrow::read_parquet(here::here("inst/data/Living-Atlas-Arachnida-2024-10-16.parquet"))
+```
 
-
-
-``` r
+```{r, eval=TRUE}
 gbif_spiders |> print(n = 10)
-#> # A tibble: 44,370 × 11
-#>    Species        Genus Family `Collection Date`   Lat   Long `Voucher Type` Repository `Recorded by`
-#>  * <chr>          <chr> <chr>  <chr>             <dbl>  <dbl> <chr>          <chr>      <chr>        
-#>  1 Phalangium op… Phal… Phala… 2024-04-19         48.8  2.42  Photograph     https://w… Titouan Gelez
-#>  2 Synema globos… Syne… Thomi… 2022-07-17         44.3  0.890 Photograph     https://w… Maël Richon  
-#>  3 Salticus scen… Salt… Salti… 2021-05-27         48.0 -1.71  Photograph     https://w… Xavier HURIEZ
-#>  4 Alopecosa alb… Alop… Lycos… 2020-04-23         43.3  5.42  Photograph     https://w… Martin Galli 
-#>  5 Synema globos… Syne… Thomi… 2023-05-11         43.6  3.97  Photograph     https://w… Mike Hedde   
-#>  6 Phalangium op… Phal… Phala… 2021-11-13         43.6  2.97  Photograph     https://w… Heikel B.    
-#>  7 Philaeus chry… Phil… Salti… 2020-04-12         43.2  6.01  Photograph     https://w… Bernard Nogu…
-#>  8 Philaeus chry… Phil… Salti… 2021-04-07         43.2  6.01  Photograph     https://w… Bernard Nogu…
-#>  9 Trichoncoides… Tric… Linyp… 2024-02-08         43.4  5.18  Photograph     https://w… Julien Tchil…
-#> 10 Lacinius horr… Laci… Phala… 2024-07-21         42.6  8.89  Photograph     https://w… Julien Botti…
-#> # ℹ 44,360 more rows
-#> # ℹ 2 more variables: `Establishment Means` <lgl>, Link <chr>
 ```
 
 
