@@ -26,7 +26,7 @@ download_gbif_obs <- function(taxon,
   gbif_cleaned <- suppressWarnings(gbif_process_data(gbif_obs))
   
   # 4. Save processed data
-  save_data(gbif_cleaned, taxon, output_dir)
+  save_gbif_data(gbif_cleaned, taxon, country_code, output_dir)
 }
 
 
@@ -206,4 +206,21 @@ gbif_process_data <- function(data){
     janitor::clean_names("title")
 }
 
-
+save_gbif_data <- function(data, taxon, country_code = NULL, output_dir) {
+  if (!file.exists(file.path(output_dir))) {
+    dir.create(file.path(output_dir), recursive = TRUE)
+  }
+  
+  
+  arrow::write_parquet(x = data,
+                       sink = file.path(
+                         output_dir,
+                         paste0("Living-Atlas-",
+                                taxon,
+                                "-",
+                                country_code,
+                                "-",
+                                Sys.Date(),
+                                ".parquet")
+                       ))
+}
