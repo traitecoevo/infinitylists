@@ -7,7 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
 
+library(infinitylists)
+library(galah)
+library(arrow)
+library(dplyr)
+```
 
 One major benefit of infinitylists using a Living Atlas node is that is gives users the ability to create their own version of infinitylists for whichever Living Atlas you would like to use. Unfortunately, there are some slight inconsistencies in data coverage and naming between Living Atlas data providers. This makes creating your own infinitylists not an entirely straightforward process but I hope this article will be able to give you some guidance.
 
@@ -19,8 +30,7 @@ If you have any questions about this process, please do not hesitate and reach o
 
 We are going to need a few packages to create your own infinitylists. Go ahead and install these if you don't have these in your version of R. Otherwise, load them and we can get started 
 
-
-``` r
+```{r setup}
 # install.packages("devtools")
 devtools::install_github("traitecoevo/infinitylists")
 library(infinitylists)
@@ -37,8 +47,7 @@ We will be using [{galah}](https://galah.ala.org.au/R/) to download occurrence r
 
 Here I've saved the credentials in my R environment so its not shared publicly. I can call on these environment variables using `Sys.getenv()`. You can also do so with `usethis::edit_r_environ`.
 
-
-``` r
+```{r}
 # Set atlas
 galah_config(
   atlas = "Global",
@@ -51,13 +60,12 @@ galah_config(
 
 ### Submit data request
 
-Once we have all that set up, we can request data from GBIF Global. Here I am downloading records for the skink genus 'Podarcis', from years 2000 to 2004. Under `country_code`, I've specified `"FR"` for records found in France. Here is a [list of codes](https://en.wikipedia.org/wiki/ISO_3166-2) for each country. The `download_gbif_obs` function will download the records and say it internally inside the infinitylist R package so you can use it immediately.
+Once we have all that set up, we can request data from GBIF Global. Here I am downloading records for the class `Arachnida`, from years 2000 to 2004. Under `country_code`, I've specified `"FR"` for records found in France. Here is a [list of codes](https://en.wikipedia.org/wiki/ISO_3166-2) for each country. The `download_gbif_obs` function will download the records and say it internally inside the infinitylist R package so you can use it immediately.
 
 Note that depending on how many records are requested, the download will take some time.
 
-
-``` r
-download_gbif_obs("Podarcis",
+```{r}
+download_gbif_obs("Arachnida",
                   min_year = 2000,
                   max_year = 2024,
                   country_code = "FR")
@@ -67,9 +75,8 @@ download_gbif_obs("Podarcis",
 
 You can check roughly how big your download is but using the `query()` function with `galah::atlas_counts()`. Note this will not be the find number of records that goes into infinitylist as we do further exclusions and data cleaning behind the scenes. 
 
-
-``` r
-query_gbif_global("Podarcis",
+```{r}
+query_gbif_global("Arachnida",
                   min_year = 2000,
                   max_year = 2024,
                   country_code = "FR") |> 
@@ -78,12 +85,15 @@ query_gbif_global("Podarcis",
 
 You can investigate the full download by specifying `save_raw_data = TRUE` in `download_gbif_obs()`
 
+### Upload your own KML
+
+To make your viewing experience more flexible, we recommend uploading a .KML. file of the country you downloaded data for. We downloaded the outline of France [here](https://cartographyvectors.com/map/260-france-outline) and manually uploaded it to app using the "Upload KML" option.
+
 ### Launch infinitylist and explore!
 
 Once the download is complete, you are all set! Launch infinitylist and you will find your download under the dropdown menu "taxa"
 
-
-``` r
+```{r}
 infinitylistApp()
 ```
 
@@ -91,48 +101,32 @@ infinitylistApp()
 
 The following code identifies the file path of where your GBIF Global records are downloaded if you want to open data in R or export it for other uses. This is usually handy if you want to orientate the map to where your download is from using `"Choose a lat/long"`.
 
-In the next code chunk, replace `"Podarcis"` in the `pattern` argument with the name of the taxa you have downloaded data for in the previous step. This code will provide the full file paths of objects that match the `pattern` argument.
+In the next code chunk, replace `"Arachnida"` in the `pattern` argument with the name of the taxa you have downloaded data for in the previous step. This code will provide the full file paths of objects that match the `pattern` argument.
 
 If you specified `save_raw_data = TRUE` in `download_gbif_obs()`, this code will you two file paths. The file with the prefix: 
 
 - `"GBIF-preprocessed-"` is the raw download **before** our data cleaning. 
 - `"Living-Atlas-"` is the final **cleaned** download of the data you view in the app. 
 
-
-``` r
+```{r}
 # Locate file path of downloads
 system.file(package = "infinitylists") |> 
   file.path("data") |> 
-  list.files(pattern = "Podarcis", full.names = TRUE) # Match for Podarcis
+  list.files(pattern = "Arachnida", full.names = TRUE) # Match for Arachnida
 ```
 
 Copy the file path and pasted it in the `read_parquet()` function to open the download in R. 
 
-
-``` r
-gbif_podarcis <- arrow::read_parquet("infinitylists/inst/data/Living-Atlas-Podarcis-2024-09-13.parquet")
+```{r}
+gbif_spiders <- arrow::read_parquet("infinitylists/inst/data/Living-Atlas-Arachnida-2024-10-16.parquet")
 ```
 
+```{r include=FALSE, eval=TRUE}
+gbif_spiders <- arrow::read_parquet(here::here("inst/data/Living-Atlas-Arachnida-2024-10-16.parquet"))
+```
 
-
-
-``` r
-gbif_podarcis |> print(n = 10)
-#> # A tibble: 6,155 × 11
-#>    Species            Genus Family `Collection Date`     Lat  Long `Voucher Type` Repository
-#>  * <chr>              <chr> <chr>  <dttm>              <dbl> <dbl> <chr>          <chr>     
-#>  1 Podarcis tiliguer… Poda… Lacer… 2020-10-18 09:20:00  41.6  8.81 Photograph     https://w…
-#>  2 Podarcis tiliguer… Poda… Lacer… 2024-07-01 14:41:00  42.3  8.87 Photograph     https://w…
-#>  3 Podarcis tiliguer… Poda… Lacer… 2022-05-30 00:00:00  41.8  9.23 Photograph     https://w…
-#>  4 Podarcis siculus   Poda… Lacer… 2024-05-17 10:37:00  42.8  9.48 Photograph     https://w…
-#>  5 Podarcis muralis   Poda… Lacer… 2023-07-28 17:05:00  43.5 -1.52 Photograph     https://w…
-#>  6 Podarcis liolepis  Poda… Lacer… 2020-04-08 00:00:00  44.0  3.52 Photograph     https://w…
-#>  7 Podarcis liolepis  Poda… Lacer… 2014-05-09 08:44:00  43.6  3.02 Photograph     https://w…
-#>  8 Podarcis muralis   Poda… Lacer… 2023-05-14 19:55:00  47.6  1.34 Photograph     https://w…
-#>  9 Podarcis muralis   Poda… Lacer… 2023-10-14 12:39:00  44.6  6.17 Photograph     https://w…
-#> 10 Podarcis muralis   Poda… Lacer… 2020-06-18 04:07:00  43.9 -1.38 Photograph     https://w…
-#> # ℹ 6,145 more rows
-#> # ℹ 3 more variables: `Recorded by` <chr>, `Establishment Means` <lgl>, Link <chr>
+```{r, eval=TRUE}
+gbif_spiders |> print(n = 10)
 ```
 
 
