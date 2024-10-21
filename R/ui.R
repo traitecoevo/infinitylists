@@ -12,6 +12,9 @@ ui <- function(){
          "\\1",
          files_in_directory)
   
+  taxa_names <- gsub("Living-Atlas-", "", taxa_names)
+  
+
   files_in_directory <- setNames(files_in_directory, taxa_names)
   
   # Custom Github hyperlink icon

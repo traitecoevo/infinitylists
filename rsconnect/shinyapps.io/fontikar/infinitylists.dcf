@@ -5,6 +5,6 @@ account: fontikar
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11400862
-bundleId: 8822985
+bundleId: 9252048
 url: https://unsw.shinyapps.io/infinitylists/
 version: 1
