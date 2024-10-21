@@ -114,7 +114,7 @@ retrieve_data_by_years <- function(taxon,
       download,
       paste0(
         output_dir,
-        "ALA-Australia-",
+        "Living-Atlas",
         taxon,
         "-",
         first(years),
@@ -189,12 +189,12 @@ get_establishment_status <- function(ala_cleaned, taxon = taxon) {
     ala_cleaned$native_anywhere_in_aus <- "unknown"
   }
   # Rename native_anywhere_in_aus
-  ala_cleaned <- dplyr::rename(ala_cleaned,"Establishment means" = native_anywhere_in_aus)
+  ala_cleaned <- dplyr::rename(ala_cleaned,"Establishment Means" = native_anywhere_in_aus)
   
   return(ala_cleaned)
 }
 
-
+#' Process downloaded data from Atlas of Living Australia 
 #' @noRd
 process_data <- function(data) {
   datasets_of_interest <- c(
@@ -244,7 +244,6 @@ process_data <- function(data) {
     janitor::clean_names("title")
 }
 
-
 #' @noRd
 save_data <- function(data, taxon, output_dir) {
   if (!file.exists(file.path(output_dir))) {
@@ -255,7 +254,7 @@ save_data <- function(data, taxon, output_dir) {
   arrow::write_parquet(x = data,
                        sink = file.path(
                          output_dir,
-                         paste0("Australia-",
+                         paste0("Living-Atlas-",
                                 taxon,
                                 "-",
                                 Sys.Date(),

@@ -60,7 +60,14 @@ utils::globalVariables(
     "write.csv",
     "Link", 
     "Repository",
-    "Establishment means",
-    "repository"
+    "Establishment Means",
+    "repository",
+    "eventDate_as_date",
+    "eventDate_ymd",
+    "establishmentMeans",
+    "hasGeospatialIssue",
+    "link",
+    "country", 
+    "count"
   )
 )

@@ -200,7 +200,7 @@ infinity_server <- function(...) {
       total_family <- length(unique(data$Family))
       
       native <-
-        dplyr::filter(data, `Establishment means` == "native")
+        dplyr::filter(data, `Establishment Means` == "native")
       if (nrow(native) > 0)
         total_native_species <- length(unique(native$Species))
       else
@@ -235,7 +235,7 @@ infinity_server <- function(...) {
         total_species,
         " species observed, ",
         total_native_species,
-        " are considered native to Australia."
+        " are considered native"
       )
     })
     
@@ -336,7 +336,7 @@ infinity_server <- function(...) {
         `Recorded by` = `Recorded by`[1]
       ),
       by = .(Species,
-             `Establishment means`,
+             `Establishment Means`,
              `Voucher type` = `Voucher Type`)]
       
       
@@ -392,10 +392,8 @@ infinity_server <- function(...) {
     output$downloadData <- downloadHandler(
       filename = function() {
         name_bits <- gsub(".parquet", "", input$ala_path)
-        name_bits <- gsub("Australia-", "", name_bits)
-        paste(input$place,
-              "-",
-              input$buffer_size,
+        name_bits <- gsub("infinitylists-", "", name_bits)
+        paste(input$buffer_size,
               "m-buffer-",
               name_bits,
               ".csv",
