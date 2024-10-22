@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
-This shiny-based application allows users to extract species occurrence data from the Atlas of Living Australia (ALA) and generate a species list for any defined area. All records associated with either a physical voucher (stored in Australian herbaria or museums), or a photographic voucher or audio file uploaded to iNaturalist are extracted. For each species within the defined area, the application will return voucher type, number of vouchers, date of the most recent voucher, spatial coordinates, voucher location, and the voucher collector. Records are displayed both in a table and on a map, and are downloadable as a CSV. The app is currently using data downloaded from the ALA on 5 July 2024.
+This shiny-based application allows users to extract species occurrence data from the Atlas of Living Australia (ALA) and generate a species list for any defined area. All records associated with either a physical voucher (stored in Australian herbaria or museums), or a photographic voucher or audio file uploaded to iNaturalist are extracted. For each species within the defined area, the application will return voucher type, number of vouchers, date of the most recent voucher, spatial coordinates, voucher location, and the voucher collector. Records are displayed both in a table and on a map, and are downloadable as a CSV. The app is currently using data downloaded from the ALA on 22 October 2024.
 
 ## Which records are returned?
 

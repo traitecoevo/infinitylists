@@ -19,7 +19,8 @@ species within the defined area, the application will return voucher
 type, number of vouchers, date of the most recent voucher, spatial
 coordinates, voucher location, and the voucher collector. Records are
 displayed both in a table and on a map, and are downloadable as a CSV.
-The app is currently using data downloaded from the ALA on 5 July 2024.
+The app is currently using data downloaded from the ALA on 22 October
+2024.
 
 ## Which records are returned?
 
