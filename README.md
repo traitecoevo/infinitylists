@@ -88,6 +88,9 @@ which shows you how to do so!
 vignette("diy")
 ```
 
+All our documentation is also neatly rendered at this pkgdown website:
+<https://traitecoevo.github.io/infinitylists/>
+
 ## Why did I get disconnected from the server?
 
 If `infinitylists` is left open but idle in your browser for too long,
