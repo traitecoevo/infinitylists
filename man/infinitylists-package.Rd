@@ -8,6 +8,13 @@
 \description{
 This shiny-based application allows users to extract plant occurrence data from the Atlas of Living Australia and generate a species list for any defined area in New South Wales. All records associated with either a physical voucher (stored in Australian herbaria) or a photographic voucher (stored in iNaturalist) are extracted. For each species within the defined area, the application will return voucher type, number of vouchers, date of the most recent voucher, spatial coordinates, voucher location, and the voucher collector. Records are displayed both in a table and on a map, and are downloadable as a CSV.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://traitecoevo.github.io/infinitylists/}
+}
+
+}
 \author{
 \strong{Maintainer}: Thomas Mesaglio \email{thomasmesaglio@gmail.com} (\href{https://orcid.org/0000-0002-1096-6066}{ORCID}) [copyright holder]
 
