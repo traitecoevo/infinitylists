@@ -46,7 +46,7 @@ web app. The code to do this is:
 ``` r
 # install.packages("remotes")
 
-remotes::install_github("traitecoevo/infinitylists")
+remotes::install_github("traitecoevo/infinitylists", build_vignettes = TRUE)
 
 library(infinitylists)
 
@@ -67,9 +67,7 @@ The download step is fast for taxa with small number of observations in
 ALA and slower for taxa with millions of observations.
 
 ``` r
-
 # install.packages("galah")
-library(infinitylists)
 
 # register with ALA
 galah::galah_config(email = "YOUR EMAIL HERE")

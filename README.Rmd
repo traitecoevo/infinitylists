@@ -40,7 +40,7 @@ You can install and run a local version of `infinitylists` from [GitHub](https:/
 ```{r}
 # install.packages("remotes")
 
-remotes::install_github("traitecoevo/infinitylists")
+remotes::install_github("traitecoevo/infinitylists", build_vignettes = TRUE)
 
 library(infinitylists)
 
@@ -53,9 +53,7 @@ infinitylistApp()
 `infinitylists` comes with 5 taxa loaded to start with: plants, butterflies, cicadas, marsupials, and dragonflies + damselflies. If you want to add another taxon, you'll need to download the data first via the [galah interface](https://github.com/AtlasOfLivingAustralia/galah-R) to the ALA. The function `download_ala_obs` will download the data and put it into a directory where infinitylists can find it. The value for `taxon` needs to be a [valid taxonomic group as recognized by the ALA](https://support.ala.org.au/support/solutions/articles/6000261677-taxonomy-a-species-filing-system).  The download step is fast for taxa with small number of observations in ALA and slower for taxa with millions of observations.  
 
 ```{r}
-
 # install.packages("galah")
-library(infinitylists)
 
 # register with ALA
 galah::galah_config(email = "YOUR EMAIL HERE")
