@@ -1,0 +1,142 @@
+---
+title: "Create your own infinitylists"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{DIY infinitylists}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+One major benefit of infinitylists using a Living Atlas node is that is gives users the ability to create their own version of infinitylists for whichever Living Atlas you would like to use. Unfortunately, there are some slight inconsistencies in data coverage and naming between Living Atlas data providers. This makes creating your own infinitylists not an entirely straightforward process but I hope this article will be able to give you some guidance.
+
+Here, I will walk through the process on how to adapt the source code of infinitylists so you can create your own version of infinitylists for any country and taxa of your choice. 
+
+If you have any questions about this process, please do not hesitate and reach out but submitting an issue at the [infinitylists repository](https://github.com/traitecoevo/infinitylists).
+
+### Load dependencies
+
+We are going to need a few packages to create your own infinitylists. Go ahead and install these if you don't have these in your version of R. Otherwise, load them and we can get started 
+
+
+``` r
+# install.packages("devtools")
+devtools::install_github("traitecoevo/infinitylists")
+library(infinitylists)
+library(galah)
+library(arrow)
+library(tidyverse)
+```
+
+You will need to register for a [GBIF account](https://www.gbif.org/). Click on the "Login" button on the top left corner and click on the "Register" tab. Note down your login credentials for safe-keeping once you have verified your account and created a password.
+
+### Configure galah
+
+We will be using [{galah}](https://galah.ala.org.au/R/) to download occurrence records used our infinitylist. To do so, we need to configure the settings so the package knows to point to the Global GBIF API. 
+
+Here I've saved the credentials in my R environment so its not shared publicly. I can call on these environment variables using `Sys.getenv()`. You can also do so with `usethis::edit_r_environ`.
+
+
+``` r
+# Set atlas
+galah_config(
+  atlas = "Global",
+  username = Sys.getenv("GBIF_USERNAME"),
+  password = Sys.getenv("GBIF_PWD"),
+  email = Sys.getenv("GBIF_EMAIL")
+)
+
+```
+
+### Submit data request
+
+Once we have all that set up, we can request data from GBIF Global. Here I am downloading records for the class `Arachnida`, from years 2000 to 2004. Under `country_code`, I've specified `"FR"` for records found in France. Here is a [list of codes](https://en.wikipedia.org/wiki/ISO_3166-2) for each country. The `download_gbif_obs` function will download the records and say it internally inside the infinitylist R package so you can use it immediately.
+
+Note that depending on how many records are requested, the download will take some time.
+
+
+``` r
+download_gbif_obs("Arachnida",
+                  min_year = 2000,
+                  max_year = 2024,
+                  country_code = "FR")
+```
+
+### Pre-download check
+
+You can check roughly how big your download is but using the `query()` function with `galah::atlas_counts()`. Note this will not be the find number of records that goes into infinitylist as we do further exclusions and data cleaning behind the scenes. 
+
+
+``` r
+query_gbif_global("Arachnida",
+                  min_year = 2000,
+                  max_year = 2024,
+                  country_code = "FR") |> 
+  galah::atlas_counts()
+```
+
+You can investigate the full download by specifying `save_raw_data = TRUE` in `download_gbif_obs()`
+
+### Upload your own KML
+
+To make your viewing experience more flexible, we recommend uploading a .KML. file of the country you downloaded data for. We downloaded the outline of France [here](https://cartographyvectors.com/map/260-france-outline) and manually uploaded it to app using the "Upload KML" option.
+
+### Launch infinitylist and explore!
+
+Once the download is complete, you are all set! Launch infinitylist and you will find your download under the dropdown menu "taxa"
+
+
+``` r
+infinitylistApp()
+```
+
+### Open downloaded data
+
+The following code identifies the file path of where your GBIF Global records are downloaded if you want to open data in R or export it for other uses. This is usually handy if you want to orientate the map to where your download is from using `"Choose a lat/long"`.
+
+In the next code chunk, replace `"Arachnida"` in the `pattern` argument with the name of the taxa you have downloaded data for in the previous step. This code will provide the full file paths of objects that match the `pattern` argument.
+
+If you specified `save_raw_data = TRUE` in `download_gbif_obs()`, this code will you two file paths. The file with the prefix: 
+
+- `"GBIF-preprocessed-"` is the raw download **before** our data cleaning. 
+- `"Living-Atlas-"` is the final **cleaned** download of the data you view in the app. 
+
+
+``` r
+# Locate file path of downloads
+system.file(package = "infinitylists") |> 
+  file.path("data") |> 
+  list.files(pattern = "Arachnida", full.names = TRUE) # Match for Arachnida
+```
+
+Copy the file path and pasted it in the `read_parquet()` function to open the download in R. 
+
+
+``` r
+gbif_spiders <- arrow::read_parquet("infinitylists/inst/data/Living-Atlas-Arachnida-2024-10-16.parquet")
+```
+
+
+
+
+``` r
+gbif_spiders |> print(n = 10)
+#> # A tibble: 44,370 × 11
+#>    Species        Genus Family `Collection Date`   Lat   Long `Voucher Type` Repository `Recorded by`
+#>  * <chr>          <chr> <chr>  <chr>             <dbl>  <dbl> <chr>          <chr>      <chr>        
+#>  1 Phalangium op… Phal… Phala… 2024-04-19         48.8  2.42  Photograph     https://w… Titouan Gelez
+#>  2 Synema globos… Syne… Thomi… 2022-07-17         44.3  0.890 Photograph     https://w… Maël Richon  
+#>  3 Salticus scen… Salt… Salti… 2021-05-27         48.0 -1.71  Photograph     https://w… Xavier HURIEZ
+#>  4 Alopecosa alb… Alop… Lycos… 2020-04-23         43.3  5.42  Photograph     https://w… Martin Galli 
+#>  5 Synema globos… Syne… Thomi… 2023-05-11         43.6  3.97  Photograph     https://w… Mike Hedde   
+#>  6 Phalangium op… Phal… Phala… 2021-11-13         43.6  2.97  Photograph     https://w… Heikel B.    
+#>  7 Philaeus chry… Phil… Salti… 2020-04-12         43.2  6.01  Photograph     https://w… Bernard Nogu…
+#>  8 Philaeus chry… Phil… Salti… 2021-04-07         43.2  6.01  Photograph     https://w… Bernard Nogu…
+#>  9 Trichoncoides… Tric… Linyp… 2024-02-08         43.4  5.18  Photograph     https://w… Julien Tchil…
+#> 10 Lacinius horr… Laci… Phala… 2024-07-21         42.6  8.89  Photograph     https://w… Julien Botti…
+#> # ℹ 44,360 more rows
+#> # ℹ 2 more variables: `Establishment Means` <lgl>, Link <chr>
+```
+
+
