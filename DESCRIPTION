@@ -18,6 +18,7 @@ LazyData: true
 Imports: 
     APCalign (>= 0.1.1),
     arrow,
+    bsplus,
     DT,
     dplyr,
     data.table,
