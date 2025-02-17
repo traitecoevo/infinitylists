@@ -192,6 +192,7 @@ gbif_process_data <- function(data){
       lat = decimalLatitude,
       long = decimalLongitude,
     ) |> 
+    dplyr::mutate(lat=as.numeric(lat),long=as.numeric(long))|>
     dplyr::select(
       species, genus, family,
       collectionDate,
