@@ -10,17 +10,17 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
-This shiny-based application allows users to extract species occurrence
-data from the Atlas of Living Australia (ALA) and generate a species
-list for any defined area. All records associated with either a physical
-voucher (stored in Australian herbaria or museums), or a photographic
-voucher or audio file uploaded to iNaturalist are extracted. For each
-species within the defined area, the application will return voucher
-type, number of vouchers, date of the most recent voucher, spatial
-coordinates, voucher location, and the voucher collector. Records are
-displayed both in a table and on a map, and are downloadable as a CSV.
-The app is currently using data downloaded from the ALA on 22 October
-2024.
+This Shiny-based application allows users to extract species occurrence
+data from the Atlas of Living Australia (ALA) or the Global Biodiversity
+Information Facility (GBIF) and generate a species list for any defined
+area. All records associated with either a physical voucher (stored in
+herbaria or museums), or a photographic voucher or audio file uploaded
+to iNaturalist are extracted. For each species within the defined area,
+the application will return voucher type, number of vouchers, date of
+the most recent voucher, spatial coordinates, voucher location, and the
+voucher collector. Records are displayed both in a table and on a map,
+and are downloadable as a CSV. The app is currently using data
+downloaded on 17 February 2025.
 
 ## Which records are returned?
 
@@ -41,7 +41,8 @@ The app can be accessed here: <https://unsw.shinyapps.io/infinitylists/>
 You can install and run a local version of `infinitylists` from
 [GitHub](https://github.com/traitecoevo/infinitylists). This allows more
 flexibility for loading taxa that are not automatically loaded in the
-web app. The code to do this is:
+web app, and loading data for other regions of the world. The code to do
+this is:
 
 ``` r
 # install.packages("remotes")
@@ -53,18 +54,20 @@ library(infinitylists)
 infinitylistApp()
 ```
 
-## Adding new taxa
+## Adding new taxa for Australia
 
-`infinitylists` comes with 5 taxa loaded to start with: plants,
-butterflies, cicadas, marsupials, and dragonflies + damselflies. If you
-want to add another taxon, you’ll need to download the data first via
-the [galah interface](https://github.com/AtlasOfLivingAustralia/galah-R)
-to the ALA. The function `download_ala_obs` will download the data and
-put it into a directory where infinitylists can find it. The value for
-`taxon` needs to be a [valid taxonomic group as recognized by the
+`infinitylists` comes with seven taxa loaded to start with: plants,
+butterflies, cicadas, marsupials, and dragonflies + damselflies (plus
+arachnids for France, and lizards and snakes for Spain). If you want to
+add another taxon from Australia, you’ll need to download the data first
+via the [galah
+interface](https://github.com/AtlasOfLivingAustralia/galah-R) to the
+ALA. The function `download_ala_obs` will download the data and put it
+into a directory where infinitylists can find it. The value for `taxon`
+needs to be a [valid taxonomic group as recognized by the
 ALA](https://support.ala.org.au/support/solutions/articles/6000261677-taxonomy-a-species-filing-system).
 The download step is fast for taxa with small number of observations in
-ALA and slower for taxa with millions of observations.
+the ALA and slower for taxa with millions of observations.
 
 ``` r
 # install.packages("galah")
@@ -81,7 +84,7 @@ infinitylistApp()
 ## Adapt infinitylists for other countries
 
 We have developed functions to assist users to create their own
-infinitylist for their chosen taxa and country. Check out the vignette
+‘infinitylist’ for their chosen taxa and country. Check out the vignette
 which shows you how to do so!
 
 ``` r
