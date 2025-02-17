@@ -25,7 +25,7 @@ ui <- function(){
     theme = shinythemes::shinytheme("cosmo"),
     titlePanel(
       windowTitle = "Infinity Lists",
-      div("An Infinity of Lists: an Interactive Guide to Australian Biodiversity",
+      div("An Infinity of Lists: an Interactive Tool for Building Place-based Species Lists",
           img(src = "www/infinitylist_hex.svg", width=150))),
   
     
@@ -222,8 +222,8 @@ ui <- function(){
           tabPanel("About",
                    h2("Frequently Asked Questions"),
                    
-                   h4("1. What does this app do?"),
-                   p("This app allows users to explore biodiversity across Australia. After selecting a location and a taxonomic group and, the app will generate a species list."),
+                   h4("1. What does this Shiny app do?"),
+                   p("This app allows users to explore biodiversity across Australia and a few other countries. After selecting a location and a taxonomic group and, the app will generate a species list."),
                    
                    h4("2. Which taxonomic groups can I generate lists for?"),
                    p("You can generate lists for marsupials, plants, dragonflies + damselflies (Odonata), butterflies (Papilionoidea) and cicadas. We have also included snakes and lizards (Squamata) from Spain and arachnids from France as extra demos."),
@@ -241,19 +241,20 @@ ui <- function(){
                    p("You can search anywhere in Australia, including external territories such as Norfolk Island or Christmas Island, or Australian waters."),
                    
                    h4("7. Can I search for locations outside of Australia?"),
-                   p("Yes, but restrictions apply. The best way to adapt infinitylists for other countries is to install and run a local version of infinitylists, and then run our vignette (see the README at https://github.com/traitecoevo/infinitylists for more guidance."),
+                   p("Yes you can! The best way to adapt infinitylists for other countries is to install and run a local version of infinitylists, and then run our vignette (see the README at https://github.com/traitecoevo/infinitylists for more guidance."),
                    
                    h4("8. Where do the data come from?"),
-                   p("All data are extracted from the Atlas of Living Australia (ALA), Australia's ", tags$a(href = "https://www.ala.org.au", "national biodiversity database.")),
+                   p("All Australian data are extracted from the Atlas of Living Australia (ALA), Australia's ", tags$a(href = "https://www.ala.org.au", "national biodiversity database.")), "Data from the rest of the world are extracted from the ",
+                   tags$a(href = "www.gbif.org", "Global Biodiversity Information Facility (GBIF).")),
                    
-                   h4("9. Which data sources within the ALA are included?"),
-                   p("The app generates lists from two data sources, both of which are associated with some kind of voucher, i.e., records that are 'verifiable'. First, all records associated with a physical voucher stored in an Australian institution (such as herbaria and museums) are included for the voucher type 'Collection'. Second, all Australian records from the online citizen science platform iNaturalist that have qualified to enter the ALA are included for the voucher types 'Photograph' and 'Recording'."),
+                   h4("9. Which data sources are included?"),
+                   p("The app generates lists from two data sources, both of which are associated with some kind of voucher, i.e., records that are 'verifiable'. First, all records associated with a physical voucher stored in an institution (such as herbaria and museums) are included for the voucher type 'Collection'. Second, all records from the online citizen science platform iNaturalist that have qualified to enter the ALA or GBIF are included for the voucher types 'Photograph' and 'Recording'."),
                    
                    h4("10. What does the buffer do?"),
                    p("Selecting a buffer includes additional species that have not been recorded within the main target area, but have been seen in the immediate surrounding area up to the defined radius."),
                    
                    h4("11. Which taxonomic trees does the app use?"),
-                   p("The species names presented in the app follow the taxonomic trees used by the ALA. For plants, names are taken from the ", tags$a(href = "https://biodiversity.org.au/nsl/services/search/taxonomy", "Australian Plant Census "), "and for animals, names are taken from the ", tags$a("Australian Faunal Directory ", href = "https://biodiversity.org.au/afd/home"), "with minor exceptions for both"),
+                   p("The species names presented in the app follow the taxonomic trees used by the ALA and GBIF. For Australian plants, names are taken from the ", tags$a(href = "https://biodiversity.org.au/nsl/services/search/taxonomy", "Australian Plant Census "), "and for Australian animals, names are taken from the ", tags$a("Australian Faunal Directory ", href = "https://biodiversity.org.au/afd/home"), "with minor exceptions for both"),
                    
                    h4("12. Are records only included in the app if they are identified to species?"),
                    p("Yes, any records that are identified to a taxonomic level coarser than species will not be retrieved by the app. Also, any records identified to an infraspecific level will only have the species identification displayed within the app."),
