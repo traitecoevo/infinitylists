@@ -256,7 +256,7 @@ save_data <- function(data, taxon, output_dir) {
                          output_dir,
                          paste0("Living-Atlas-",
                                 taxon,
-                                "-",
+                                "-AU-",
                                 Sys.Date(),
                                 ".parquet")
                        ))
