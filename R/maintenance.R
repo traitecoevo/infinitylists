@@ -1,7 +1,7 @@
 # requireNamespace("job", quietly = TRUE)
 # job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
 #   
-#   galah::galah_config(email = "wcornwell@gmail.com")
+#   galah::galah_config(atlas="ALA",email = "wcornwell@gmail.com")
 #   
 #   download_ala_obs(taxon = "Papilionoidea")
 #   download_ala_obs(taxon = "Odonata")
@@ -9,6 +9,15 @@
 #   download_ala_obs(taxon = "Cicadoidea")
 #   download_ala_obs(taxon = "Plantae")
 # })
+#  job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {
+# galah::galah_config(atlas = "Global",email = "wcornwell@gmail.com",password="wkc2wkc2",username ="wcornwell")
+#
+#   download_gbif_obs(taxon = "Gekkonidae",country_code = "MG")
+#   download_gbif_obs(taxon = "Lepidoptera",country_code = "PE")
+#   download_gbif_obs(taxon = "Osteichthyes",country_code = "PH")
+# })
+# 
+# 
 # 
 # 
 # job::job(packages = c("purrr", "dplyr", "arrow", "janitor", "galah", "stringr", "lubridate", "infinitylists"), {

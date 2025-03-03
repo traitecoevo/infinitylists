@@ -1,50 +1,61 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# infinitylists <img src="inst/figs/infinitylist_hex.png" align="right" alt="" width="250" />
+# infinitylists <img src="inst/figs/infinitylist_hex.png" align="right" alt="infinitylists logo" width="250" />
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12677594.svg)](https://doi.org/10.5281/zenodo.12677594)
-[![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Lifecycle:
+Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
-This Shiny-based application allows users to extract species occurrence
-data from national or global databases to generate a species list for
-any defined area. All records associated with either a physical voucher
-(stored in herbaria or museums), or a photographic voucher or audio file
-uploaded to iNaturalist are extracted. For each species within the
-defined area, the application will return voucher type, number of
-vouchers, date of the most recent voucher, spatial coordinates, voucher
-location, and the voucher collector. Records are displayed both in a
-table and on a map, and are downloadable as a CSV.
+`infinitylists` is a Shiny-based application that enables users to
+extract species occurrence data from national and global databases to
+generate species lists for any defined area. The application retrieves
+records associated with:
 
-The pre-loaded data was downloaded at the time listed in the releases
-section of github, but the user can also download up-to-date date
-following the code below.
+- **Physical vouchers** (e.g., specimens stored in herbaria or museums)
+- **Photographic vouchers** (uploaded to platforms like iNaturalist)
+- **Audio recordings** (uploaded to relevant databases)
 
-## Which records are returned?
+For each species in the selected area, the app provides: - Voucher
+type - Number of vouchers - Date of the most recent voucher - Spatial
+coordinates - Voucher location - Voucher collector
 
-The map and table outputs will only display the **most recent record per
-species per voucher type**. Each species will therefore be represented
-on the map and in the table by a maximum of 3 records (for species with
-a physical voucher, photographic voucher and audio voucher in the target
-area). The text statement indicates the total number of records, and the
-downloadable CSV file contains **all records from the target area**, not
-just the most recent records.
+Records are displayed in both a table and a map, and can be downloaded
+as a CSV file.
 
-## Use the web app
+## Data Updates
 
-The app can be accessed here: <https://unsw.shinyapps.io/infinitylists/>
+The pre-loaded dataset corresponds to the timestamp in the releases
+section of GitHub. Users can also retrieve up-to-date data using the
+code provided below.
 
-## Local installation
+## Record Display Rules
 
-You can install and run a local version of `infinitylists` from
-[GitHub](https://github.com/traitecoevo/infinitylists). This allows more
-flexibility for loading taxa that are not automatically loaded in the
-web app, and loading data for other regions of the world. The code to do
-this is:
+The map and table **only display the most recent record per species per
+voucher type**. This means each species may be represented by up to two
+records:
+
+- **Physical voucher**
+- **Photographic/audio voucher**
+
+The total number of records is indicated in the text summary, while the
+downloadable CSV contains **all records for the target area**, not just
+the most recent ones. If you want all the observations in your area not
+just the most recent one, use this button.
+
+## Accessing the Web App
+
+You can access the hosted version of `infinitylists` here:  
+🔗 <https://unsw.shinyapps.io/infinitylists/>
+
+## Local Installation
+
+To install and run `infinitylists` locally from GitHub, use the
+following commands:
 
 ``` r
 # install.packages("remotes")
@@ -56,38 +67,47 @@ library(infinitylists)
 infinitylistApp()
 ```
 
-## Adding new taxa for Australia
+Running the application locally provides greater flexibility, allowing
+you to load taxa-country combinations that may not be available in the
+web app and retrieve data for any region worldwide.
 
-`infinitylists` comes with seven taxa loaded to start with: plants,
-butterflies, cicadas, marsupials, and dragonflies + damselflies (plus
-arachnids for France, and lizards and snakes for Spain). If you want to
-add another taxon from Australia, you’ll need to download the data first
-via the [galah
-interface](https://github.com/AtlasOfLivingAustralia/galah-R) to the
-ALA. The function `download_ala_obs` will download the data and put it
-into a directory where infinitylists can find it. The value for `taxon`
-needs to be a [valid taxonomic group as recognized by the
-ALA](https://support.ala.org.au/support/solutions/articles/6000261677-taxonomy-a-species-filing-system).
-The download step is fast for taxa with small number of observations in
-the ALA and slower for taxa with millions of observations.
+## Adding New Taxa / Country Combinations
+
+`infinitylists` includes several pre-loaded taxa-country combinations.
+If you need to add a new taxon-country pair, follow these steps:
+
+1.  Download data using the
+    [`galah`](https://github.com/AtlasOfLivingAustralia/galah-R) R
+    package, which interfaces with GBIF and ALA.
+2.  Use the function `download_gbif_obs` to download the data and store
+    it as a (fast to access) parquet file in a directory where
+    `infinitylists` can access it.
 
 ``` r
-
+# Example usage
 # register with GBIF first before and include your information here
 galah::galah_config(atlas = "Global",email = "youremail",password="yourpassword",username ="yourusername")
 
 #check the size of your download first.  Some GBIF downloads may overwhelm your internet connection or storage capacity.  
-# this checks the approximate size of reptile downloads from Madagascar
+# this checks the approximate size of reptile downloads from Madagascar. 
 query_gbif_global("Reptilia",
                   min_year = 1980,
                   max_year = 2024,
                   country_code = "MG") |> 
   galah::atlas_counts()
 
-# download the data, this needs to be a valid taxa name
+
 download_gbif_obs(taxon = "Reptilia",country_code = "MG")
 
-r<-arrow::read_parquet("/Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/infinitylists/data/Living-Atlas-Reptilia-MG-2025-03-03.parquet")
-
+#restart the app locally:
 infinitylistApp()
 ```
+
+### Important Considerations
+
+- The `taxon` argument must be a valid taxonomic group recognized by
+  GBIF.
+- Small taxa-country combinations download quickly, but larger datasets
+  may take longer and could cause connection timeouts.
+- Ensure the geographic location is correctly specified so the data
+  appears in the app.
