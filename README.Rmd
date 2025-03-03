@@ -51,6 +51,7 @@ and here in map form:
 </p>
 
 For each species in the selected area, the app provides a field-friendly formatting of:
+
 - Observation type
 - Number of observation
 - Date of the most recent observation
