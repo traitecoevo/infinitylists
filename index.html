@@ -31,7 +31,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="articles/infinitylists.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -46,26 +45,46 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="infinitylists-">infinitylists <img src="inst/figs/infinitylist_hex.png" align="right" alt="" width="250"><a class="anchor" aria-label="anchor" href="#infinitylists-"></a>
+<div class="page-header"><h1 id="infinitylists-">infinitylists <img src="inst/figs/infinitylist_hex.png" align="right" alt="infinitylists logo" width="250"><a class="anchor" aria-label="anchor" href="#infinitylists-"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p>This Shiny-based application allows users to extract species occurrence data from national or global databases to generate a species list for any defined area. All records associated with either a physical voucher (stored in herbaria or museums), or a photographic voucher or audio file uploaded to iNaturalist are extracted. For each species within the defined area, the application will return voucher type, number of vouchers, date of the most recent voucher, spatial coordinates, voucher location, and the voucher collector. Records are displayed both in a table and on a map, and are downloadable as a CSV.</p>
-<p>The pre-loaded data was downloaded at the time listed in the releases section of github, but the user can also download up-to-date date following the code below.</p>
+<p><code>infinitylists</code> is a Shiny-based application that enables users to extract species occurrence data from national and global databases to generate species lists for any defined area. The application retrieves records associated with:</p>
+<ul>
+<li>
+<strong>Physical vouchers</strong> (e.g., specimens stored in herbaria or museums)</li>
+<li>
+<strong>Photographic vouchers</strong> (uploaded to platforms like iNaturalist)</li>
+<li>
+<strong>Audio recordings</strong> (uploaded to relevant databases)</li>
+</ul>
+<p>For each species in the selected area, the app provides: - Voucher type - Number of vouchers - Date of the most recent voucher - Spatial coordinates - Voucher location - Voucher collector</p>
+<p>Records are displayed in both a table and a map, and can be downloaded as a CSV file.</p>
 <div class="section level2">
-<h2 id="which-records-are-returned">Which records are returned?<a class="anchor" aria-label="anchor" href="#which-records-are-returned"></a>
+<h2 id="data-updates">Data Updates<a class="anchor" aria-label="anchor" href="#data-updates"></a>
 </h2>
-<p>The map and table outputs will only display the <strong>most recent record per species per voucher type</strong>. Each species will therefore be represented on the map and in the table by a maximum of 3 records (for species with a physical voucher, photographic voucher and audio voucher in the target area). The text statement indicates the total number of records, and the downloadable CSV file contains <strong>all records from the target area</strong>, not just the most recent records.</p>
+<p>The pre-loaded dataset corresponds to the timestamp in the releases section of GitHub. Users can also retrieve up-to-date data using the code provided below.</p>
 </div>
 <div class="section level2">
-<h2 id="use-the-web-app">Use the web app<a class="anchor" aria-label="anchor" href="#use-the-web-app"></a>
+<h2 id="record-display-rules">Record Display Rules<a class="anchor" aria-label="anchor" href="#record-display-rules"></a>
 </h2>
-<p>The app can be accessed here: <a href="https://unsw.shinyapps.io/infinitylists/" class="external-link uri">https://unsw.shinyapps.io/infinitylists/</a></p>
+<p>The map and table <strong>only display the most recent record per species per voucher type</strong>. This means each species may be represented by up to two records:</p>
+<ul>
+<li><strong>Physical voucher</strong></li>
+<li><strong>Photographic/audio voucher</strong></li>
+</ul>
+<p>The total number of records is indicated in the text summary, while the downloadable CSV contains <strong>all records for the target area</strong>, not just the most recent ones. If you want all the observations in your area not just the most recent one, use this button.</p>
 </div>
 <div class="section level2">
-<h2 id="local-installation">Local installation<a class="anchor" aria-label="anchor" href="#local-installation"></a>
+<h2 id="accessing-the-web-app">Accessing the Web App<a class="anchor" aria-label="anchor" href="#accessing-the-web-app"></a>
 </h2>
-<p>You can install and run a local version of <code>infinitylists</code> from <a href="https://github.com/traitecoevo/infinitylists" class="external-link">GitHub</a>. This allows more flexibility for loading taxa that are not automatically loaded in the web app, and loading data for other regions of the world. The code to do this is:</p>
+<p>You can access the hosted version of <code>infinitylists</code> here:<br>
+🔗 <a href="https://unsw.shinyapps.io/infinitylists/" class="external-link uri">https://unsw.shinyapps.io/infinitylists/</a></p>
+</div>
+<div class="section level2">
+<h2 id="local-installation">Local Installation<a class="anchor" aria-label="anchor" href="#local-installation"></a>
+</h2>
+<p>To install and run <code>infinitylists</code> locally from GitHub, use the following commands:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span></span>
@@ -74,30 +93,43 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://traitecoevo.github.io/infinitylists/">infinitylists</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/infinitylistApp.html">infinitylistApp</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Running the application locally provides greater flexibility, allowing you to load taxa-country combinations that may not be available in the web app and retrieve data for any region worldwide.</p>
 </div>
 <div class="section level2">
-<h2 id="adding-new-taxa-for-australia">Adding new taxa for Australia<a class="anchor" aria-label="anchor" href="#adding-new-taxa-for-australia"></a>
+<h2 id="adding-new-taxa--country-combinations">Adding New Taxa / Country Combinations<a class="anchor" aria-label="anchor" href="#adding-new-taxa--country-combinations"></a>
 </h2>
-<p><code>infinitylists</code> comes with seven taxa loaded to start with: plants, butterflies, cicadas, marsupials, and dragonflies + damselflies (plus arachnids for France, and lizards and snakes for Spain). If you want to add another taxon from Australia, you’ll need to download the data first via the <a href="https://github.com/AtlasOfLivingAustralia/galah-R" class="external-link">galah interface</a> to the ALA. The function <code>download_ala_obs</code> will download the data and put it into a directory where infinitylists can find it. The value for <code>taxon</code> needs to be a <a href="https://support.ala.org.au/support/solutions/articles/6000261677-taxonomy-a-species-filing-system" class="external-link">valid taxonomic group as recognized by the ALA</a>. The download step is fast for taxa with small number of observations in the ALA and slower for taxa with millions of observations.</p>
+<p><code>infinitylists</code> includes several pre-loaded taxa-country combinations. If you need to add a new taxon-country pair, follow these steps:</p>
+<ol style="list-style-type: decimal">
+<li>Download data using the <a href="https://github.com/AtlasOfLivingAustralia/galah-R" class="external-link"><code>galah</code></a> R package, which interfaces with GBIF and ALA.</li>
+<li>Use the function <code>download_gbif_obs</code> to download the data and store it as a (fast to access) parquet file in a directory where <code>infinitylists</code> can access it.</li>
+</ol>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<code class="sourceCode R"><span><span class="co"># Example usage</span></span>
 <span><span class="co"># register with GBIF first before and include your information here</span></span>
 <span><span class="fu">galah</span><span class="fu">::</span><span class="fu"><a href="https://galah.ala.org.au/R/reference/galah_config.html" class="external-link">galah_config</a></span><span class="op">(</span>atlas <span class="op">=</span> <span class="st">"Global"</span>,email <span class="op">=</span> <span class="st">"youremail"</span>,password<span class="op">=</span><span class="st">"yourpassword"</span>,username <span class="op">=</span><span class="st">"yourusername"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#check the size of your download first.  Some GBIF downloads may overwhelm your internet connection or storage capacity.  </span></span>
-<span><span class="co"># this checks the approximate size of reptile downloads from Madagascar</span></span>
+<span><span class="co"># this checks the approximate size of reptile downloads from Madagascar. </span></span>
 <span><span class="fu"><a href="reference/query_gbif_global.html">query_gbif_global</a></span><span class="op">(</span><span class="st">"Reptilia"</span>,</span>
 <span>                  min_year <span class="op">=</span> <span class="fl">1980</span>,</span>
 <span>                  max_year <span class="op">=</span> <span class="fl">2024</span>,</span>
 <span>                  country_code <span class="op">=</span> <span class="st">"MG"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">galah</span><span class="fu">::</span><span class="fu"><a href="https://galah.ala.org.au/R/reference/atlas_.html" class="external-link">atlas_counts</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># download the data, this needs to be a valid taxa name</span></span>
+<span></span>
 <span><span class="fu"><a href="reference/download_gbif_obs.html">download_gbif_obs</a></span><span class="op">(</span>taxon <span class="op">=</span> <span class="st">"Reptilia"</span>,country_code <span class="op">=</span> <span class="st">"MG"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">r</span><span class="op">&lt;-</span><span class="fu">arrow</span><span class="fu">::</span><span class="fu"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">(</span><span class="st">"/Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/infinitylists/data/Living-Atlas-Reptilia-MG-2025-03-03.parquet"</span><span class="op">)</span></span>
-<span></span>
+<span><span class="co">#restart the app locally:</span></span>
 <span><span class="fu"><a href="reference/infinitylistApp.html">infinitylistApp</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="important-considerations">Important Considerations<a class="anchor" aria-label="anchor" href="#important-considerations"></a>
+</h3>
+<ul>
+<li>The <code>taxon</code> argument must be a valid taxonomic group recognized by GBIF.</li>
+<li>Small taxa-country combinations download quickly, but larger datasets may take longer and could cause connection timeouts.</li>
+<li>Ensure the geographic location is correctly specified so the data appears in the app.</li>
+</ul>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
@@ -130,7 +162,7 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://doi.org/10.5281/zenodo.12677594" class="external-link"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.12677594.svg" alt="DOI"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="lifecycle"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: Stable"></a></li>
 </ul>
 </div>
 
