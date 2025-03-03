@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# infinitylists <img src="inst/figs/infinitylist_hex.png" align="right" alt="infinitylists logo" width="250" />
+# infinitylists <img src="man/figures/infinitylist_hex.png" align="right" alt="infinitylists logo" width="250" />
 
 <!-- badges: start -->
 
@@ -18,7 +18,7 @@ either via a `kml` file or a circle for a specified latitude and
 longitude, including the one for the current location of your device.
 
 <p align="center">
-<img src="inst/figs/app_screenshot.png" alt="Infinitylists App Screenshot" width="600"/>
+<img src="man/figures/app_screenshot.png" alt="Infinitylists App Screenshot" width="600"/>
 </p>
 
 The application retrieves records of species presence associated with:
@@ -35,13 +35,13 @@ observed in or close by to the park.
 The answer to this query is here in table form:
 
 <p align="center">
-<img src="inst/figs/table_screenshot.png" alt="App Screenshot 1" width="600"/>
+<img src="man/figures/table_screenshot.png" alt="App Screenshot 1" width="600"/>
 </p>
 
 and here in map form:
 
 <p align="center">
-<img src="inst/figs/map_screenshot.png" alt="App Screenshot 2" width="600"/>
+<img src="man/figures/map_screenshot.png" alt="App Screenshot 2" width="600"/>
 </p>
 
 For each species in the selected area, the app provides a field-friendly
