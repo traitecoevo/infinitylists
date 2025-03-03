@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="WDPA_WDOECM_Feb2025_Public_68917_shp_polygons" id="WDPA_WDOECM_Feb2025_Public_68917_shp_polygons">
+	<SimpleField name="WDPAID" type="float"></SimpleField>
+	<SimpleField name="WDPA_PID" type="string"></SimpleField>
+	<SimpleField name="PA_DEF" type="string"></SimpleField>
+	<SimpleField name="ORIG_NAME" type="string"></SimpleField>
+	<SimpleField name="DESIG" type="string"></SimpleField>
+	<SimpleField name="DESIG_ENG" type="string"></SimpleField>
+	<SimpleField name="DESIG_TYPE" type="string"></SimpleField>
+	<SimpleField name="IUCN_CAT" type="string"></SimpleField>
+	<SimpleField name="INT_CRIT" type="string"></SimpleField>
+	<SimpleField name="MARINE" type="string"></SimpleField>
+	<SimpleField name="REP_M_AREA" type="float"></SimpleField>
+	<SimpleField name="GIS_M_AREA" type="float"></SimpleField>
+	<SimpleField name="REP_AREA" type="float"></SimpleField>
+	<SimpleField name="GIS_AREA" type="float"></SimpleField>
+	<SimpleField name="NO_TAKE" type="string"></SimpleField>
+	<SimpleField name="NO_TK_AREA" type="float"></SimpleField>
+	<SimpleField name="STATUS" type="string"></SimpleField>
+	<SimpleField name="STATUS_YR" type="int"></SimpleField>
+	<SimpleField name="GOV_TYPE" type="string"></SimpleField>
+	<SimpleField name="OWN_TYPE" type="string"></SimpleField>
+	<SimpleField name="MANG_AUTH" type="string"></SimpleField>
+	<SimpleField name="MANG_PLAN" type="string"></SimpleField>
+	<SimpleField name="VERIF" type="string"></SimpleField>
+	<SimpleField name="METADATAID" type="int"></SimpleField>
+	<SimpleField name="SUB_LOC" type="string"></SimpleField>
+	<SimpleField name="PARENT_ISO" type="string"></SimpleField>
+	<SimpleField name="ISO3" type="string"></SimpleField>
+	<SimpleField name="SUPP_INFO" type="string"></SimpleField>
+	<SimpleField name="CONS_OBJ" type="string"></SimpleField>
+</Schema>
+<Folder><name>WDPA_WDOECM_Feb2025_Public_68917_shp_polygons</name>
+  <Placemark>
+	<name>Tubbataha Reefs Natural Park</name>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#WDPA_WDOECM_Feb2025_Public_68917_shp_polygons">
+		<SimpleData name="WDPAID">68917.000000000000000</SimpleData>
+		<SimpleData name="WDPA_PID">68917</SimpleData>
+		<SimpleData name="PA_DEF">1</SimpleData>
+		<SimpleData name="ORIG_NAME">Tubbataha Reefs National Marine Park</SimpleData>
+		<SimpleData name="DESIG">World Heritage Site (natural or mixed)</SimpleData>
+		<SimpleData name="DESIG_ENG">World Heritage Site (natural or mixed)</SimpleData>
+		<SimpleData name="DESIG_TYPE">International</SimpleData>
+		<SimpleData name="IUCN_CAT">Not Applicable</SimpleData>
+		<SimpleData name="INT_CRIT">(vii)(ix)(x)</SimpleData>
+		<SimpleData name="MARINE">2</SimpleData>
+		<SimpleData name="REP_M_AREA">968.279999999999973</SimpleData>
+		<SimpleData name="GIS_M_AREA">963.385638823458976</SimpleData>
+		<SimpleData name="REP_AREA">968.279999999999973</SimpleData>
+		<SimpleData name="GIS_AREA">963.654853543807008</SimpleData>
+		<SimpleData name="NO_TAKE">All</SimpleData>
+		<SimpleData name="NO_TK_AREA">968.279999999999973</SimpleData>
+		<SimpleData name="STATUS">Inscribed</SimpleData>
+		<SimpleData name="STATUS_YR">1993</SimpleData>
+		<SimpleData name="GOV_TYPE">Federal or national ministry or agency</SimpleData>
+		<SimpleData name="OWN_TYPE">State</SimpleData>
+		<SimpleData name="MANG_AUTH">Protected Area Management Board under Department of Environment and Natural Resources (DENR)</SimpleData>
+		<SimpleData name="MANG_PLAN">https://drive.google.com/drive/folders/1J4vx8CAYDTWr6m9Zli_vACsbBuQlv0Rd?usp=sharing</SimpleData>
+		<SimpleData name="VERIF">State Verified</SimpleData>
+		<SimpleData name="METADATAID">946</SimpleData>
+		<SimpleData name="SUB_LOC">PH-PLW</SimpleData>
+		<SimpleData name="PARENT_ISO">PHL</SimpleData>
+		<SimpleData name="ISO3">PHL</SimpleData>
+		<SimpleData name="SUPP_INFO">Not Applicable</SimpleData>
+		<SimpleData name="CONS_OBJ">Not Applicable</SimpleData>
+	</SchemaData></ExtendedData>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>119.769444,9.08111100000002 119.806111,9.10138900000004 120.053333,8.96916700000003 120.055556,8.89138900000006 119.844722,8.69250000000005 119.762778,8.71916700000003 119.769444,9.08111100000002</coordinates></LinearRing></outerBoundaryIs></Polygon>
+  </Placemark>
+</Folder>
+</Document></kml>
