@@ -119,7 +119,7 @@ places <- list(
     "inst/extdata/places/marojejy.kml"),
   "Tubbataha Reefs National Park, Philippines" = load_place(
     "inst/extdata/places/tubbataha-reefs-natural-park.kml"),
-  "Manú National Park, Peru" = load_place(
+  "Man\u00FA National Park, Peru" = load_place(
     "inst/extdata/places/manu-national-park.kml")
 )
 
