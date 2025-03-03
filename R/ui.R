@@ -223,10 +223,10 @@ ui <- function(){
                    h2("Frequently Asked Questions"),
                    
                    h4("1. What does this Shiny app do?"),
-                   p("This app allows users to explore biodiversity across Australia and a few other countries. After selecting a location and a taxonomic group and, the app will generate a species list."),
+                   p("This app allows users to explore biodiversity across the world. After selecting a country and taxonomic group, the app will generate a species list for locations within that country."),
                    
                    h4("2. Which taxonomic groups can I generate lists for?"),
-                   p("You can generate lists for marsupials, plants, dragonflies + damselflies (Odonata), butterflies (Papilionoidea) and cicadas. We have also included snakes and lizards (Squamata) from Spain and arachnids from France as extra demos."),
+                   p("You can generate lists for example taxa-country combinations in the web app (e.g. plants in Australia or butterflies and moths in Peru), or download and play with any taxa-country combination on your local computer."),
                    
                    h4("3. What is a KML file?"),
                    p("KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as ", tags$a(href = "https://earth.google.com/", "Google Earth ")),
@@ -238,13 +238,13 @@ ui <- function(){
                    p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as ", tags$a(href = "https://earth.google.com/", "Google Earth "),  "by drawing a polygon, and then exporting it as a KML."),
                    
                    h4("6. Can I search for any location in the world?"),
-                   p("You can search anywhere in the world via the GBIF node. The Living Atlas countries (including Australia) are likely to be faster via other GBIF nodes including Australia's", tags$a(href= "https://www.ala.org.au", "national biodiversity database.")),
+                   p("Yes. You can search anywhere in the world via the GBIF node. The Living Atlas countries (including Australia) are likely to be faster than the GBIF node, but anywhere is possible.")),
                    
                    h4("7. Can I search for locations outside of Australia?"),
-                   p("Yes you can! The best way to adapt infinitylists for other countries is to install and run a local version of infinitylists, and then run our vignette (see the README at https://github.com/traitecoevo/infinitylists for more guidance."),
+                   p("Yes you can! The best way to adapt infinitylists for other specific country-taxa combinations is to install and run a local version of infinitylists,  (see the README at https://github.com/traitecoevo/infinitylists for more guidance."),
                    
                    h4("8. Where do the data come from?"),
-                   p("All Australian data are extracted from the Atlas of Living Australia (ALA), Australia's", tags$a(href= "https://www.ala.org.au", "national biodiversity database."), "Data from the rest of the world are extracted from the ",
+                   p("Orinally all the data come from herbaria, museums and citizen science projects, with thousands of dedicated and skilled contirbutors. These data are curated by national and international organzations, which make it available to the app. All Australian data are extracted from the Atlas of Living Australia (ALA), Australia's", tags$a(href= "https://www.ala.org.au", "national biodiversity database."), "Data from the rest of the world are extracted from the ",
                    tags$a(href = "www.gbif.org", "Global Biodiversity Information Facility (GBIF).")),
                    
                    h4("9. Which data sources are included?"),
@@ -254,10 +254,10 @@ ui <- function(){
                    p("Selecting a buffer includes additional species that have not been recorded within the main target area, but have been seen in the immediate surrounding area up to the defined radius."),
                    
                    h4("11. Which taxonomic trees does the app use?"),
-                   p("The species names presented in the app follow the taxonomic trees used by the ALA and GBIF. For Australian plants, names are taken from the ", tags$a(href = "https://biodiversity.org.au/nsl/services/search/taxonomy", "Australian Plant Census "), "and for Australian animals, names are taken from the ", tags$a("Australian Faunal Directory ", href = "https://biodiversity.org.au/afd/home"), "with minor exceptions for both"),
+                   p("The species names presented in the app follow the taxonomic backbones used by the ALA and GBIF. For Australian plants, names are taken from the ", tags$a(href = "https://biodiversity.org.au/nsl/services/search/taxonomy", "Australian Plant Census "), "and for Australian animals, names are taken from the ", tags$a("Australian Faunal Directory ", href = "https://biodiversity.org.au/afd/home"), "with minor exceptions for both"),
                    
                    h4("12. Are records only included in the app if they are identified to species?"),
-                   p("Yes, any records that are identified to a taxonomic level coarser than species will not be retrieved by the app. Also, any records identified to an infraspecific level will only have the species identification displayed within the app."),
+                   p("Yes, any records that are identified to a taxonomic level coarser than species will not be retrieved by the app. Also, any records identified to an infraspecific level will only have the species identification displayed within the app. More specific information above and below the species level will be available directly from GBIF. "),
                    
                    h4("13. Are any other records excluded from the app?"),
                    p("Yes, the following types of record are excluded: "),
@@ -265,15 +265,15 @@ ui <- function(){
                      tags$li("iNaturalist records with a copyright license of All Rights Reserved"),
                      tags$li("All records pre-dating 1923"),
                      tags$li("All records with a coordinate uncertainty value of > 1000 m"),
-                     tags$li("Records considered to have spatial issues by ALA")
+                     tags$li("Records considered to have spatial issues by ALA or GBIF")
                    ),
                    p("More information on ALA spatial issues can be found ", tags$a("here", href = "https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters")),
                    
                    h4("14. Does the app reveal the location of species with sensitive locations?"),
-                   p("Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA itself) are excluded from the app."),
+                   p("Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA/GBIF itself) are excluded from the app."),
                    
                    h4("15. How often is the app updated?"),
-                   p("Our major data files from the ALA are re-downloaded roughly once every few months. The current data returned by the app was downloaded on 22nd October 2024."),
+                   p("Our major data files from GBIF are re-downloaded roughly once every few months.  See the releases tab for more information"),
                    
                    h4("16. How can I download data from the app?"),
                    p("You can download any given generated list by clicking on the 'Download all obs CSV' button. This will download a CSV file containing all records within the target area (and buffer, if selected), not just the most recent records that are presented in the table."),
