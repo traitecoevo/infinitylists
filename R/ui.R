@@ -237,14 +237,14 @@ ui <- function(){
                    h4("5. Where can I find a KML file for the location I'm interested in?"),
                    p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as ", tags$a(href = "https://earth.google.com/", "Google Earth "),  "by drawing a polygon, and then exporting it as a KML."),
                    
-                   h4("6. Can I search for any location in Australia?"),
-                   p("You can search anywhere in Australia, including external territories such as Norfolk Island or Christmas Island, or Australian waters."),
+                   h4("6. Can I search for any location in the world?"),
+                   p("You can search anywhere in the world via the GBIF node. The Living Atlas countries (including Australia) might be faster via other nodes like the ALA."),
                    
                    h4("7. Can I search for locations outside of Australia?"),
                    p("Yes you can! The best way to adapt infinitylists for other countries is to install and run a local version of infinitylists, and then run our vignette (see the README at https://github.com/traitecoevo/infinitylists for more guidance."),
                    
                    h4("8. Where do the data come from?"),
-                   p("All Australian data are extracted from the Atlas of Living Australia (ALA), Australia's ", tags$a(href = "https://www.ala.org.au", "national biodiversity database.")), "Data from the rest of the world are extracted from the ",
+                   p("All Australian data are extracted from the Atlas of Living Australia (ALA), Australia's", tags$a(href= "https://www.ala.org.au", "national biodiversity database."), "Data from the rest of the world are extracted from the ",
                    tags$a(href = "www.gbif.org", "Global Biodiversity Information Facility (GBIF).")),
                    
                    h4("9. Which data sources are included?"),
