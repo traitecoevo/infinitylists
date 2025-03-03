@@ -13,8 +13,13 @@ Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 
 `infinitylists` is a Shiny-based application that enables users to
 extract species occurrence data from national and global databases to
-generate species lists for any defined area. The application retrieves
-records associated with:
+generate species lists for any defined area.
+
+<p align="center">
+<img src="inst/figs/app_screenshot.png" alt="Infinitylists App Screenshot" width="600"/>
+</p>
+
+The application retrieves records associated with:
 
 - **Physical vouchers** (e.g., specimens stored in herbaria or museums)
 - **Photographic vouchers** (uploaded to platforms like iNaturalist)
