@@ -13,7 +13,10 @@ ui <- function(){
          files_in_directory)
   
   taxa_names <- gsub("Living-Atlas-", "", taxa_names)
-  
+  taxa_names <- gsub("-AU", " Australia", taxa_names)
+  taxa_names <- gsub("-PH", " Philippines", taxa_names)
+  taxa_names <- gsub("-MG", " Madagascar", taxa_names)
+  taxa_names <- gsub("-PE", " Peru", taxa_names)
 
   files_in_directory <- setNames(files_in_directory, taxa_names)
   
@@ -165,7 +168,7 @@ ui <- function(){
           ),
           selected = 0
         ),
-        selectInput("ala_path", "Choose a taxon:", choices = files_in_directory, selected = files_in_directory["Plantae"]),
+        selectInput("ala_path", "Choose a taxon-country combination:", choices = files_in_directory, selected = files_in_directory["Plantae Australia"]),
         radioButtons(
           "taxonOfInterest",
           "Taxonomic level:",
