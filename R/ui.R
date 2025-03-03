@@ -238,7 +238,7 @@ ui <- function(){
                    p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as ", tags$a(href = "https://earth.google.com/", "Google Earth "),  "by drawing a polygon, and then exporting it as a KML."),
                    
                    h4("6. Can I search for any location in the world?"),
-                   p("Yes. You can search anywhere in the world via the GBIF node. The Living Atlas countries (including Australia) are likely to be faster than the GBIF node, but anywhere is possible.")),
+                   p("Yes. You can search anywhere in the world via the GBIF node. The Living Atlas countries (including Australia) are likely to be faster than the GBIF node, but anywhere is possible."),
                    
                    h4("7. Can I search for locations or taxa not included in the browser-based Shiny app?"),
                    p("Yes you can! The best way to adapt infinitylists for other specific country-taxa combinations is to install and run a local version of infinitylists. See the README at https://github.com/traitecoevo/infinitylists for more guidance."),
@@ -273,7 +273,7 @@ ui <- function(){
                    p("Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA/GBIF itself) are excluded from the app."),
                    
                    h4("15. How often is the app updated?"),
-                   p("Our major data files from GBIF are re-downloaded roughly once every few months.  See the releases tab for more information"),
+                   p("Our major data files from GBIF are re-downloaded periodically. See the releases tab for more information. If you need up to the day data, use the local version following the readme on the github page."),
                    
                    h4("16. How can I download data from the app?"),
                    p("You can download any given generated list by clicking on the 'Download all obs CSV' button. This will download a CSV file containing all records within the target area (and buffer, if selected), not just the most recent records that are presented in the table."),
