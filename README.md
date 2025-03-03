@@ -45,9 +45,14 @@ and here in map form:
 </p>
 
 For each species in the selected area, the app provides a field-friendly
-formatting of: - Observation type - Number of observation - Date of the
-most recent observation - Spatial coordinates - Voucher deposition
-location - Observer
+formatting of:
+
+- Observation type
+- Number of observation
+- Date of the most recent observation
+- Spatial coordinates
+- Voucher deposition location
+- Observer
 
 Most recent records are displayed in both a table and a map. All
 observations in the selected area can be downloaded as a CSV file.
