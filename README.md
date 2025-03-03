@@ -11,16 +11,18 @@
 <!-- badges: end -->
 
 This Shiny-based application allows users to extract species occurrence
-data from the Atlas of Living Australia (ALA) or the Global Biodiversity
-Information Facility (GBIF) and generate a species list for any defined
-area. All records associated with either a physical voucher (stored in
-herbaria or museums), or a photographic voucher or audio file uploaded
-to iNaturalist are extracted. For each species within the defined area,
-the application will return voucher type, number of vouchers, date of
-the most recent voucher, spatial coordinates, voucher location, and the
-voucher collector. Records are displayed both in a table and on a map,
-and are downloadable as a CSV. The app is currently using data
-downloaded on 17 February 2025.
+data from national or global databases to generate a species list for
+any defined area. All records associated with either a physical voucher
+(stored in herbaria or museums), or a photographic voucher or audio file
+uploaded to iNaturalist are extracted. For each species within the
+defined area, the application will return voucher type, number of
+vouchers, date of the most recent voucher, spatial coordinates, voucher
+location, and the voucher collector. Records are displayed both in a
+table and on a map, and are downloadable as a CSV.
+
+The pre-loaded data was downloaded at the time listed in the releases
+section of github, but the user can also download up-to-date date
+following the code below.
 
 ## Which records are returned?
 
@@ -32,7 +34,7 @@ area). The text statement indicates the total number of records, and the
 downloadable CSV file contains **all records from the target area**, not
 just the most recent records.
 
-## Use the app
+## Use the web app
 
 The app can be accessed here: <https://unsw.shinyapps.io/infinitylists/>
 
@@ -70,35 +72,22 @@ The download step is fast for taxa with small number of observations in
 the ALA and slower for taxa with millions of observations.
 
 ``` r
-# install.packages("galah")
 
-# register with ALA
-galah::galah_config(email = "YOUR EMAIL HERE")
+# register with GBIF first before and include your information here
+galah::galah_config(atlas = "Global",email = "youremail",password="yourpassword",username ="yourusername")
+
+#check the size of your download first.  Some GBIF downloads may overwhelm your internet connection or storage capacity.  
+# this checks the approximate size of reptile downloads from Madagascar
+query_gbif_global("Reptilia",
+                  min_year = 1980,
+                  max_year = 2024,
+                  country_code = "MG") |> 
+  galah::atlas_counts()
 
 # download the data, this needs to be a valid taxa name
-download_ala_obs(taxon = "Orthoptera")
+download_gbif_obs(taxon = "Reptilia",country_code = "MG")
+
+r<-arrow::read_parquet("/Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/infinitylists/data/Living-Atlas-Reptilia-MG-2025-03-03.parquet")
 
 infinitylistApp()
 ```
-
-## Adapt infinitylists for other countries
-
-We have developed functions to assist users to create their own
-‘infinitylist’ for their chosen taxa and country. Check out the vignette
-which shows you how to do so!
-
-``` r
-vignette("diy")
-```
-
-All our documentation is also neatly rendered at this pkgdown website:
-<https://traitecoevo.github.io/infinitylists/>
-
-## Why did I get disconnected from the server?
-
-If `infinitylists` is left open but idle in your browser for too long,
-you will be disconnected from the server.
-
-Applying the *Use my location* filter without first having given your
-browser access to your current location will also disconnect you from
-the server. If this occurs, please amend your settings and try again.

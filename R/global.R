@@ -86,35 +86,37 @@ create_circle_polygon <- function(lat, long, radius_m) {
 
 
 places <- list(
-  "Wategora Reserve" = load_place(
+  "Wategora Reserve, Australia" = load_place(
     "inst/extdata/places/wategora-reserve-survey-area-approximate-boundaries.kml"
   ),
-  "Fowlers Gap, UNSW" = load_place("inst/extdata/places/unsw-fowlers.kml"),
-  "UNSW Smiths Lake and Vicinity" = load_place(
+  "Fowlers Gap, UNSW, Australia" = load_place("inst/extdata/places/unsw-fowlers.kml"),
+  "UNSW Smiths Lake and Vicinity, Australia" = load_place(
     "inst/extdata/places/unsw-smith-lake-field-station-and-vicinity.kml"
   ),
-  "Australian Botanic Garden Mount Annan" = load_place(
+  "Australian Botanic Garden Mount Annan, Australia" = load_place(
     "inst/extdata/places/mt-annan-australian-botanic-garden.kml"
   ),
-  "Grants Beach Walking Trail" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
-  "North Head Sanctuary" = load_place(
+  "Grants Beach Walking Trail, Australia" = load_place("inst/extdata/places/grants-beach-walking-trail.kml"),
+  "North Head Sanctuary, Australia" = load_place(
     "inst/extdata/places/north-head-sydney-harbour-federation-trust.kml"),
-  "Lord Howe Island and Surroundings" = load_place(
+  "Lord Howe Island and Surroundings, Australia" = load_place(
     "inst/extdata/places/lord-howe-island-and-surrounding-islands.kml"),
-  "Cape Liptrap Coastal Park" = load_place(
+  "Cape Liptrap Coastal Park, Australia" = load_place(
     "inst/extdata/places/cape-liptrap-coastal-park.kml"),
-  "Charles Darwin National Park" = load_place(
+  "Charles Darwin National Park, Australia" = load_place(
     "inst/extdata/places/charles-darwin-national-park.kml"),
-  "Heron Island" = load_place(
+  "Heron Island, Australia" = load_place(
     "inst/extdata/places/heron-island.kml"),
-  "Kaisertuhl Conservation Park" = load_place(
+  "Kaisertuhl Conservation Park, Australia" = load_place(
     "inst/extdata/places/kaiserstuhl-conservation-park.kml"),
-  "Maria Island National Park" = load_place(
+  "Maria Island National Park, Australia" = load_place(
     "inst/extdata/places/maria-island-national-park.kml"),
-  "Molonglo Gorge" = load_place(
+  "Molonglo Gorge, Australia" = load_place(
     "inst/extdata/places/molonglo-gorge.kml"),
-  "Yeo Lake Nature Reserve" = load_place(
-    "inst/extdata/places/yeo-lake-nature-reserve.kml")
+  "Yeo Lake Nature Reserve, Australia" = load_place(
+    "inst/extdata/places/yeo-lake-nature-reserve.kml"),
+  "Marojejy National Park, Madagascar" = load_place(
+    "inst/extdata/places/marojejy.kml")
 )
 
 

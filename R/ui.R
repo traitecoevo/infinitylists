@@ -238,7 +238,7 @@ ui <- function(){
                    p("For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as ", tags$a(href = "https://earth.google.com/", "Google Earth "),  "by drawing a polygon, and then exporting it as a KML."),
                    
                    h4("6. Can I search for any location in the world?"),
-                   p("You can search anywhere in the world via the GBIF node. The Living Atlas countries (including Australia) might be faster via other nodes like the ALA."),
+                   p("You can search anywhere in the world via the GBIF node. The Living Atlas countries (including Australia) are likely to be faster via other GBIF nodes including Australia's", tags$a(href= "https://www.ala.org.au", "national biodiversity database.")),
                    
                    h4("7. Can I search for locations outside of Australia?"),
                    p("Yes you can! The best way to adapt infinitylists for other countries is to install and run a local version of infinitylists, and then run our vignette (see the README at https://github.com/traitecoevo/infinitylists for more guidance."),
