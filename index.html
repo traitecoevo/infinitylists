@@ -49,24 +49,31 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><code>infinitylists</code> is a Shiny-based application that enables users to extract species occurrence data from national and global databases to generate species lists for any defined area.</p>
+<p><code>infinitylists</code> is a Shiny-based application that enables users to extract species occurrence data from national and global databases to generate species lists for any defined area. The area can be defined either via a <code>kml</code> file or a circle for a specified latitude and longitude, including the one for the current location of your device.</p>
 <p align="center">
 <img src="inst/figs/app_screenshot.png" alt="Infinitylists App Screenshot" width="600"></p>
-<p>The application retrieves records associated with:</p>
+<p>The application retrieves records of species presence associated with:</p>
 <ul>
 <li>
-<strong>Physical vouchers</strong> (e.g., specimens stored in herbaria or museums)</li>
+<strong>Physical vouchers</strong> (specimens stored in herbaria or museums across the world)</li>
 <li>
-<strong>Photographic vouchers</strong> (uploaded to platforms like iNaturalist)</li>
+<strong>Photographic vouchers</strong> (uploaded to iNaturalist)</li>
 <li>
-<strong>Audio recordings</strong> (uploaded to relevant databases)</li>
+<strong>Audio vouchers</strong> (uploaded to iNaturalist)</li>
 </ul>
-<p>For each species in the selected area, the app provides: - Voucher type - Number of vouchers - Date of the most recent voucher - Spatial coordinates - Voucher location - Voucher collector</p>
-<p>Records are displayed in both a table and a map, and can be downloaded as a CSV file.</p>
+<p>This is designed for a field naturalist in, say Manu National Park, Peru, who wants to know which species of Morpho butterflies have been observed in or close by to the park.</p>
+<p>The answer to this query is here in table form:</p>
+<p align="center">
+<img src="inst/figs/table_screenshot.png" alt="App Screenshot 1" width="600"></p>
+<p>and here in map form:</p>
+<p align="center">
+<img src="inst/figs/map_screenshot.png" alt="App Screenshot 2" width="600"></p>
+<p>For each species in the selected area, the app provides a field-friendly formatting of: - Observation type - Number of observation - Date of the most recent observation - Spatial coordinates - Voucher deposition location - Observer</p>
+<p>Most recent records are displayed in both a table and a map. All observations in the selected area can be downloaded as a CSV file.</p>
 <div class="section level2">
 <h2 id="data-updates">Data Updates<a class="anchor" aria-label="anchor" href="#data-updates"></a>
 </h2>
-<p>The pre-loaded dataset corresponds to the timestamp in the releases section of GitHub. Users can also retrieve up-to-date data using the code provided below.</p>
+<p>The pre-loaded dataset is a download corresponding to the timestamp in the releases section of GitHub. Users can also retrieve up-to-date data using the code provided below.</p>
 </div>
 <div class="section level2">
 <h2 id="record-display-rules">Record Display Rules<a class="anchor" aria-label="anchor" href="#record-display-rules"></a>
@@ -76,7 +83,7 @@
 <li><strong>Physical voucher</strong></li>
 <li><strong>Photographic/audio voucher</strong></li>
 </ul>
-<p>The total number of records is indicated in the text summary, while the downloadable CSV contains <strong>all records for the target area</strong>, not just the most recent ones. If you want all the observations in your area not just the most recent one, use this button.</p>
+<p>The total number of records is indicated in the text summary, while the downloadable CSV contains <strong>all records for the target area</strong>, not just the most recent ones. If you want all the observations in your area, not just the most recent one for each species, use this button.</p>
 </div>
 <div class="section level2">
 <h2 id="accessing-the-web-app">Accessing the Web App<a class="anchor" aria-label="anchor" href="#accessing-the-web-app"></a>
@@ -128,9 +135,10 @@
 <h3 id="important-considerations">Important Considerations<a class="anchor" aria-label="anchor" href="#important-considerations"></a>
 </h3>
 <ul>
-<li>The <code>taxon</code> argument must be a valid taxonomic group recognized by GBIF.</li>
+<li>The <code>taxon</code> argument must be a valid taxonomic group recognized by GBIF backbone.</li>
 <li>Small taxa-country combinations download quickly, but larger datasets may take longer and could cause connection timeouts.</li>
 <li>Ensure the geographic location is correctly specified so the data appears in the app.</li>
+<li>More frequently asked questions are on the About tab within the app</li>
 </ul>
 </div>
 </div>
