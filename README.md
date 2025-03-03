@@ -13,30 +13,50 @@ Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 
 `infinitylists` is a Shiny-based application that enables users to
 extract species occurrence data from national and global databases to
-generate species lists for any defined area.
+generate species lists for any defined area. The area can be defined
+either via a `kml` file or a circle for a specified latitude and
+longitude, including the one for the current location of your device.
 
 <p align="center">
 <img src="inst/figs/app_screenshot.png" alt="Infinitylists App Screenshot" width="600"/>
 </p>
 
-The application retrieves records associated with:
+The application retrieves records of species presence associated with:
 
-- **Physical vouchers** (e.g., specimens stored in herbaria or museums)
-- **Photographic vouchers** (uploaded to platforms like iNaturalist)
-- **Audio recordings** (uploaded to relevant databases)
+- **Physical vouchers** (specimens stored in herbaria or museums across
+  the world)
+- **Photographic vouchers** (uploaded to iNaturalist)
+- **Audio vouchers** (uploaded to iNaturalist)
 
-For each species in the selected area, the app provides: - Voucher
-type - Number of vouchers - Date of the most recent voucher - Spatial
-coordinates - Voucher location - Voucher collector
+This is designed for a field naturalist in, say Manu National Park,
+Peru, who wants to know which species of Morpho butterflies have been
+observed in or close by to the park.
 
-Records are displayed in both a table and a map, and can be downloaded
-as a CSV file.
+The answer to this query is here in table form:
+
+<p align="center">
+<img src="inst/figs/table_screenshot.png" alt="App Screenshot 1" width="600"/>
+</p>
+
+and here in map form:
+
+<p align="center">
+<img src="inst/figs/map_screenshot.png" alt="App Screenshot 2" width="600"/>
+</p>
+
+For each species in the selected area, the app provides a field-friendly
+formatting of: - Observation type - Number of observation - Date of the
+most recent observation - Spatial coordinates - Voucher deposition
+location - Observer
+
+Most recent records are displayed in both a table and a map. All
+observations in the selected area can be downloaded as a CSV file.
 
 ## Data Updates
 
-The pre-loaded dataset corresponds to the timestamp in the releases
-section of GitHub. Users can also retrieve up-to-date data using the
-code provided below.
+The pre-loaded dataset is a download corresponding to the timestamp in
+the releases section of GitHub. Users can also retrieve up-to-date data
+using the code provided below.
 
 ## Record Display Rules
 
@@ -49,8 +69,8 @@ records:
 
 The total number of records is indicated in the text summary, while the
 downloadable CSV contains **all records for the target area**, not just
-the most recent ones. If you want all the observations in your area not
-just the most recent one, use this button.
+the most recent ones. If you want all the observations in your area, not
+just the most recent one for each species, use this button.
 
 ## Accessing the Web App
 
@@ -111,8 +131,9 @@ infinitylistApp()
 ### Important Considerations
 
 - The `taxon` argument must be a valid taxonomic group recognized by
-  GBIF.
+  GBIF backbone.
 - Small taxa-country combinations download quickly, but larger datasets
   may take longer and could cause connection timeouts.
 - Ensure the geographic location is correctly specified so the data
   appears in the app.
+- More frequently asked questions are on the About tab within the app
