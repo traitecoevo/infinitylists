@@ -210,9 +210,9 @@ infinity_server <- function(...) {
       collections_count <- nrow(collections)
       collections_species <- length(unique(collections$Species))
       
-      photographic <- data[data$`Voucher Type` == "Photograph", ]
-      photographic_count <- nrow(photographic)
-      photographic_species <- length(unique(photographic$Species))
+      photographic_or_audio <- data[data$`Voucher Type` %in% c("Photograph","Audio"), ]
+      photographic_or_audio_count <- nrow(photographic_or_audio)
+      photographic_or_audio_species <- length(unique(photographic_or_audio$Species))
       
       
       paste0(
@@ -228,9 +228,9 @@ infinity_server <- function(...) {
         " collections of ",
         collections_species,
         " species and ",
-        photographic_count,
+        photographic_or_audio_count,
         " photographic or audio records of ",
-        photographic_species,
+        photographic_or_audio_species,
         " species. Of the ",
         total_species,
         " species observed, ",
