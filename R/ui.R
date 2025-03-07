@@ -56,7 +56,7 @@ ui <- function(){
             inputId = "place",
             label = "Choose a preloaded place:",
             choices = names(places),
-            selected = "Fowlers Gap, UNSW"
+            selected = "Heron Island, Australia"
           )
         ),
         
@@ -168,7 +168,7 @@ ui <- function(){
           ),
           selected = 0
         ),
-        selectInput("ala_path", "Choose a taxon-country combination:", choices = files_in_directory, selected = files_in_directory["Plantae Australia"]),
+        selectInput("ala_path", "Choose a taxon-country combination:", choices = files_in_directory, selected = files_in_directory["Papilionoidea Australia"]),
         radioButtons(
           "taxonOfInterest",
           "Taxonomic level:",
