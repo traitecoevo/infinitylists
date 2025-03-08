@@ -117,7 +117,7 @@ places <- list(
     "inst/extdata/places/yeo-lake-nature-reserve.kml"),
   "Marojejy National Park, Madagascar" = load_place(
     "inst/extdata/places/marojejy.kml"),
-  "Tubbataha Reefs National Park, Philippines" = load_place(
+  "Tubbataha Reefs Nature Park, Philippines" = load_place(
     "inst/extdata/places/tubbataha-reefs-natural-park.kml"),
   "Man\u00FA National Park, Peru" = load_place(
     "inst/extdata/places/manu-national-park.kml")
