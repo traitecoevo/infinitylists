@@ -177,7 +177,7 @@ gbif_process_data <- function(data){
       repository = dplyr::case_when(grepl("inatur", occurrenceID) ~ occurrenceID, # Create Repository column, if occurrence ID contains "inatur", keep occurrenceID
                                     TRUE ~ institutionCode),  # Otherwise take institutionCode
       link = dplyr::case_when(grepl("https", repository) ~ repository, # Create link
-                              TRUE ~ paste0("https://www.gbif.org/dataset/", datasetKey)
+                              TRUE ~ paste0("https://www.gbif.org/occurrence/", gbifID)
       ),
       sounds = dplyr::case_when( # Logical variable to determine if there voucher_type
         grepl("Sound", mediaType) ~ 1, 
