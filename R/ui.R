@@ -22,6 +22,8 @@ ui <- function(){
   taxa_names <- gsub("-PH", " Philippines", taxa_names)
   taxa_names <- gsub("-MG", " Madagascar", taxa_names)
   taxa_names <- gsub("-PE", " Peru", taxa_names)
+  taxa_names <- gsub("-FR", " France", taxa_names)
+  taxa_names <- gsub("-ES", " Spain", taxa_names)
 
   files_in_directory <- setNames(files_in_directory, taxa_names)
   
