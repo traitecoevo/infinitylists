@@ -6,11 +6,6 @@
 # Define the user interface for the Shiny app
 ui <- function(){
 
-  # Google Analytics setup
-  
-  tags$head(includeHTML("google-analytics.html"))
-  
-  
   files_in_directory <- list.files(path = system.file(package = "infinitylists", "data/"), pattern = ".parquet")
   
   taxa_names <- gsub("-[0-9]{4}-[0-9]{2}-[0-9]{2}.parquet",
@@ -30,6 +25,9 @@ ui <- function(){
   target$attribs$href <- "https://github.com/traitecoevo/infinitylists"
   
   fluidPage(
+    # Google Analytics setup
+     tags$head(includeHTML("google-analytics.html")),
+    
     theme = shinythemes::shinytheme("cosmo"),
     titlePanel(
       windowTitle = "Infinity Lists",

@@ -9,11 +9,7 @@
 ^codecov\.yml$
 ^inst/data$
 ^ignore$
-
-
-
-
-
+^.*\.html$
 ^doc$
 ^Meta$
 ^_pkgdown\.yml$

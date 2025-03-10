@@ -336,7 +336,7 @@ infinity_server <- function(...) {
         `Recorded by` = `Recorded by`[1]
       ),
       by = .(Species,
-             `Establishment Means`,
+             `Establishment means` = `Establishment Means`,
              `Voucher type` = `Voucher Type`)]
       
       
@@ -414,6 +414,8 @@ infinity_server <- function(...) {
             lubridate::day(collectionDate_all),
             sep = "-"
           )
+        
+        data <- data |> janitor::clean_names("sentence")
         write.csv(data, file, row.names = FALSE)
       }
     )
