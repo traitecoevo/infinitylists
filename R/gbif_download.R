@@ -167,8 +167,7 @@ gbif_process_data <- function(data){
       !is.na(eventDate),
       !stringr::str_detect(species, "spec.$"),
       !stringr::str_count(eventDate) <= 7, # Exclude strings with 7 or fewer characters, these are years or year + month e.g 2006-06 or just 2006
-      !stringr::str_count(eventDate) > 16
-    ) |> # Exclude strings with greater than 16 characters - a few records had date ranges e.g. 2017-12-10T00:00Z/2017-12-23T00:00Z
+      !stringr::str_count(eventDate) > 20) |> # Exclude strings with greater than 20 characters - a few records had date ranges e.g. 2017-12-10T00:00Z/2017-12-23T00:00Z
     dplyr::mutate(
       eventDate_as_date = lubridate::as_date(eventDate), # Convert to dates
       eventDate_ymd = lubridate::ymd_hm(eventDate, tz = "UTC", quiet = TRUE), # Convert dates that have time zones
