@@ -4,9 +4,9 @@
 \name{infinitylists-package}
 \alias{infinitylists}
 \alias{infinitylists-package}
-\title{infinitylists: A Shiny-Based Application for Generating Place-Based Species Lists for Australian Plants}
+\title{infinitylists: A Shiny-Based Application for Generating Place-Based Species Lists}
 \description{
-This shiny-based application allows users to extract plant occurrence data from the Atlas of Living Australia and generate a species list for any defined area in New South Wales. All records associated with either a physical voucher (stored in Australian herbaria) or a photographic voucher (stored in iNaturalist) are extracted. For each species within the defined area, the application will return voucher type, number of vouchers, date of the most recent voucher, spatial coordinates, voucher location, and the voucher collector. Records are displayed both in a table and on a map, and are downloadable as a CSV.
+This shiny-based application allows users to extract species occurrence records from the Atlas of Living Australia or GBIF and generate a species list for a defined area. All records associated with either a physical voucher (stored in herbaria or museums) or a photographic or audio voucher (stored in iNaturalist) are extracted. For each species within the defined area, the application will return voucher type, number of vouchers, date of the most recent voucher, spatial coordinates, voucher location, and the voucher collector. Records are displayed both in a table and on a map, and are downloadable as a CSV.
 }
 \seealso{
 Useful links:
