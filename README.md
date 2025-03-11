@@ -15,22 +15,22 @@ Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 extract species occurrence data from national and global databases to
 generate species lists for any defined area. The area can be defined
 either via a `kml` file or a circle for a specified latitude and
-longitude, including the one for the current location of your device.
+longitude, including based on the current location of your device.
 
 <p align="center">
 <img src="man/figures/app_screenshot.png" alt="Infinitylists App Screenshot" width="600"/>
 </p>
 
-The application retrieves records of species presence associated with:
+The application retrieves species occurrence records associated with:
 
 - **Physical vouchers** (specimens stored in herbaria or museums across
   the world)
 - **Photographic vouchers** (uploaded to iNaturalist)
 - **Audio vouchers** (uploaded to iNaturalist)
 
-This is designed for a field naturalist in, say Manu National Park,
-Peru, who wants to know which species of Morpho butterflies have been
-observed in or close by to the park.
+This is designed for a field naturalist in, for example, Manú National
+Park, Peru, who wants to know which species of *Morpho* butterflies have
+been observed in or close by to the park.
 
 The answer to this query is here in table form:
 
@@ -48,34 +48,38 @@ For each species in the selected area, the app provides a field-friendly
 formatting of:
 
 - Observation type
-- Number of observation
+- Number of observations
 - Date of the most recent observation
 - Spatial coordinates
-- Voucher deposition location
+- Voucher location
 - Observer
 
-Most recent records are displayed in both a table and a map. All
-observations in the selected area can be downloaded as a CSV file.
+The most recent record for each species per voucher type is displayed in
+both a table and a map, whilst all observations in the selected area can
+be downloaded as a CSV file.
 
 ## Data Updates
 
-The pre-loaded dataset is a download corresponding to the timestamp in
+The pre-loaded datasets are downloads corresponding to the timestamp in
 the releases section of GitHub. Users can also retrieve up-to-date data
 using the code provided below.
 
 ## Record Display Rules
 
 The map and table **only display the most recent record per species per
-voucher type**. This means each species may be represented by up to two
-records:
+voucher type**. This means each species may be represented by up to
+three records:
 
 - **Physical voucher**
-- **Photographic/audio voucher**
+- **Photographic voucher**
+- **Audio voucher**
 
 The total number of records is indicated in the text summary, while the
 downloadable CSV contains **all records for the target area**, not just
 the most recent ones. If you want all the observations in your area, not
-just the most recent one for each species, use this button.
+just the most recent one for each species, use this button. Please read
+the About tab within the app for more information on which records are
+included or excluded.
 
 ## Accessing the Web App
 
@@ -98,12 +102,12 @@ infinitylistApp()
 ```
 
 Running the application locally provides greater flexibility, allowing
-you to load taxa-country combinations that may not be available in the
+you to load taxon-country combinations that may not be available in the
 web app and retrieve data for any region worldwide.
 
 ## Adding New Taxa / Country Combinations
 
-`infinitylists` includes several pre-loaded taxa-country combinations.
+`infinitylists` includes several pre-loaded taxon-country combinations.
 If you need to add a new taxon-country pair, follow these steps:
 
 1.  Download data using the
@@ -137,7 +141,7 @@ infinitylistApp()
 
 - The `taxon` argument must be a valid taxonomic group recognized by
   GBIF backbone.
-- Small taxa-country combinations download quickly, but larger datasets
+- Small taxon-country combinations download quickly, but larger datasets
   may take longer and could cause connection timeouts.
 - Ensure the geographic location is correctly specified so the data
   appears in the app.
