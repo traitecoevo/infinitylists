@@ -154,3 +154,12 @@ table.dt tbody tr:hover { background: #f1f5fb; }
 }
 
 .popup { line-height: 1.5; }
+
+.map-note {
+  background: rgba(255, 255, 255, .9);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: .85rem;
+  max-width: 340px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+}

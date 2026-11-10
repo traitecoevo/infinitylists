@@ -1,7 +1,12 @@
-// Leaflet map: basemaps, clustered record markers, target polygon and buffer.
+// Leaflet map: basemaps, record markers (clustered pins, or canvas dots for
+// large sets), target polygon and buffer.
 // Relies on the vendored Leaflet + markercluster scripts (global `L`).
 
 import { esc } from './table.js'
+import { pointsLayer } from './points.js'
+
+/** Above this many points, draw canvas dots instead of clustered markers. */
+const MAX_MARKERS = 20000
 
 export class RecordMap {
   constructor(el) {
@@ -24,6 +29,22 @@ export class RecordMap {
     L.control.scale({ imperial: false }).addTo(this.map)
 
     this.overlays = L.layerGroup().addTo(this.map)
+
+    // Small caption in the map corner (used in dot mode).
+    const Note = L.Control.extend({
+      onAdd: () => {
+        const el = L.DomUtil.create('div', 'map-note')
+        L.DomEvent.disableClickPropagation(el)
+        el.hidden = true
+        return el
+      },
+    })
+    this.note = new Note({ position: 'bottomleft' }).addTo(this.map).getContainer()
+  }
+
+  setNote(text) {
+    this.note.textContent = text
+    this.note.hidden = !text
   }
 
   /**
@@ -34,19 +55,31 @@ export class RecordMap {
    *   its own content); built lazily when the marker is clicked
    */
   update(place, buffered, points, popupHtml) {
+    this.map.closePopup()
     this.overlays.clearLayers()
-    if (!place) return
+    if (!place) { this.setNote(''); return }
 
     const popup = popupHtml || ((p) => `${esc(p.species)} ${esc(p.voucher)}`)
-    const cluster = L.markerClusterGroup({ maxClusterRadius: 20, chunkedLoading: true })
-    cluster.addLayers(points.map((p) => L.marker([p.lat, p.lon]).bindPopup(() => popup(p))))
+    let recordsLayer
+    if (points.length > MAX_MARKERS) {
+      // Too many for individual markers: canvas dots, clickable for the same popup.
+      recordsLayer = pointsLayer(points, popup)
+      this.setNote(`${points.length.toLocaleString()} records shown as dots ` +
+        '(blue: target area, orange: buffer). Zoom in and click a dot for details.')
+    } else {
+      // Added in one synchronous batch: chunkedLoading kept adding markers
+      // after the layer had been replaced, throwing "reading 'getMinZoom'".
+      recordsLayer = L.markerClusterGroup({ maxClusterRadius: 20 })
+      recordsLayer.addLayers(points.map((p) => L.marker([p.lat, p.lon]).bindPopup(() => popup(p))))
+      this.setNote('')
+    }
 
     const placeLayer = L.geoJSON(place, { style: { color: 'red', weight: 3, fillOpacity: 0.1 }, interactive: false })
     if (buffered && buffered !== place) {
       this.overlays.addLayer(L.geoJSON(buffered, { style: { color: 'darkorange', weight: 3, fillOpacity: 0.08 }, interactive: false }))
     }
     this.overlays.addLayer(placeLayer)
-    this.overlays.addLayer(cluster)
+    this.overlays.addLayer(recordsLayer)
 
     const bounds = L.geoJSON(buffered || place).getBounds()
     if (bounds.isValid()) this.map.fitBounds(bounds, { padding: [20, 20] })
