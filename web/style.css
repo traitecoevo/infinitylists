@@ -112,6 +112,7 @@ input[type="search"] { width: auto; }
 
 #map { height: 500px; border: 1px solid var(--border); }
 .stats { font-weight: 700; font-size: 24px; margin: 20px 0 50px; }
+.location-note { margin: 8px 0 0; color: var(--muted); font-size: .95rem; }
 
 .about h4 { margin-top: 1.4em; }
 pre { background: var(--panel); border: 1px solid var(--border); padding: 8px; min-height: 2.4em; }
@@ -152,5 +153,3 @@ table.dt tbody tr:hover { background: #f1f5fb; }
   #map { height: 60vh; }
   .stats { font-size: 18px; }
 }
-
-.location-note { margin: 8px 0 0; color: var(--muted); font-size: .95rem; }
