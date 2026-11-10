@@ -32,6 +32,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Normally ~4 min; fail fast if a setup step hangs.
+    timeout-minutes: 30
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
