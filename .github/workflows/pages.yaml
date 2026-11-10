@@ -1,0 +1,96 @@
+# Builds and deploys the GitHub Pages site:
+#   /      pkgdown documentation
+#   /app/  static infinitylists web app (web/) + data tiles built from the
+#          latest GitHub release by data-raw/build_tiles.R
+#
+# Pull requests build everything (to catch breakage) but don't deploy.
+# Requires repo Settings -> Pages -> Source = "GitHub Actions", and the
+# github-pages environment must allow the deploying branch.
+
+name: pages
+
+on:
+  push:
+    branches: [master, "epic/static-web-app"]
+  pull_request:
+    branches: [master, "epic/**"]
+  release:
+    types: [published]
+  workflow_dispatch:
+  # Lets other workflows (e.g. the data refresh, #88) redeploy after
+  # publishing a release: releases created with GITHUB_TOKEN don't
+  # trigger workflows by themselves.
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && github.run_id || 'deploy' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      - name: Build pkgdown site
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        shell: Rscript {0}
+
+      - name: Find latest data release
+        id: release
+        run: echo "tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache release data
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: release-data
+          key: release-data-${{ steps.release.outputs.tag }}
+
+      - name: Download release data
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: gh release download "${{ steps.release.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --pattern '*.parquet' --dir release-data
+
+      - name: Build data tiles
+        run: Rscript data-raw/build_tiles.R release-data docs/app
+
+      - name: Add web app
+        run: |
+          cp -R web/. docs/app/
+          touch docs/.nojekyll
+          du -sh docs docs/app/data
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
