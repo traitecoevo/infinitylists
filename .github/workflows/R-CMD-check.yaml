@@ -13,9 +13,6 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
-    # R-devel breaks regularly for upstream reasons (e.g. terra failing to
-    # build); report it but don't fail the workflow.
-    continue-on-error: ${{ matrix.config.r == 'devel' }}
 
     strategy:
       fail-fast: false
@@ -23,7 +20,6 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
 
