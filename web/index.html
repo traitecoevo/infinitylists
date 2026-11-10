@@ -111,7 +111,6 @@
       <nav class="tabs" role="tablist">
         <button role="tab" aria-selected="true" aria-controls="tab-map" id="t-map">Map</button>
         <button role="tab" aria-selected="false" aria-controls="tab-table" id="t-table">Species records</button>
-        <button role="tab" aria-selected="false" aria-controls="tab-coords" id="t-coords">Coords</button>
         <button role="tab" aria-selected="false" aria-controls="tab-about" id="t-about">About</button>
       </nav>
 
@@ -119,17 +118,12 @@
 
       <section id="tab-map" role="tabpanel" aria-labelledby="t-map">
         <div id="map"></div>
+        <p id="locationNote" class="location-note" hidden></p>
         <p id="stats" class="stats"></p>
       </section>
 
       <section id="tab-table" role="tabpanel" aria-labelledby="t-table" hidden>
         <div id="table"></div>
-      </section>
-
-      <section id="tab-coords" role="tabpanel" aria-labelledby="t-coords" hidden>
-        <h5>Latitude:</h5><pre id="geoLat"></pre>
-        <h5>Longitude:</h5><pre id="geoLon"></pre>
-        <h5>Accuracy (m):</h5><pre id="geoAcc"></pre>
       </section>
 
       <section id="tab-about" role="tabpanel" aria-labelledby="t-about" class="about" hidden>

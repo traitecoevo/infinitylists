@@ -152,3 +152,5 @@ table.dt tbody tr:hover { background: #f1f5fb; }
   #map { height: 60vh; }
   .stats { font-size: 18px; }
 }
+
+.location-note { margin: 8px 0 0; color: var(--muted); font-size: .95rem; }

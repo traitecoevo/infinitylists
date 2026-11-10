@@ -146,7 +146,20 @@ function clearOutputs(msg, isError = false) {
   $('#stats').textContent = ''
   $('#download').disabled = true
   fillTaxa([])
+  showLocation(null)
   setStatus(msg, isError)
+}
+
+/** Under the map, show the device location used in "current location" mode. */
+function showLocation(desc) {
+  const note = $('#locationNote')
+  if (desc && desc.kind === 'current') {
+    const acc = Number.isFinite(desc.accuracy) ? ` (±${Math.round(desc.accuracy).toLocaleString()} m)` : ''
+    note.textContent = `Your location: ${desc.lat.toFixed(5)}, ${desc.lon.toFixed(5)}${acc}`
+    note.hidden = false
+  } else {
+    note.hidden = true
+  }
 }
 
 /** Re-query when the place, buffer or dataset changes. */
@@ -172,6 +185,7 @@ async function refreshPlace() {
     state.current = { place: sel.feature, buffered, classified, desc: sel.desc }
     fillTaxa(classified)
     setStatus('')
+    showLocation(sel.desc)
     render()
   } catch (err) {
     if (token !== state.token) return
@@ -233,10 +247,7 @@ function useCurrentLocation() {
   navigator.geolocation.getCurrentPosition((pos) => {
     busy(false)
     const { latitude, longitude, accuracy } = pos.coords
-    $('#geoLat').textContent = latitude
-    $('#geoLon').textContent = longitude
-    $('#geoAcc').textContent = accuracy
-    state.located = { lat: latitude, lon: longitude, radius: Number(val('#radiusCurrent')) }
+    state.located = { lat: latitude, lon: longitude, radius: Number(val('#radiusCurrent')), accuracy }
     refreshPlace()
   }, (err) => {
     busy(false)
