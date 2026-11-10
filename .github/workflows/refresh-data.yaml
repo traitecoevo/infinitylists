@@ -1,0 +1,40 @@
+# Placeholder so GitHub registers the refresh-data workflow.
+#
+# GitHub only offers "Run workflow" (workflow_dispatch) for workflows whose
+# file exists on the default branch. The real workflow lives on
+# epic/static-web-app (#88, #112) until the epic is merged; a run started with
+# that branch selected uses the epic branch's version of this file:
+#
+#   gh workflow run refresh-data.yaml --ref epic/static-web-app -f dry_run=true
+#
+# This placeholder deliberately has no schedule. It is replaced by the real
+# workflow when epic/static-web-app is merged into master.
+
+name: refresh-data
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: download and validate, but don't publish a release or deploy"
+        type: boolean
+        default: true
+      only:
+        description: "Only refresh these dataset ids, comma-separated. Empty = those with refresh=true in data-raw/datasets.csv."
+        type: string
+        default: ""
+      max_drop:
+        description: "Largest allowed fall in a dataset's row count vs the previous release (fraction)"
+        type: string
+        default: "0.05"
+
+permissions:
+  contents: read
+
+jobs:
+  wrong-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "::error::The data-refresh workflow isn't on ${GITHUB_REF_NAME} yet. Run it with the epic/static-web-app branch selected."
+          exit 1
