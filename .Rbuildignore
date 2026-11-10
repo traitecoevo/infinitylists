@@ -1,5 +1,6 @@
 ^README\.Rmd$
 ^data-raw$
+^web$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
