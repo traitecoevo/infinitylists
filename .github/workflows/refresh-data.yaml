@@ -1,0 +1,197 @@
+# Refresh the occurrence data: download the datasets in data-raw/datasets.csv
+# marked refresh=true from ALA / GBIF, check them against the previous release,
+# publish a new GitHub release with the parquet files (datasets not refreshed
+# are carried over unchanged), then redeploy the Pages site.
+#
+# Runs monthly from the default branch, or manually from the Actions tab.
+# Manual runs default to a dry run (everything except publishing), so the
+# files and the validation table can be inspected first.
+#
+# Required repository secrets:
+#   ALA_EMAIL                              registered ALA email (ALA datasets)
+#   GBIF_USERNAME, GBIF_PWD, GBIF_EMAIL    gbif.org account (GBIF datasets)
+
+name: refresh-data
+
+on:
+  schedule:
+    - cron: "0 2 1 * *" # 02:00 UTC on the 1st of each month
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: download and validate, but don't publish a release or deploy"
+        type: boolean
+        default: true
+      only:
+        description: "Only refresh these dataset ids, comma-separated (e.g. Odonata-AU,Squamata-ES). Empty = those with refresh=true in data-raw/datasets.csv. Others are carried over from the previous release."
+        type: string
+        default: ""
+      max_drop:
+        description: "Largest allowed fall in a dataset's row count vs the previous release (fraction)"
+        type: string
+        default: "0.05"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          python3 - <<'EOF'
+          import csv, json, os
+          rows = list(csv.DictReader(open("data-raw/datasets.csv")))
+          for r in rows:
+              r["id"] = f"{r['taxon']}-{r['country_code']}"
+          ids = [r["id"] for r in rows]
+          only = [s.strip() for s in (os.environ.get("ONLY") or "").split(",") if s.strip()]
+          unknown = sorted(set(only) - set(ids))
+          if unknown:
+              raise SystemExit(f"Unknown dataset id(s) {unknown}; choose from {ids}")
+          enabled = lambda r: r["refresh"].strip().lower() == "true"
+          chosen = [r for r in rows if r["id"] in only] if only else [r for r in rows if enabled(r)]
+          if not chosen:
+              raise SystemExit("Nothing to refresh")
+          print("Refreshing:", ", ".join(r["id"] for r in chosen))
+          print("Carrying over:", ", ".join(r["id"] for r in rows if r not in chosen) or "none")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("matrix=" + json.dumps(chosen) + "\n")
+          EOF
+
+  download:
+    needs: plan
+    name: download ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      ALA_EMAIL: ${{ secrets.ALA_EMAIL }}
+      GBIF_USERNAME: ${{ secrets.GBIF_USERNAME }}
+      GBIF_PWD: ${{ secrets.GBIF_PWD }}
+      GBIF_EMAIL: ${{ secrets.GBIF_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: local::.
+
+      - name: Download ${{ matrix.id }}
+        run: Rscript data-raw/refresh_dataset.R "${{ matrix.taxon }}" "${{ matrix.source }}" "${{ matrix.country_code }}" new-data
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: data-${{ matrix.id }}
+          path: new-data/*.parquet
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    needs: download
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: any::arrow, any::sf, any::data.table, any::jsonlite
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: data-*
+          merge-multiple: true
+          path: new-data
+
+      - name: Download previous release
+        id: prev
+        run: |
+          tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern '*.parquet' --dir prev-data
+
+      - name: Validate against ${{ steps.prev.outputs.tag }}
+        run: |
+          Rscript data-raw/validate_release.R new-data prev-data validation.md "${{ inputs.max_drop || '0.05' }}"
+          cat validation.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check the files tile cleanly
+        run: Rscript data-raw/build_tiles.R new-data "$RUNNER_TEMP/tiles"
+
+      - name: Publish release
+        id: publish
+        run: |
+          prev="${{ steps.prev.outputs.tag }}"
+          IFS=. read -r major minor patch <<< "${prev#v}"
+          # Always bump the patch number: check_and_download_update() compares
+          # versions by stripping the dots, so e.g. 2.1.0 (210) would look
+          # older than 2.0.10 (2010).
+          tag="v${major}.${minor}.$((patch + 1))"
+          {
+            echo "Data refresh on $(date -u +%Y-%m-%d), downloaded from ALA and GBIF by the refresh-data workflow."
+            echo
+            echo "Row counts compared with ${prev}:"
+            echo
+            cat validation.md
+          } > notes.md
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run: would publish $tag" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          else
+            gh release create "$tag" new-data/*.parquet --repo "$GITHUB_REPOSITORY" \
+              --title "Data refresh $(date -u +%Y-%m-%d)" --notes-file notes.md --latest
+            echo "Published $tag" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Keep the release files (dry run)
+        if: env.DRY_RUN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate
+          path: |
+            new-data/*.parquet
+            notes.md
+          retention-days: 14
+
+  # Releases created with GITHUB_TOKEN don't trigger other workflows, so
+  # redeploy the site explicitly.
+  deploy:
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yaml
