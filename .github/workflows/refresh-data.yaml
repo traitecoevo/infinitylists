@@ -1,6 +1,7 @@
-# Refresh the occurrence data: download every dataset in data-raw/datasets.csv
-# from ALA / GBIF, check it against the previous release, publish a new GitHub
-# release with the parquet files, then redeploy the Pages site.
+# Refresh the occurrence data: download the datasets in data-raw/datasets.csv
+# marked refresh=true from ALA / GBIF, check them against the previous release,
+# publish a new GitHub release with the parquet files (datasets not refreshed
+# are carried over unchanged), then redeploy the Pages site.
 #
 # Runs monthly from the default branch, or manually from the Actions tab.
 # Manual runs default to a dry run (everything except publishing), so the
@@ -22,7 +23,7 @@ on:
         type: boolean
         default: true
       only:
-        description: "Only refresh these dataset ids, comma-separated (e.g. Odonata-AU,Squamata-ES). Empty = all. Others are carried over from the previous release."
+        description: "Only refresh these dataset ids, comma-separated (e.g. Odonata-AU,Squamata-ES). Empty = those with refresh=true in data-raw/datasets.csv. Others are carried over from the previous release."
         type: string
         default: ""
       max_drop:
@@ -58,8 +59,12 @@ jobs:
           unknown = sorted(set(only) - set(ids))
           if unknown:
               raise SystemExit(f"Unknown dataset id(s) {unknown}; choose from {ids}")
-          chosen = [r for r in rows if not only or r["id"] in only]
+          enabled = lambda r: r["refresh"].strip().lower() == "true"
+          chosen = [r for r in rows if r["id"] in only] if only else [r for r in rows if enabled(r)]
+          if not chosen:
+              raise SystemExit("Nothing to refresh")
           print("Refreshing:", ", ".join(r["id"] for r in chosen))
+          print("Carrying over:", ", ".join(r["id"] for r in rows if r not in chosen) or "none")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write("matrix=" + json.dumps(chosen) + "\n")
           EOF
