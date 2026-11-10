@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Infinity Lists</title>
+  <meta name="description" content="An interactive tool for building place-based species lists from vouchered biodiversity records (ALA and GBIF).">
+  <link rel="icon" type="image/png" href="img/infinitylist_hex.png">
+
+  <!-- Google tag (gtag.js) (#71) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7G4EL1GX3Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7G4EL1GX3Q');
+  </script>
+
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="vendor/markercluster/MarkerCluster.css">
+  <link rel="stylesheet" href="vendor/markercluster/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="vendor/markercluster/leaflet.markercluster.js"></script>
+  <script src="vendor/turf/turf.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1>An Infinity of Lists: an Interactive Tool for Building Place-based Species Lists</h1>
+    <img src="img/infinitylist_hex.png" alt="Infinity Lists hex logo" width="150" height="150">
+  </header>
+
+  <div id="busy" class="busy" hidden aria-hidden="true"><div class="spinner"></div></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <form id="controls" autocomplete="off" onsubmit="return false">
+        <fieldset>
+          <legend>Choose a place:</legend>
+          <div class="radios">
+            <label><input type="radio" name="inputType" value="preloaded" checked> Preloaded Place</label>
+            <label><input type="radio" name="inputType" value="upload"> Upload KML</label>
+            <label><input type="radio" name="inputType" value="current"> Use current location</label>
+            <label><input type="radio" name="inputType" value="choose"> Choose a lat/long</label>
+          </div>
+        </fieldset>
+
+        <div class="panel" data-mode="preloaded">
+          <label for="place">Choose a preloaded place:</label>
+          <select id="place"></select>
+        </div>
+
+        <div class="panel" data-mode="upload" hidden>
+          <label for="uploadKML">Upload your own KML</label>
+          <input type="file" id="uploadKML" accept=".kml,application/vnd.google-earth.kml+xml">
+        </div>
+
+        <div class="panel" data-mode="current" hidden>
+          <label for="radiusCurrent">Choose a radius:</label>
+          <select id="radiusCurrent" class="radius"></select>
+          <button type="button" id="goCurrent" class="btn">Go</button>
+        </div>
+
+        <div class="panel" data-mode="choose" hidden>
+          <label for="latitude">Latitude</label>
+          <input type="number" id="latitude" value="-34.1182" min="-90" max="90" step="0.00001">
+          <label for="longitude">Longitude</label>
+          <input type="number" id="longitude" value="151.0636" min="-180" max="180" step="0.00001">
+          <label for="radiusChoose">Choose a radius:</label>
+          <select id="radiusChoose" class="radius"></select>
+          <button type="button" id="goChoose" class="btn">Go</button>
+        </div>
+
+        <label for="buffer">Choose a buffer:</label>
+        <select id="buffer">
+          <option value="0" selected>0m (ie. no buffer)</option>
+          <option value="100">100m</option>
+          <option value="500">500m</option>
+          <option value="1000">1km</option>
+          <option value="2000">2km</option>
+          <option value="5000">5km</option>
+          <option value="10000">10km</option>
+          <option value="50000">50km</option>
+        </select>
+
+        <label for="dataset">Choose a taxon-country combination:</label>
+        <select id="dataset"></select>
+
+        <fieldset>
+          <legend>Taxonomic level:</legend>
+          <div class="radios">
+            <label><input type="radio" name="taxonOfInterest" value="genus" checked> Genus</label>
+            <label><input type="radio" name="taxonOfInterest" value="family"> Family</label>
+          </div>
+        </fieldset>
+
+        <label for="taxon" id="taxonLabel">Choose a genus:</label>
+        <select id="taxon"><option value="All">All</option></select>
+
+        <label class="toggle">
+          <input type="checkbox" id="allRecords">
+          Show all records (not just the most recent per species and voucher type)
+        </label>
+
+        <button type="button" id="download" class="btn btn-download" disabled>Download all obs CSV</button>
+      </form>
+    </aside>
+
+    <main>
+      <nav class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" aria-controls="tab-map" id="t-map">Map</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-table" id="t-table">Species records</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-coords" id="t-coords">Coords</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-about" id="t-about">About</button>
+      </nav>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <section id="tab-map" role="tabpanel" aria-labelledby="t-map">
+        <div id="map"></div>
+        <p id="stats" class="stats"></p>
+      </section>
+
+      <section id="tab-table" role="tabpanel" aria-labelledby="t-table" hidden>
+        <div id="table"></div>
+      </section>
+
+      <section id="tab-coords" role="tabpanel" aria-labelledby="t-coords" hidden>
+        <h5>Latitude:</h5><pre id="geoLat"></pre>
+        <h5>Longitude:</h5><pre id="geoLon"></pre>
+        <h5>Accuracy (m):</h5><pre id="geoAcc"></pre>
+      </section>
+
+      <section id="tab-about" role="tabpanel" aria-labelledby="t-about" class="about" hidden>
+        <h2>Frequently Asked Questions</h2>
+
+        <h4>1. What does this app do?</h4>
+        <p>This app allows users to explore biodiversity across the world. After selecting a location and taxonomic group, the app will generate a species list.</p>
+
+        <h4>2. Which taxonomic groups can I generate lists for?</h4>
+        <p>You can generate lists for demo taxon-country combinations in this web app (e.g., plants in Australia or butterflies and moths in Peru), or download our R package (see below) and choose any taxon-country combination by using our app via R.</p>
+
+        <h4>3. What is a KML file?</h4>
+        <p>KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as <a href="https://earth.google.com/">Google Earth</a>.</p>
+
+        <h4>4. Why isn't the 'Use current location' filter working?</h4>
+        <p>Before selecting Use current location, it is important that users allow location access on their mobile device or desktop for the browser they intend to use, otherwise this filter will not work.</p>
+
+        <h4>5. Where can I find a KML file for the location I'm interested in?</h4>
+        <p>For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as <a href="https://earth.google.com/">Google Earth</a> by drawing a polygon, and then exporting it as a KML.</p>
+
+        <h4>6. Can I search for any location in the world?</h4>
+        <p>Yes. You can search anywhere in the world via the GBIF node. The <a href="https://living-atlases.gbif.org">Living Atlas countries</a> (including Australia) are likely to be faster than the GBIF node, but anywhere is possible.</p>
+
+        <h4>7. Can I search for locations or taxa not included in this web app?</h4>
+        <p>Yes you can! The best way to adapt infinitylists for other specific country-taxa combinations is to install and run a local version of infinitylists. See the README at <a href="https://github.com/traitecoevo/infinitylists">github.com/traitecoevo/infinitylists</a> for more guidance.</p>
+
+        <h4>8. Where do the data come from?</h4>
+        <p>The data originate from herbaria, museums and the citizen science platform iNaturalist, generated by thousands of dedicated and skilled contributors. These data are curated by national and international organzations, which make it available to the app. All Australian data are extracted from the Atlas of Living Australia (ALA), Australia's <a href="https://www.ala.org.au">national biodiversity database.</a> Data from the rest of the world are extracted from the <a href="https://www.gbif.org">Global Biodiversity Information Facility (GBIF).</a></p>
+
+        <h4>9. Which data sources are included?</h4>
+        <p>The app generates lists from two data sources, both of which are associated with some kind of voucher, i.e., records that are 'verifiable'. First, all records associated with a physical voucher stored in an institution (such as herbaria and museums) are included for the voucher type 'Collection'. Second, all records from the online citizen science platform iNaturalist that have qualified to enter the ALA or GBIF are included for the voucher types 'Photograph' and 'Audio'.</p>
+
+        <h4>10. What does the buffer do?</h4>
+        <p>Selecting a buffer includes additional species that have not been recorded within the main target area, but have been seen in the immediate surrounding area up to the defined radius.</p>
+
+        <h4>11. Which taxonomic trees does the app use?</h4>
+        <p>The species names presented in the app follow the taxonomic backbones used by the ALA and GBIF. For Australian plants, names are taken from the <a href="https://biodiversity.org.au/nsl/services/search/taxonomy">Australian Plant Census</a> and for Australian animals, names are taken from the <a href="https://biodiversity.org.au/afd/home">Australian Faunal Directory</a> with minor exceptions for both.</p>
+
+        <h4>12. Are records only included in the app if they are identified to species?</h4>
+        <p>Yes, any records that are identified to a taxonomic level coarser than species will not be retrieved by the app. Also, any records identified to an infraspecific level will only have the species identification displayed within the app. More specific information above and below the species level will be available directly from GBIF.</p>
+
+        <h4>13. Are any other records excluded from the app?</h4>
+        <p>Yes, the following types of record are excluded:</p>
+        <ol>
+          <li>iNaturalist records with a copyright license of All Rights Reserved (for Australia). For other countries, only CC0, CC BY and CC BY-NC records will be included, as these are the 'GBIF-friendly' licences.</li>
+          <li>All records pre-dating 1923</li>
+          <li>All records with a coordinate uncertainty value of &gt; 1000 m</li>
+          <li>Records considered to have spatial issues by ALA or GBIF</li>
+        </ol>
+        <p>More information on ALA spatial issues can be found <a href="https://support.ala.org.au/support/solutions/articles/6000240256-getting-started-with-the-data-quality-filters">here</a>.</p>
+
+        <h4>14. Does the app reveal the location of species with sensitive locations?</h4>
+        <p>Species with sensitive locations are not included in our app. Any species for which records have their locality data obscured or generalised (whether by the original data provider, or by the ALA/GBIF itself) are excluded from the app.</p>
+
+        <h4>15. How often is the app updated?</h4>
+        <p>Our major data files from GBIF are re-downloaded periodically. See the <a href="https://github.com/traitecoevo/infinitylists/releases">releases page</a> for more information. If you need up to the day data, use the local version following the readme on the GitHub page.</p>
+
+        <h4>16. How can I download data from the app?</h4>
+        <p>You can download any given generated list by clicking on the 'Download all obs CSV' button. This will download a CSV file containing all records within the target area (and buffer, if selected), not just the most recent records that are presented in the table.</p>
+
+        <h4>17. What do the different symbols on the map represent?</h4>
+        <p>The blue markers represent a single record. The coloured circles represent clusters of points; the number in the centre of each circle shows how many records are within that cluster. Zooming in on the map will resolve these clusters into their individual points. If a cluster remains even when at the maximum zoom level, clicking it will resolve it into its individual points.</p>
+
+        <h4>18. Why is the app called 'An Infinity of Lists'?</h4>
+        <p>The app's name is a reference to the book <a href="https://en.wikipedia.org/wiki/The_Infinity_of_Lists">The Infinity of Lists</a> by Italian author Umberto Eco.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div>Powered by <a href="https://www.unsw.edu.au/science">UNSW Faculty of Science</a></div>
+    <div>Created by Will Cornwell, Fonti Kar and Thomas Mesaglio
+      <a href="https://github.com/traitecoevo/infinitylists" aria-label="infinitylists on GitHub" class="gh">
+        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      </a>
+    </div>
+  </footer>
+</body>
+</html>
