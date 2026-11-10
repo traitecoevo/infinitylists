@@ -54,6 +54,20 @@ const LIST_COLUMNS = [
   { key: 'recordedBy', label: 'Recorded by' },
 ]
 
+const RECORD_COLUMNS = [
+  { key: 'species', label: 'Species' },
+  { key: 'genus', label: 'Genus' },
+  { key: 'family', label: 'Family' },
+  { key: 'establishment', label: 'Establishment means' },
+  { key: 'voucher', label: 'Voucher type' },
+  { key: 'area', label: 'In target area' },
+  { key: 'date', label: 'Date', type: 'date', text: (r) => fmtDate(r.date) },
+  { key: 'lat', label: 'Lat', type: 'num' },
+  { key: 'lon', label: 'Long', type: 'num' },
+  { key: 'repository', label: 'Repository', html: repositoryLink },
+  { key: 'recordedBy', label: 'Recorded by' },
+]
+
 // Status -------------------------------------------------------------------
 
 let busyCount = 0
@@ -169,7 +183,7 @@ async function refreshPlace() {
   }
 }
 
-/** Re-render outputs for the current query (taxon filter changes). */
+/** Re-render outputs for the current query (taxon filter / view mode changes). */
 function render() {
   const cur = state.current
   if (!cur) return
@@ -177,9 +191,14 @@ function render() {
   $('#stats').textContent = statsText(records)
   $('#download').disabled = false
 
-  const list = speciesList(records)
-  table.setData(LIST_COLUMNS, list, { key: 'n', dir: 'desc' })
-  map.update(cur.place, cur.buffered, list)
+  if ($('#allRecords').checked) {
+    table.setData(RECORD_COLUMNS, records, { key: 'date', dir: 'desc' })
+    map.update(cur.place, cur.buffered, records)
+  } else {
+    const list = speciesList(records)
+    table.setData(LIST_COLUMNS, list, { key: 'n', dir: 'desc' })
+    map.update(cur.place, cur.buffered, list)
+  }
 }
 
 function download() {
@@ -273,6 +292,7 @@ function wire() {
   document.querySelectorAll('input[name="taxonOfInterest"]').forEach((r) =>
     r.addEventListener('change', () => { if (state.current) fillTaxa(state.current.classified); render() }))
   $('#taxon').addEventListener('change', render)
+  $('#allRecords').addEventListener('change', render)
   $('#download').addEventListener('click', download)
   document.querySelectorAll('.tabs [role="tab"]').forEach((b) =>
     b.addEventListener('click', () => selectTab(b)))
