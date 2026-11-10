@@ -94,3 +94,7 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # The ~280 MB site (mostly data tiles) takes GitHub longer than the
+          # default 10 minutes to sync.
+          timeout: 1800000
