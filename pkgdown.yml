@@ -1,10 +1,10 @@
-pandoc: 3.1.11
-pkgdown: 2.1.1
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   diy: diy.html
   infinitylists: infinitylists.html
-last_built: 2025-04-01T02:48Z
+last_built: 2026-11-10T07:04Z
 urls:
   reference: https://traitecoevo.github.io/infinitylists/reference
   article: https://traitecoevo.github.io/infinitylists/articles
