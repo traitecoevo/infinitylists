@@ -141,30 +141,10 @@ export function toCsv(records) {
   return lines.join('\r\n') + '\r\n'
 }
 
-export function slug(s) {
-  return String(s)
-    .normalize('NFKD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().replace(/\.kml$/, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'place'
-}
-
 /**
- * Descriptive CSV filename (#85), e.g.
- *   heron-island-australia_0m-buffer_Papilionoidea-AU_2025-03-10.csv
- *   circle_-34.11820_151.06360_100m_500m-buffer_Plantae-AU_2025-03-10_genus-acacia.csv
- *
- * @param {{kind: 'preloaded'|'upload'|'circle'|'current', name?: string,
- *          lat?: number, lon?: number, radius?: number}} place
+ * CSV filename, as in the Shiny app: <buffer>m-buffer-<release file name>.csv,
+ * e.g. 0m-buffer-Living-Atlas-Papilionoidea-AU-2025-03-10.csv
  */
-export function csvFilename(place, bufferM, dataset, taxon) {
-  let where
-  if (place.kind === 'circle' || place.kind === 'current') {
-    const prefix = place.kind === 'circle' ? 'circle' : 'current-location'
-    where = `${prefix}_${place.lat.toFixed(5)}_${place.lon.toFixed(5)}_${place.radius}m`
-  } else {
-    where = slug(place.name)
-  }
-  let name = `${where}_${bufferM}m-buffer_${dataset.id}_${dataset.date}`
-  if (taxon && taxon.value && taxon.value !== 'All') name += `_${taxon.level}-${slug(taxon.value)}`
-  return name + '.csv'
+export function csvFilename(bufferM, dataset) {
+  return `${bufferM}m-buffer-Living-Atlas-${dataset.id}-${dataset.date}.csv`
 }
