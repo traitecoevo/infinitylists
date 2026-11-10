@@ -30,14 +30,16 @@ export class RecordMap {
    * @param {object|null} place    GeoJSON feature of the target area
    * @param {object|null} buffered GeoJSON feature of the buffered area (=== place when no buffer)
    * @param {{lat: number, lon: number, species: string, voucher: string}[]} points
+   * @param {(p: any) => string} [popupHtml] popup content for a point (must escape
+   *   its own content); built lazily when the marker is clicked
    */
-  update(place, buffered, points) {
+  update(place, buffered, points, popupHtml) {
     this.overlays.clearLayers()
     if (!place) return
 
+    const popup = popupHtml || ((p) => `${esc(p.species)} ${esc(p.voucher)}`)
     const cluster = L.markerClusterGroup({ maxClusterRadius: 20, chunkedLoading: true })
-    cluster.addLayers(points.map((p) =>
-      L.marker([p.lat, p.lon]).bindPopup(`${esc(p.species)} ${esc(p.voucher)}`)))
+    cluster.addLayers(points.map((p) => L.marker([p.lat, p.lon]).bindPopup(() => popup(p))))
 
     const placeLayer = L.geoJSON(place, { style: { color: 'red', weight: 3, fillOpacity: 0.1 }, interactive: false })
     if (buffered && buffered !== place) {

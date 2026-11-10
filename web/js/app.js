@@ -41,6 +41,24 @@ function repositoryLink(r) {
     : esc(label)
 }
 
+/** Marker popup: species, voucher, date, recorder and a link to the record. */
+function popupHtml(r) {
+  const lines = [
+    `<strong><em>${esc(r.species)}</em></strong>`,
+    esc([r.voucher, fmtDate(r.date)].filter(Boolean).join(' · ')),
+  ]
+  if (r.n > 1) lines.push(`${r.n.toLocaleString()} records; most recent shown`)
+  if (r.recordedBy) lines.push(`Recorded by ${esc(r.recordedBy)}`)
+  if (/^https?:\/\//i.test(r.link || '')) {
+    const where = isINat(r.repository) ? 'iNaturalist'
+      : r.link.includes('gbif.org') ? 'GBIF'
+      : r.link.includes('ala.org.au') ? 'ALA' : 'source'
+    const repo = !isINat(r.repository) && r.repository ? ` (${esc(r.repository)})` : ''
+    lines.push(`<a href="${esc(r.link)}" target="_blank" rel="noopener">View record on ${where}</a>${repo}`)
+  }
+  return `<div class="popup">${lines.join('<br>')}</div>`
+}
+
 const LIST_COLUMNS = [
   { key: 'species', label: 'Species' },
   { key: 'establishment', label: 'Establishment means' },
@@ -193,11 +211,11 @@ function render() {
 
   if ($('#allRecords').checked) {
     table.setData(RECORD_COLUMNS, records, { key: 'date', dir: 'desc' })
-    map.update(cur.place, cur.buffered, records)
+    map.update(cur.place, cur.buffered, records, popupHtml)
   } else {
     const list = speciesList(records)
     table.setData(LIST_COLUMNS, list, { key: 'n', dir: 'desc' })
-    map.update(cur.place, cur.buffered, list)
+    map.update(cur.place, cur.buffered, list, popupHtml)
   }
 }
 

@@ -152,3 +152,5 @@ table.dt tbody tr:hover { background: #f1f5fb; }
   #map { height: 60vh; }
   .stats { font-size: 18px; }
 }
+
+.popup { line-height: 1.5; }
