@@ -13,6 +13,9 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    # R-devel breaks regularly for upstream reasons (e.g. terra failing to
+    # build); report it but don't fail the workflow.
+    continue-on-error: ${{ matrix.config.r == 'devel' }}
 
     strategy:
       fail-fast: false

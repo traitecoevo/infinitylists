@@ -9,3 +9,5 @@ inst/doc
 /Meta/
 /doc/
 docs
+# generated static-site build output (data-raw/build_tiles.R)
+/site/
