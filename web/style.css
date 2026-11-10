@@ -58,9 +58,7 @@ a:hover { color: var(--accent-dark); }
 .sidebar fieldset .radios { clear: both; }
 .sidebar fieldset:first-child { padding-top: 0; }
 .radios { display: flex; flex-wrap: wrap; gap: 4px 14px; }
-.radios label, .toggle { font-weight: 400; margin: 2px 0; }
-.toggle { display: flex; gap: 8px; align-items: flex-start; margin-top: 14px !important; }
-.toggle input { margin-top: 3px; }
+.radios label { font-weight: 400; margin: 2px 0; }
 
 select, input[type="number"], input[type="file"], input[type="search"] {
   width: 100%;
