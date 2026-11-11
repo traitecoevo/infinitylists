@@ -59,7 +59,8 @@
         <div class="panel" data-mode="current" hidden>
           <label for="radiusCurrent">Choose a radius:</label>
           <select id="radiusCurrent" class="radius"></select>
-          <button type="button" id="goCurrent" class="btn">Go</button>
+          <p id="currentNote" class="panel-note" aria-live="polite"></p>
+          <button type="button" id="relocate" class="btn" hidden>Update my location</button>
         </div>
 
         <div class="panel" data-mode="choose" hidden>
@@ -69,7 +70,7 @@
           <input type="number" id="longitude" value="151.0636" min="-180" max="180" step="0.00001">
           <label for="radiusChoose">Choose a radius:</label>
           <select id="radiusChoose" class="radius"></select>
-          <button type="button" id="goChoose" class="btn">Go</button>
+          <p id="chooseNote" class="panel-note" aria-live="polite"></p>
         </div>
 
         <label for="buffer">Choose a buffer:</label>
@@ -145,7 +146,7 @@
         <p>KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as <a href="https://earth.google.com/">Google Earth</a>.</p>
 
         <h4>4. Why isn't the 'Use current location' filter working?</h4>
-        <p>Before selecting Use current location, it is important that users allow location access on their mobile device or desktop for the browser they intend to use, otherwise this filter will not work.</p>
+        <p>When you select Use current location, your browser asks for permission to share your location. Allow it, for this site and, on a phone, in the system location settings for your browser. If you blocked it earlier, change the site's permission in your browser settings, then press "Update my location".</p>
 
         <h4>5. Where can I find a KML file for the location I'm interested in?</h4>
         <p>For some locations, KML files already exist and can be found by searching the internet for '[place name] + KML'. If you cannot find a KML file for your location, you can manually create one in software such as <a href="https://earth.google.com/">Google Earth</a> by drawing a polygon, and then exporting it as a KML.</p>
