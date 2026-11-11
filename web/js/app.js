@@ -1,0 +1,353 @@
+// Infinity Lists web app: wires the controls to data loading, the species
+// list, the table and the map.
+
+import { loadDatasets, loadRecords } from './data.js'
+import { bbox, bufferPolygon, circlePolygon, expandBbox, parseKml } from './geo.js'
+import {
+  classify, csvFilename, filterTaxon, isINat, speciesList, statsText, taxonChoices, toCsv,
+} from './summary.js'
+import { DataTable, esc } from './table.js'
+import { RecordMap } from './map.js'
+
+const $ = (sel) => document.querySelector(sel)
+
+const RADII = [['100m', 100], ['500m', 500], ['1km', 1000], ['2km', 2000],
+  ['5km', 5000], ['10km', 10000], ['50km', 50000]]
+const DEFAULT_PLACE = 'Heron Island, Australia'
+
+const state = {
+  mode: 'preloaded',
+  places: new Map(),   // name -> GeoJSON feature
+  datasets: [],        // from datasets.json
+  uploaded: null,      // {feature, name}
+  chosen: null,        // {lat, lon} from the lat/long inputs, when valid
+  located: null,       // {lat, lon, accuracy} from the device (current location)
+  locating: false,     // a location request is in flight
+  current: null,       // {place, buffered, classified, desc} for the active query
+  token: 0,            // guards against out-of-order async results
+}
+
+const map = new RecordMap($('#map'))
+const table = new DataTable($('#table'), { pageSize: 25 })
+
+// Formatting ---------------------------------------------------------------
+
+const dateFmt = new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+const fmtDate = (ms) => (ms == null ? '' : dateFmt.format(new Date(ms)))
+
+function repositoryLink(r) {
+  const label = isINat(r.repository) ? 'iNat' : (r.repository ?? '')
+  return /^https?:\/\//i.test(r.link || '')
+    ? `<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(label)}</a>`
+    : esc(label)
+}
+
+const LIST_COLUMNS = [
+  { key: 'species', label: 'Species' },
+  { key: 'establishment', label: 'Establishment means' },
+  { key: 'voucher', label: 'Voucher type' },
+  { key: 'area', label: 'In target area' },
+  { key: 'n', label: 'N', type: 'num' },
+  { key: 'date', label: 'Most recent obs.', type: 'date', text: (r) => fmtDate(r.date) },
+  { key: 'lat', label: 'Lat', type: 'num' },
+  { key: 'lon', label: 'Long', type: 'num' },
+  { key: 'repository', label: 'Repository', html: repositoryLink },
+  { key: 'recordedBy', label: 'Recorded by' },
+]
+
+// Status -------------------------------------------------------------------
+
+let busyCount = 0
+function busy(on) {
+  busyCount = Math.max(0, busyCount + (on ? 1 : -1))
+  $('#busy').hidden = busyCount === 0
+}
+
+function setStatus(msg, isError = false) {
+  const el = $('#status')
+  el.textContent = msg
+  el.classList.toggle('error', isError)
+}
+
+// Controls -----------------------------------------------------------------
+
+const val = (sel) => $(sel).value
+const radioVal = (name) => document.querySelector(`input[name="${name}"]:checked`).value
+const bufferM = () => Number(val('#buffer'))
+const level = () => radioVal('taxonOfInterest')
+const datasetById = (id) => state.datasets.find((d) => d.id === id)
+
+function fillSelect(sel, options, selected) {
+  const el = $(sel)
+  el.replaceChildren(...options.map(([label, value]) => {
+    const o = document.createElement('option')
+    o.textContent = label
+    o.value = String(value)
+    if (String(value) === String(selected)) o.selected = true
+    return o
+  }))
+}
+
+function fillTaxa(records) {
+  const lv = level()
+  $('#taxonLabel').textContent = lv === 'family' ? 'Choose a family:' : 'Choose a genus:'
+  fillSelect('#taxon', [['All', 'All'], ...taxonChoices(records, lv).map((t) => [t, t])], 'All')
+}
+
+/** The active target area, or null with a hint about what the user must do. */
+function selectedPlace() {
+  switch (state.mode) {
+    case 'preloaded': {
+      const name = val('#place')
+      const feature = state.places.get(name)
+      return feature ? { feature, desc: { kind: 'preloaded', name } } : { hint: 'Choose a place' }
+    }
+    case 'upload':
+      return state.uploaded
+        ? { feature: state.uploaded.feature, desc: { kind: 'upload', name: state.uploaded.name } }
+        : { hint: 'Upload a KML file to build a list for its area.' }
+    case 'choose': {
+      const c = state.chosen
+      const radius = Number(val('#radiusChoose'))
+      return c
+        ? { feature: circlePolygon(c.lat, c.lon, radius), desc: { kind: 'circle', ...c, radius } }
+        : { hint: 'Enter a latitude between -90 and 90 and a longitude between -180 and 180.' }
+    }
+    case 'current': {
+      const c = state.located
+      const radius = Number(val('#radiusCurrent'))
+      if (c) return { feature: circlePolygon(c.lat, c.lon, radius), desc: { kind: 'current', ...c, radius } }
+      return { hint: state.locating ? 'Finding your location…' : 'Allow location access to build a list around you.' }
+    }
+  }
+  return { hint: '' }
+}
+
+// Main pipeline ------------------------------------------------------------
+
+/** Empty the map, table and stats, showing `msg` instead. */
+function clearOutputs(msg, isError = false) {
+  state.token++ // drop any query still in flight
+  state.current = null
+  map.update(null, null, [])
+  table.setData(LIST_COLUMNS, [], { key: 'n', dir: 'desc' })
+  $('#stats').textContent = ''
+  $('#download').disabled = true
+  fillTaxa([])
+  setStatus(msg, isError)
+}
+
+/**
+ * On narrow screens the results sit below the controls, out of sight, so
+ * after a change the user made, scroll down to them.
+ */
+function revealResults() {
+  if (window.matchMedia('(max-width: 800px)').matches) {
+    $('#status').scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
+/** Re-query when the place, buffer or dataset changes. */
+async function refreshPlace({ reveal = true } = {}) {
+  const sel = selectedPlace()
+  if (!sel.feature) {
+    clearOutputs(sel.hint)
+    return
+  }
+  const token = ++state.token
+
+  busy(true)
+  try {
+    const buffered = bufferPolygon(sel.feature, bufferM())
+    const box = expandBbox(bbox(buffered), 50)
+    const records = await loadRecords(val('#dataset'), box, ({ tiles, bytes, cached }) => {
+      if (token === state.token && cached < tiles) {
+        setStatus(`Loading ${tiles} data tile${tiles === 1 ? '' : 's'} (${(bytes / 1e6).toFixed(1)} MB)…`)
+      }
+    })
+    if (token !== state.token) return // a newer query superseded this one
+    const classified = classify(records, sel.feature, buffered)
+    state.current = { place: sel.feature, buffered, classified, desc: sel.desc }
+    fillTaxa(classified)
+    setStatus('')
+    render()
+    if (reveal) revealResults()
+  } catch (err) {
+    if (token !== state.token) return
+    console.error(err)
+    const hint = location.protocol === 'file:' ? ' Serve the site over http (see web/README.md).' : ''
+    setStatus(`Something went wrong: ${err.message}.${hint}`, true)
+  } finally {
+    busy(false)
+  }
+}
+
+/** Re-render outputs for the current query (taxon filter changes). */
+function render() {
+  const cur = state.current
+  if (!cur) return
+  const records = filterTaxon(cur.classified, level(), val('#taxon'))
+  $('#stats').textContent = statsText(records)
+  $('#download').disabled = false
+
+  const list = speciesList(records)
+  table.setData(LIST_COLUMNS, list, { key: 'n', dir: 'desc' })
+  map.update(cur.place, cur.buffered, list)
+}
+
+function download() {
+  const cur = state.current
+  if (!cur) return
+  const records = filterTaxon(cur.classified, level(), val('#taxon'))
+  const name = csvFilename(bufferM(), datasetById(val('#dataset')))
+  const url = URL.createObjectURL(new Blob([toCsv(records)], { type: 'text/csv;charset=utf-8' }))
+  const a = Object.assign(document.createElement('a'), { href: url, download: name })
+  document.body.append(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+// Event wiring -------------------------------------------------------------
+
+function setMode(mode) {
+  state.mode = mode
+  document.querySelectorAll('.panel').forEach((p) => { p.hidden = p.dataset.mode !== mode })
+  if (mode === 'current' && !state.located) {
+    locate() // choosing this option is the request; no separate Go
+  } else if (mode === 'choose') {
+    readChosenPoint()
+  } else {
+    refreshPlace()
+  }
+}
+
+function setNote(sel, msg, isError = false) {
+  const el = $(sel)
+  el.textContent = msg
+  el.classList.toggle('error', isError)
+}
+
+const GEO_ERRORS = {
+  1: 'Location access is blocked. Allow it for this site in your browser (and, on a phone, in the system location settings), then press "Update my location".',
+  2: 'Your device could not work out its location. Check that location services are on, then press "Update my location".',
+  3: 'Finding your location took too long. Press "Update my location" to try again.',
+}
+
+/** Ask the device for its location, then build the list around it. */
+function locate() {
+  if (!navigator.geolocation) {
+    setNote('#currentNote', 'Your browser does not support location access.', true)
+    clearOutputs('Your browser does not support location access.', true)
+    return
+  }
+  state.locating = true
+  $('#relocate').hidden = true
+  setNote('#currentNote', 'Finding your location…')
+  if (!state.located) clearOutputs('Finding your location…')
+  navigator.geolocation.getCurrentPosition((pos) => {
+    state.locating = false
+    $('#relocate').hidden = false
+    const { latitude, longitude, accuracy } = pos.coords
+    $('#geoLat').textContent = latitude
+    $('#geoLon').textContent = longitude
+    $('#geoAcc').textContent = accuracy
+    state.located = { lat: latitude, lon: longitude, accuracy }
+    setNote('#currentNote',
+      `Using your location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)} m)`)
+    if (state.mode === 'current') refreshPlace()
+  }, (err) => {
+    state.locating = false
+    $('#relocate').hidden = false
+    const msg = GEO_ERRORS[err.code] ?? `Could not get your location (${err.message}).`
+    setNote('#currentNote', msg, true)
+    if (state.mode === 'current' && !state.located) clearOutputs(msg, true)
+  }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 })
+}
+
+/** Read the lat/long inputs; update the list if they are valid. */
+function readChosenPoint() {
+  const lat = Number(val('#latitude'))
+  const lon = Number(val('#longitude'))
+  const valid = val('#latitude') !== '' && val('#longitude') !== '' &&
+    Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180
+  state.chosen = valid ? { lat, lon } : null
+  setNote('#chooseNote', valid ? '' : 'Enter a latitude between -90 and 90 and a longitude between -180 and 180.', !valid)
+  if (state.mode === 'choose') refreshPlace()
+}
+
+async function onUpload(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  try {
+    const feature = await parseKml(await file.text(), file.name)
+    state.uploaded = { feature, name: file.name }
+    refreshPlace()
+  } catch (err) {
+    state.uploaded = null
+    clearOutputs(`Could not read ${file.name}: ${err.message}`, true)
+  }
+}
+
+function selectTab(btn) {
+  document.querySelectorAll('.tabs [role="tab"]').forEach((b) => {
+    const on = b === btn
+    b.setAttribute('aria-selected', String(on))
+    $('#' + b.getAttribute('aria-controls')).hidden = !on
+  })
+  if (btn.id === 't-map') map.invalidate()
+}
+
+function wire() {
+  document.querySelectorAll('input[name="inputType"]').forEach((r) =>
+    r.addEventListener('change', () => setMode(r.value)))
+  $('#place').addEventListener('change', () => refreshPlace())
+  $('#uploadKML').addEventListener('change', onUpload)
+  $('#relocate').addEventListener('click', locate)
+  // 'change' fires when the user leaves the box or presses Enter, not on
+  // every keystroke, so half-typed coordinates don't trigger a query.
+  for (const id of ['#latitude', '#longitude']) $(id).addEventListener('change', readChosenPoint)
+  for (const id of ['#radiusCurrent', '#radiusChoose']) $(id).addEventListener('change', () => refreshPlace())
+  $('#buffer').addEventListener('change', () => refreshPlace())
+  $('#dataset').addEventListener('change', () => refreshPlace())
+  document.querySelectorAll('input[name="taxonOfInterest"]').forEach((r) =>
+    r.addEventListener('change', () => { if (state.current) fillTaxa(state.current.classified); render() }))
+  $('#taxon').addEventListener('change', render)
+  $('#download').addEventListener('click', download)
+  document.querySelectorAll('.tabs [role="tab"]').forEach((b) =>
+    b.addEventListener('click', () => selectTab(b)))
+}
+
+// Start-up -----------------------------------------------------------------
+
+async function init() {
+  wire()
+  for (const sel of ['#radiusCurrent', '#radiusChoose']) fillSelect(sel, RADII, 1000)
+  busy(true)
+  setStatus('Loading…')
+  try {
+    const [index, places] = await Promise.all([
+      loadDatasets(),
+      fetch('places.geojson').then((r) => {
+        if (!r.ok) throw new Error(`Could not load places (${r.status})`)
+        return r.json()
+      }),
+    ])
+    state.datasets = index.datasets
+    fillSelect('#dataset', index.datasets.map((d) => [d.label, d.id]), index.default)
+    for (const f of places.features) {
+      state.places.set(f.properties.name, { type: 'Feature', properties: {}, geometry: f.geometry })
+    }
+    fillSelect('#place', [...state.places.keys()].map((n) => [n, n]), DEFAULT_PLACE)
+  } catch (err) {
+    console.error(err)
+    const hint = location.protocol === 'file:' ? ' Serve the site over http (see web/README.md).' : ''
+    setStatus(`Could not start the app: ${err.message}.${hint}`, true)
+    return
+  } finally {
+    busy(false)
+  }
+  refreshPlace({ reveal: false })
+}
+
+init()
