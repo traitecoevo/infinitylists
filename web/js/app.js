@@ -236,7 +236,8 @@ function download() {
   const cur = state.current
   if (!cur) return
   const records = filterTaxon(cur.classified, level(), val('#taxon'))
-  const name = csvFilename(bufferM(), datasetById(val('#dataset')))
+  const name = csvFilename(cur.desc, bufferM(), datasetById(val('#dataset')),
+    { level: level(), value: val('#taxon') })
   const url = URL.createObjectURL(new Blob([toCsv(records)], { type: 'text/csv;charset=utf-8' }))
   const a = Object.assign(document.createElement('a'), { href: url, download: name })
   document.body.append(a)
