@@ -20,8 +20,9 @@ const state = {
   places: new Map(),   // name -> GeoJSON feature
   datasets: [],        // from datasets.json
   uploaded: null,      // {feature, name}
-  chosen: null,        // {lat, lon, radius} set when "Go" is pressed (lat/long mode)
-  located: null,       // {lat, lon, radius} set when "Go" is pressed (current location)
+  chosen: null,        // {lat, lon} from the lat/long inputs, when valid
+  located: null,       // {lat, lon, accuracy} from the device (current location)
+  locating: false,     // a location request is in flight
   current: null,       // {place, buffered, classified, desc} for the active query
   token: 0,            // guards against out-of-order async results
 }
@@ -107,15 +108,16 @@ function selectedPlace() {
         : { hint: 'Upload a KML file to build a list for its area.' }
     case 'choose': {
       const c = state.chosen
+      const radius = Number(val('#radiusChoose'))
       return c
-        ? { feature: circlePolygon(c.lat, c.lon, c.radius), desc: { kind: 'circle', ...c } }
-        : { hint: 'Enter a latitude and longitude, choose a radius and press Go.' }
+        ? { feature: circlePolygon(c.lat, c.lon, radius), desc: { kind: 'circle', ...c, radius } }
+        : { hint: 'Enter a latitude between -90 and 90 and a longitude between -180 and 180.' }
     }
     case 'current': {
       const c = state.located
-      return c
-        ? { feature: circlePolygon(c.lat, c.lon, c.radius), desc: { kind: 'current', ...c } }
-        : { hint: 'Choose a radius and press Go to use your current location.' }
+      const radius = Number(val('#radiusCurrent'))
+      if (c) return { feature: circlePolygon(c.lat, c.lon, radius), desc: { kind: 'current', ...c, radius } }
+      return { hint: state.locating ? 'Finding your location…' : 'Allow location access to build a list around you.' }
     }
   }
   return { hint: '' }
@@ -135,8 +137,18 @@ function clearOutputs(msg, isError = false) {
   setStatus(msg, isError)
 }
 
+/**
+ * On narrow screens the results sit below the controls, out of sight, so
+ * after a change the user made, scroll down to them.
+ */
+function revealResults() {
+  if (window.matchMedia('(max-width: 800px)').matches) {
+    $('#status').scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
 /** Re-query when the place, buffer or dataset changes. */
-async function refreshPlace() {
+async function refreshPlace({ reveal = true } = {}) {
   const sel = selectedPlace()
   if (!sel.feature) {
     clearOutputs(sel.hint)
@@ -159,6 +171,7 @@ async function refreshPlace() {
     fillTaxa(classified)
     setStatus('')
     render()
+    if (reveal) revealResults()
   } catch (err) {
     if (token !== state.token) return
     console.error(err)
@@ -201,40 +214,67 @@ function download() {
 function setMode(mode) {
   state.mode = mode
   document.querySelectorAll('.panel').forEach((p) => { p.hidden = p.dataset.mode !== mode })
-  refreshPlace()
+  if (mode === 'current' && !state.located) {
+    locate() // choosing this option is the request; no separate Go
+  } else if (mode === 'choose') {
+    readChosenPoint()
+  } else {
+    refreshPlace()
+  }
 }
 
-function useCurrentLocation() {
+function setNote(sel, msg, isError = false) {
+  const el = $(sel)
+  el.textContent = msg
+  el.classList.toggle('error', isError)
+}
+
+const GEO_ERRORS = {
+  1: 'Location access is blocked. Allow it for this site in your browser (and, on a phone, in the system location settings), then press "Update my location".',
+  2: 'Your device could not work out its location. Check that location services are on, then press "Update my location".',
+  3: 'Finding your location took too long. Press "Update my location" to try again.',
+}
+
+/** Ask the device for its location, then build the list around it. */
+function locate() {
   if (!navigator.geolocation) {
-    setStatus('Your browser does not support location access.', true)
+    setNote('#currentNote', 'Your browser does not support location access.', true)
+    clearOutputs('Your browser does not support location access.', true)
     return
   }
-  busy(true)
-  setStatus('Finding your location…')
+  state.locating = true
+  $('#relocate').hidden = true
+  setNote('#currentNote', 'Finding your location…')
+  if (!state.located) clearOutputs('Finding your location…')
   navigator.geolocation.getCurrentPosition((pos) => {
-    busy(false)
+    state.locating = false
+    $('#relocate').hidden = false
     const { latitude, longitude, accuracy } = pos.coords
     $('#geoLat').textContent = latitude
     $('#geoLon').textContent = longitude
     $('#geoAcc').textContent = accuracy
-    state.located = { lat: latitude, lon: longitude, radius: Number(val('#radiusCurrent')) }
-    refreshPlace()
+    state.located = { lat: latitude, lon: longitude, accuracy }
+    setNote('#currentNote',
+      `Using your location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)} m)`)
+    if (state.mode === 'current') refreshPlace()
   }, (err) => {
-    busy(false)
-    setStatus(`Could not get your location (${err.message}). Allow location access for this site and try again.`, true)
-  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 })
+    state.locating = false
+    $('#relocate').hidden = false
+    const msg = GEO_ERRORS[err.code] ?? `Could not get your location (${err.message}).`
+    setNote('#currentNote', msg, true)
+    if (state.mode === 'current' && !state.located) clearOutputs(msg, true)
+  }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 })
 }
 
-function useChosenPoint() {
+/** Read the lat/long inputs; update the list if they are valid. */
+function readChosenPoint() {
   const lat = Number(val('#latitude'))
   const lon = Number(val('#longitude'))
-  if (val('#latitude') === '' || val('#longitude') === '' || !Number.isFinite(lat) || !Number.isFinite(lon) ||
-      Math.abs(lat) > 90 || Math.abs(lon) > 180) {
-    setStatus('Enter a latitude between -90 and 90 and a longitude between -180 and 180.', true)
-    return
-  }
-  state.chosen = { lat, lon, radius: Number(val('#radiusChoose')) }
-  refreshPlace()
+  const valid = val('#latitude') !== '' && val('#longitude') !== '' &&
+    Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180
+  state.chosen = valid ? { lat, lon } : null
+  setNote('#chooseNote', valid ? '' : 'Enter a latitude between -90 and 90 and a longitude between -180 and 180.', !valid)
+  if (state.mode === 'choose') refreshPlace()
 }
 
 async function onUpload(e) {
@@ -262,15 +302,15 @@ function selectTab(btn) {
 function wire() {
   document.querySelectorAll('input[name="inputType"]').forEach((r) =>
     r.addEventListener('change', () => setMode(r.value)))
-  $('#place').addEventListener('change', refreshPlace)
+  $('#place').addEventListener('change', () => refreshPlace())
   $('#uploadKML').addEventListener('change', onUpload)
-  $('#goChoose').addEventListener('click', useChosenPoint)
-  $('#goCurrent').addEventListener('click', useCurrentLocation)
-  for (const id of ['#latitude', '#longitude']) {
-    $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') useChosenPoint() })
-  }
-  $('#buffer').addEventListener('change', refreshPlace)
-  $('#dataset').addEventListener('change', refreshPlace)
+  $('#relocate').addEventListener('click', locate)
+  // 'change' fires when the user leaves the box or presses Enter, not on
+  // every keystroke, so half-typed coordinates don't trigger a query.
+  for (const id of ['#latitude', '#longitude']) $(id).addEventListener('change', readChosenPoint)
+  for (const id of ['#radiusCurrent', '#radiusChoose']) $(id).addEventListener('change', () => refreshPlace())
+  $('#buffer').addEventListener('change', () => refreshPlace())
+  $('#dataset').addEventListener('change', () => refreshPlace())
   document.querySelectorAll('input[name="taxonOfInterest"]').forEach((r) =>
     r.addEventListener('change', () => { if (state.current) fillTaxa(state.current.classified); render() }))
   $('#taxon').addEventListener('change', render)
@@ -283,7 +323,7 @@ function wire() {
 
 async function init() {
   wire()
-  for (const sel of ['#radiusCurrent', '#radiusChoose']) fillSelect(sel, RADII, 100)
+  for (const sel of ['#radiusCurrent', '#radiusChoose']) fillSelect(sel, RADII, 1000)
   busy(true)
   setStatus('Loading…')
   try {
@@ -308,7 +348,7 @@ async function init() {
   } finally {
     busy(false)
   }
-  refreshPlace()
+  refreshPlace({ reveal: false })
 }
 
 init()
