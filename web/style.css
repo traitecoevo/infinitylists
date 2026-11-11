@@ -58,7 +58,9 @@ a:hover { color: var(--accent-dark); }
 .sidebar fieldset .radios { clear: both; }
 .sidebar fieldset:first-child { padding-top: 0; }
 .radios { display: flex; flex-wrap: wrap; gap: 4px 14px; }
-.radios label { font-weight: 400; margin: 2px 0; }
+.radios label, .toggle { font-weight: 400; margin: 2px 0; }
+.toggle { display: flex; gap: 8px; align-items: flex-start; margin-top: 14px !important; }
+.toggle input { margin-top: 3px; }
 
 select, input[type="number"], input[type="file"], input[type="search"] {
   width: 100%;
@@ -152,4 +154,15 @@ table.dt tbody tr:hover { background: #f1f5fb; }
   .site-header img { width: 72px; }
   #map { height: 60vh; }
   .stats { font-size: 18px; }
+}
+
+.popup { line-height: 1.5; }
+
+.map-note {
+  background: rgba(255, 255, 255, .9);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: .85rem;
+  max-width: 340px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
 }
