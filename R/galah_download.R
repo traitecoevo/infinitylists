@@ -30,13 +30,13 @@ download_ala_obs <- function(taxon,
                              year_range = c(1923, as.numeric(format(Sys.Date(), "%Y"))),
                              save_raw_data = FALSE,
                              output_dir = file.path(system.file(package = "infinitylists"), "data/")) {
-  # 1. Data retrieval
-  ala_obs <-
-    retrieve_data(taxon, year_range, save_raw_data, output_dir)
-  
-  # 2. Filtering and processing
-  ala_cleaned <- process_data(ala_obs)
-  
+  # 1 + 2. Data retrieval, filtering and processing. Each downloaded chunk
+  # is processed straight away, so only the kept rows stay in memory (raw
+  # Plantae is ~26M records; processed, ~5M).
+  ala_cleaned <-
+    retrieve_data(taxon, year_range, save_raw_data, output_dir,
+                  process = process_data)
+
   # 3. Add additional columns
   ala_cleaned_with_add_ons <-
     get_establishment_status(ala_cleaned, taxon)
@@ -55,47 +55,47 @@ download_ala_obs <- function(taxon,
 #'
 #' @param taxon A character string representing the name of the taxon to query.
 #' @param years A numeric vector specifying the year(s) for the data.
+#' @param select If `TRUE` (the default), choose the columns to download. Use
+#'   `FALSE` for record counts: current galah applies a select to counts too,
+#'   and fails because counts have no `recordID` column.
 #'
-#' @return A list containing the identify, filter, and select criteria to be
-#'         used with the ALA API.
+#' @return A galah query (`data_request`) for the ALA API.
 #'
 #' @noRd
 
-query <- function(taxon, years) {
-  identify <- galah::galah_call() |>
-    galah::galah_identify(taxon)
-  
-  filter <- galah::galah_filter(
-    spatiallyValid == TRUE,
-    species != "",
-    decimalLatitude != "",
-    year == years,
-    basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
-  )
-  
-  select <- galah::galah_select(
-    recordID,
-    species,
-    genus,
-    family,
-    decimalLatitude,
-    decimalLongitude,
-    coordinateUncertaintyInMeters,
-    eventDate,
-    datasetName,
-    basisOfRecord,
-    references,
-    institutionCode,
-    recordedBy,
-    outlierLayerCount,
-    isDuplicateOf,
-    sounds
-  )
-  
-  identify$filter <- filter
-  identify$select <- select
-  
-  return(identify)
+query <- function(taxon, years, select = TRUE) {
+  # Built with pipes: assigning $filter/$select onto the request object
+  # directly no longer works with galah >= 2.2.
+  q <- galah::galah_call() |>
+    galah::galah_identify(taxon) |>
+    galah::galah_filter(
+      spatiallyValid == TRUE,
+      species != "",
+      decimalLatitude != "",
+      year == years,
+      basisOfRecord == c("HUMAN_OBSERVATION", "PRESERVED_SPECIMEN")
+    )
+  if (!select) return(q)
+
+  q |>
+    galah::galah_select(
+      recordID,
+      species,
+      genus,
+      family,
+      decimalLatitude,
+      decimalLongitude,
+      coordinateUncertaintyInMeters,
+      eventDate,
+      datasetName,
+      basisOfRecord,
+      references,
+      institutionCode,
+      recordedBy,
+      outlierLayerCount,
+      isDuplicateOf,
+      sounds
+    )
 }
 
 
@@ -117,9 +117,9 @@ retrieve_data_by_years <- function(taxon,
         "Living-Atlas",
         taxon,
         "-",
-        first(years),
+        dplyr::first(years),
         "-",
-        last(years),
+        dplyr::last(years),
         "-",
         Sys.Date(),
         ".parquet"
@@ -130,36 +130,92 @@ retrieve_data_by_years <- function(taxon,
 }
 
 
+#' Split consecutive years into chunks of at most `max_records` records
+#'
+#' @param counts data frame with integer `year` and `count`, one row per year
+#' @return list of integer vectors of years (a single year larger than
+#'   `max_records` gets a chunk of its own)
+#' @noRd
+chunk_years <- function(counts, max_records) {
+  counts <- counts[order(counts$year), ]
+  chunks <- list()
+  current <- integer()
+  total <- 0
+  for (i in seq_len(nrow(counts))) {
+    n <- counts$count[i]
+    if (length(current) > 0 && total + n > max_records) {
+      chunks[[length(chunks) + 1]] <- current
+      current <- integer()
+      total <- 0
+    }
+    current <- c(current, counts$year[i])
+    total <- total + n
+  }
+  if (length(current) > 0) chunks[[length(chunks) + 1]] <- current
+  chunks
+}
+
+#' Run `f()`, retrying on error; stop after `tries` failures
+#' @noRd
+with_retries <- function(f, what, tries = 3, wait = 60) {
+  for (attempt in seq_len(tries)) {
+    result <- tryCatch(f(), error = function(e) e)
+    if (!inherits(result, "error")) return(result)
+    message(sprintf("%s failed (attempt %d of %d): %s",
+                    what, attempt, tries, conditionMessage(result)))
+    if (attempt < tries) Sys.sleep(wait)
+  }
+  stop(what, " failed after ", tries, " attempts", call. = FALSE)
+}
+
+#' @param process function applied to each downloaded chunk before chunks
+#'   are combined (e.g. `process_data`), to keep memory use down
+#' @param max_records largest number of records requested from ALA at once
 #' @noRd
 retrieve_data <- function(taxon,
                           year_range = c(1923, 2023),
                           save_raw_data = FALSE,
-                          output_dir = NULL) {
-  # Split years into chunks of 10 year intervals
+                          output_dir = NULL,
+                          process = identity,
+                          max_records = 2500000) {
   years <- seq(year_range[1], year_range[2])
-  
+
   # Determine atlas counts
-  n_obs <- query(taxon, years) |>
-    galah::atlas_counts()
-  
-  # If less than 1 mil records
-  if (n_obs < 1000000)
-    output <-
-    retrieve_data_by_years(taxon, years, save_raw_data, output_dir)
-  else{
-    year_chunks <- split(years, ceiling(seq_along(years) / 9))
-    
-    download <-  purrr::map(year_chunks,
-                            purrr::possibly(
-                              ~ retrieve_data_by_years(taxon, years = .x, save_raw_data, output_dir)
-                            ))
-    
-    # Collapse list
-    output <- dplyr::bind_rows(download)
+  n_obs <- query(taxon, years, select = FALSE) |>
+    galah::atlas_counts() |>
+    dplyr::pull(count)
+
+  if (n_obs <= max_records) {
+    year_chunks <- list(years)
+  } else {
+    # Chunk by record count rather than a fixed number of years: recent
+    # years have far more records than early ones.
+    by_year <- query(taxon, years, select = FALSE) |>
+      dplyr::group_by(year) |> # galah provides the method for its queries
+      galah::atlas_counts(limit = NULL)
+    by_year$year <- as.integer(by_year$year)
+    year_chunks <- chunk_years(by_year, max_records)
   }
-  
-  return(output)
-  
+
+  # Fail loudly rather than silently dropping a chunk that didn't download.
+  output <- purrr::imap(year_chunks, function(yrs, i) {
+    what <- sprintf("%s %d-%d (chunk %d of %d)", taxon,
+                    min(yrs), max(yrs), i, length(year_chunks))
+    message("Downloading ", what)
+    download <- with_retries(
+      function() retrieve_data_by_years(taxon, yrs, save_raw_data, output_dir),
+      what
+    )
+    processed <- process(download)
+    message(sprintf("  %s raw -> %s kept",
+                    format(nrow(download), big.mark = ","),
+                    format(nrow(processed), big.mark = ",")))
+    rm(download)
+    gc()
+    processed
+  })
+
+  dplyr::bind_rows(output)
 }
 
 #' @noRd
