@@ -1,9 +1,15 @@
 # Redirect for the old Shiny deployments
 
-`app.R` is a minimal Shiny app that sends visitors to the new static site,
-<https://traitecoevo.github.io/infinitylists/app/>. Deploy it **over** each
+`app.R` is a minimal Shiny app that sends visitors to the app's permanent
+address, <https://w3id.org/infinitylists/>, which forwards to the static site
+at <https://traitecoevo.github.io/infinitylists/app/>. Deploy it **over** each
 old deployment, using the same app ID so the URL stays the same. Links in the
 paper, the README and bookmarks then keep working.
+
+> **Keep <https://unsw.shinyapps.io/infinitylists/> deployed.** It is the URL
+> printed in the paper (Cornwell, Kar & Mesaglio 2025, *Applications in Plant
+> Sciences* 13(3): e70012, <https://doi.org/10.1002/aps3.70012>). The monthly
+> `link-check` workflow opens an issue if it stops forwarding.
 
 Deploy only at cutover (#116), once the new site is final.
 
@@ -44,6 +50,31 @@ rsconnect::deployApp("redirect", appId = 1,
 ```
 
 Then open each URL and check it lands on the new site.
+
+## The chain of addresses
+
+```
+paper → unsw.shinyapps.io/infinitylists/   (this app; set once)
+      → w3id.org/infinitylists/            (redirect rules in perma-id/w3id.org,
+                                             ids/infinitylists/.htaccess)
+      → traitecoevo.github.io/infinitylists/app/
+```
+
+If the app ever moves (new repo, custom domain, other host), change only the
+w3id rules, by pull request to <https://github.com/perma-id/w3id.org>. This
+deployment and the paper link need no change.
+
+Keep the repository at `traitecoevo/infinitylists`. GitHub forwards renamed or
+transferred repositories, but not their GitHub Pages sites.
+
+## Who can deploy
+
+Losing access to the shinyapps.io account means losing the paper URL. Make
+sure at least two current lab members are admins of the `unsw` shinyapps.io
+account, and update that list when people leave.
+
+If shinyapps.io itself ever shuts down, the only remedy is a correction
+notice to the journal giving <https://w3id.org/infinitylists/>.
 
 ## Keeping cost at zero
 

@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/traitecoevo/infinitylists/actions/workflows/R-CMD-check.yaml)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12677594.svg)](https://doi.org/10.5281/zenodo.12677594)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12677593.svg)](https://doi.org/10.5281/zenodo.12677593)
 [![Lifecycle:
 Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
@@ -83,8 +83,14 @@ included or excluded.
 
 ## Accessing the Web App
 
-You can access the hosted version of `infinitylists` here:  
-🔗 <https://unsw.shinyapps.io/infinitylists/>
+Use the web app here:  
+🔗 <https://w3id.org/infinitylists/>
+
+This is a permanent address that always points to the current version
+of the app (it forwards to
+<https://traitecoevo.github.io/infinitylists/app/>). The address given
+in [our paper](https://doi.org/10.1002/aps3.70012),
+<https://unsw.shinyapps.io/infinitylists/>, forwards here too.
 
 ## Local Installation
 
