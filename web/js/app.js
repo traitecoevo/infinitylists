@@ -286,9 +286,6 @@ function locate() {
     state.locating = false
     $('#relocate').hidden = false
     const { latitude, longitude, accuracy } = pos.coords
-    $('#geoLat').textContent = latitude
-    $('#geoLon').textContent = longitude
-    $('#geoAcc').textContent = accuracy
     state.located = { lat: latitude, lon: longitude, accuracy }
     setNote('#currentNote',
       `Using your location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)} m)`)
