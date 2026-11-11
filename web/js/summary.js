@@ -118,7 +118,8 @@ function csvCell(v) {
 
 /**
  * All records as CSV, with the same columns and sentence-case headers as the
- * Shiny download.
+ * Shiny download. Repository shows "iNat" for iNaturalist records, matching
+ * the table; the record URL is in Link (#92).
  */
 export function toCsv(records) {
   const cols = [
@@ -129,7 +130,7 @@ export function toCsv(records) {
     ['Lat', (r) => r.lat],
     ['Long', (r) => r.lon],
     ['Voucher type', (r) => r.voucher],
-    ['Repository', (r) => r.repository],
+    ['Repository', (r) => (isINat(r.repository) ? 'iNat' : r.repository)],
     ['Recorded by', (r) => r.recordedBy],
     ['Link', (r) => r.link],
     ['Establishment means', (r) => r.establishment],
