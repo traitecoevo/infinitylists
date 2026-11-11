@@ -58,9 +58,7 @@ a:hover { color: var(--accent-dark); }
 .sidebar fieldset .radios { clear: both; }
 .sidebar fieldset:first-child { padding-top: 0; }
 .radios { display: flex; flex-wrap: wrap; gap: 4px 14px; }
-.radios label, .toggle { font-weight: 400; margin: 2px 0; }
-.toggle { display: flex; gap: 8px; align-items: flex-start; margin-top: 14px !important; }
-.toggle input { margin-top: 3px; }
+.radios label { font-weight: 400; margin: 2px 0; }
 
 select, input[type="number"], input[type="file"], input[type="search"] {
   width: 100%;
@@ -109,10 +107,12 @@ input[type="search"] { width: auto; }
 
 .status { min-height: 1.4em; margin: 6px 0; color: var(--muted); font-size: .9rem; }
 .status.error { color: #b02a37; font-weight: 700; }
+.panel-note { margin: 8px 0 0; color: var(--muted); font-size: .85rem; }
+.panel-note:empty { display: none; }
+.panel-note.error { color: #b02a37; font-weight: 700; }
 
 #map { height: 500px; border: 1px solid var(--border); }
 .stats { font-weight: 700; font-size: 24px; margin: 20px 0 50px; }
-.location-note { margin: 8px 0 0; color: var(--muted); font-size: .95rem; }
 
 .about h4 { margin-top: 1.4em; }
 pre { background: var(--panel); border: 1px solid var(--border); padding: 8px; min-height: 2.4em; }
