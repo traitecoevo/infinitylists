@@ -6,10 +6,17 @@
 # See redirect/README.md for how to deploy it.
 #
 # It depends only on shiny, so the bundle is small and fast to start.
+#
+# The URL https://unsw.shinyapps.io/infinitylists/ is cited in the paper
+# (doi:10.1002/aps3.70012), so this redirect must stay deployed.
 
 library(shiny)
 
-target <- "https://traitecoevo.github.io/infinitylists/app/"
+# Permanent address (w3id.org), so that if the app ever moves, only the w3id
+# redirect needs changing, not this deployment.
+target <- "https://w3id.org/infinitylists/"
+# Shown as a second link in case w3id.org is ever unavailable.
+fallback <- "https://traitecoevo.github.io/infinitylists/app/"
 
 ui <- fluidPage(
   title = "Infinity Lists has moved",
@@ -30,6 +37,8 @@ ui <- fluidPage(
     h2("Infinity Lists has moved"),
     p("The app now lives at"),
     p(tags$a(href = target, target = "_top", style = "font-size: 1.3em;", target)),
+    p(style = "color: #6c757d;", "If that link doesn't work, try ",
+      tags$a(href = fallback, target = "_top", fallback)),
     p(style = "color: #6c757d;", "You should be redirected automatically. Please update any bookmarks.")
   )
 )

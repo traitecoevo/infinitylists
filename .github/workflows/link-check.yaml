@@ -1,0 +1,86 @@
+# Checks, once a month, that the addresses people use to reach the app still
+# work, starting with the one printed in the paper (doi:10.1002/aps3.70012).
+# If any fails, it opens (or comments on) a GitHub issue.
+# See redirect/README.md for how the addresses chain together.
+
+name: link-check
+
+on:
+  schedule:
+    - cron: "0 3 15 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check the links
+        id: check
+        run: |
+          app="https://traitecoevo.github.io/infinitylists/app/"
+          report=report.md
+          : > "$report"
+          failed=0
+
+          pass() { echo "- ✅ $1" >> "$report"; }
+          fail() { echo "- ❌ $1: $2" >> "$report"; failed=1; }
+
+          # 1. The paper's URL: the redirect app must point at the w3id
+          # address (or straight at the app). A sleeping shinyapps.io app can
+          # take a while to start, so allow retries.
+          paper="https://unsw.shinyapps.io/infinitylists/"
+          ok=0
+          for attempt in 1 2 3; do
+            page=$(curl -sL --max-time 90 "$paper" || true)
+            if grep -qE "w3id\.org/infinitylists|traitecoevo\.github\.io/infinitylists/app" <<< "$page"; then
+              ok=1; break
+            fi
+            sleep 30
+          done
+          if [ "$ok" = 1 ]; then pass "$paper forwards to the app"
+          else fail "$paper" "page doesn't contain the redirect (is the redirect app deployed?)"; fi
+
+          # 2. The permanent address forwards to the app.
+          w3id="https://w3id.org/infinitylists/"
+          out=$(curl -s -o /dev/null --max-time 30 -w '%{http_code} %{redirect_url}' "$w3id" || true)
+          code=${out%% *}; location=${out#* }
+          if [[ "$code" =~ ^30[1278]$ && "$location" == "$app"* ]]; then pass "$w3id → $location"
+          else fail "$w3id" "got HTTP $code → '${location}', expected a redirect to $app"; fi
+
+          # 3. The app itself, and its data.
+          page=$(curl -sf --max-time 30 "$app" || true)
+          if grep -q "infinitylists" <<< "$page"; then pass "$app loads"
+          else fail "$app" "didn't load"; fi
+          n=$( (curl -sf --max-time 30 "${app}data/datasets.json" || true) | jq '.datasets | length' 2>/dev/null || echo 0)
+          if [ "${n:-0}" -gt 0 ]; then pass "${app}data/datasets.json lists $n datasets"
+          else fail "${app}data/datasets.json" "missing or empty"; fi
+
+          # 4. The GitHub repository (also cited in the paper).
+          repo="https://github.com/traitecoevo/infinitylists"
+          if curl -sfL -o /dev/null --max-time 30 "$repo"; then pass "$repo"
+          else fail "$repo" "not reachable"; fi
+
+          tee -a "$GITHUB_STEP_SUMMARY" < "$report"
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update an issue
+        if: steps.check.outputs.failed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Link check failed: app or paper links"
+          body="$(printf 'The monthly link check found a problem ([run](%s/%s/actions/runs/%s)):\n\n%s\n\nSee redirect/README.md for how the addresses chain together.' \
+            "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$(cat report.md)")"
+          existing=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
+          exit 1
