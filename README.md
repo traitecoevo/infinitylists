@@ -11,7 +11,8 @@
 Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
-`infinitylists` is a Shiny-based application that enables users to
+`infinitylists` is a web app, and an R package that can also run it
+locally as a Shiny app. It enables users to
 extract species occurrence data from national and global databases to
 generate species lists for any defined area. The area can be defined
 either via a `kml` file or a circle for a specified latitude and
