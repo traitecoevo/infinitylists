@@ -5,11 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Infinity Lists</title>
   <meta name="description" content="An interactive tool for building place-based species lists from vouchered biodiversity records (ALA and GBIF).">
-  <link rel="icon" type="image/png" href="img/infinitylist_hex.png">
+  <link rel="icon" type="image/png" href="img/favicon64.png">
 
-  <!-- Google tag (gtag.js) (#71) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7G4EL1GX3Q"></script>
+  <!-- Google tag (gtag.js) (#71). Loaded shortly after the page so its
+       ~180 KB doesn't compete with the app on slow connections (#138). -->
   <script>
+    window.addEventListener('load', () => setTimeout(() => {
+      const s = document.createElement('script')
+      s.async = true
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-7G4EL1GX3Q'
+      document.head.append(s)
+    }, 1500))
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
@@ -23,12 +29,49 @@
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="vendor/markercluster/leaflet.markercluster.js"></script>
   <script src="vendor/turf/turf.min.js"></script>
+  <!-- Fetch all ES modules at once instead of one import level at a time
+       (several round trips on slow connections, #138). Keep in sync with
+       vendor/hyparquet/ and js/ (see vendor/README.md). -->
+  <link rel="modulepreload" href="js/app.js">
+  <link rel="modulepreload" href="js/data.js">
+  <link rel="modulepreload" href="js/geo.js">
+  <link rel="modulepreload" href="js/map.js">
+  <link rel="modulepreload" href="js/points.js">
+  <link rel="modulepreload" href="js/summary.js">
+  <link rel="modulepreload" href="js/table.js">
+  <link rel="modulepreload" href="vendor/hyparquet/alp.js">
+  <link rel="modulepreload" href="vendor/hyparquet/assemble.js">
+  <link rel="modulepreload" href="vendor/hyparquet/bloom.js">
+  <link rel="modulepreload" href="vendor/hyparquet/column.js">
+  <link rel="modulepreload" href="vendor/hyparquet/constants.js">
+  <link rel="modulepreload" href="vendor/hyparquet/convert.js">
+  <link rel="modulepreload" href="vendor/hyparquet/datapage.js">
+  <link rel="modulepreload" href="vendor/hyparquet/delta.js">
+  <link rel="modulepreload" href="vendor/hyparquet/encoding.js">
+  <link rel="modulepreload" href="vendor/hyparquet/filter.js">
+  <link rel="modulepreload" href="vendor/hyparquet/geoparquet.js">
+  <link rel="modulepreload" href="vendor/hyparquet/index.js">
+  <link rel="modulepreload" href="vendor/hyparquet/indexes.js">
+  <link rel="modulepreload" href="vendor/hyparquet/metadata.js">
+  <link rel="modulepreload" href="vendor/hyparquet/plain.js">
+  <link rel="modulepreload" href="vendor/hyparquet/plan.js">
+  <link rel="modulepreload" href="vendor/hyparquet/query.js">
+  <link rel="modulepreload" href="vendor/hyparquet/read.js">
+  <link rel="modulepreload" href="vendor/hyparquet/rowgroup.js">
+  <link rel="modulepreload" href="vendor/hyparquet/scan.js">
+  <link rel="modulepreload" href="vendor/hyparquet/schema.js">
+  <link rel="modulepreload" href="vendor/hyparquet/snappy.js">
+  <link rel="modulepreload" href="vendor/hyparquet/thrift.js">
+  <link rel="modulepreload" href="vendor/hyparquet/utils.js">
+  <link rel="modulepreload" href="vendor/hyparquet/variant.js">
+  <link rel="modulepreload" href="vendor/hyparquet/wkb.js">
+  <link rel="modulepreload" href="vendor/hyparquet/xxhash.js">
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
   <header class="site-header">
     <h1>An Infinity of Lists: an Interactive Tool for Building Place-based Species Lists</h1>
-    <img src="img/infinitylist_hex.png" alt="Infinity Lists hex logo" width="150" height="150">
+    <img src="img/infinitylist_hex.webp" alt="Infinity Lists hex logo" width="150" height="150">
   </header>
 
   <div id="busy" class="busy" hidden aria-hidden="true"><div class="spinner"></div></div>

@@ -9,7 +9,7 @@
 #
 #   release_parquet_dir  directory holding Living-Atlas-*.parquet release assets
 #   out_dir              defaults to site/app
-#   max_rows             max rows per tile, defaults to 60000
+#   max_rows             max rows per tile, defaults to 8000
 #
 # Output layout:
 #   <out_dir>/places.geojson
@@ -20,6 +20,14 @@
 # Tiles come from an adaptive quadtree: a cell is split into four until it holds
 # at most `max_rows` records. Each manifest lists tile bounding boxes so the
 # browser only downloads tiles that intersect the area being queried.
+#
+# Tiles are kept small for phones (#138): with 8,000 rows per tile, a query for
+# a small area downloads about a tenth of what it did with 60,000. Two columns
+# are also stored more compactly than in the release files (the release files
+# themselves are unchanged):
+#   - Repository is "" when it equals Link (true for iNaturalist records); the
+#     app rebuilds it. NA stays NA.
+#   - Collection Date is a date (the app only shows and exports dates, in UTC).
 
 suppressPackageStartupMessages({
   library(arrow)
@@ -34,7 +42,7 @@ if (length(args) < 1) {
 }
 in_dir   <- args[[1]]
 out_dir  <- if (length(args) >= 2) args[[2]] else file.path("site", "app")
-max_rows <- if (length(args) >= 3) as.integer(args[[3]]) else 60000L
+max_rows <- if (length(args) >= 3) as.integer(args[[3]]) else 8000L
 
 # Columns the app uses, in output order.
 app_columns <- c(
@@ -121,10 +129,14 @@ read_release <- function(path) {
   dt <- dt[, ..app_columns]
   # GBIF files store Establishment Means as an all-NA bool; ALA as a string.
   dt[, `Establishment Means` := as.character(`Establishment Means`)]
-  # Timestamps stored as UTC milliseconds (TIMESTAMP_MILLIS), which browser
-  # parquet readers decode straight to JS Date objects.
+  # Keep the full UTC timestamp for sorting; each tile is written with the
+  # date only (DATE), which browser parquet readers decode to a JS Date at
+  # UTC midnight.
   dt[, `Collection Date` := as.POSIXct(`Collection Date`, tz = "UTC")]
   dt <- dt[!is.na(Lat) & !is.na(Long)]
+  # Repository repeats Link for iNaturalist records; store it once ("" means
+  # "same as Link"; the app rebuilds it in toRecord(), web/js/data.js).
+  dt[!is.na(Repository) & !is.na(Link) & Repository == Link, Repository := ""]
   dt
 }
 
@@ -132,7 +144,7 @@ tile_schema <- arrow::schema(
   Species = arrow::utf8(),
   Genus = arrow::utf8(),
   Family = arrow::utf8(),
-  `Collection Date` = arrow::timestamp("ms", timezone = "UTC"),
+  `Collection Date` = arrow::date32(), # UTC date; see the write step
   Lat = arrow::float64(),
   Long = arrow::float64(),
   `Voucher Type` = arrow::utf8(),
@@ -159,8 +171,11 @@ build_dataset <- function(path, data_dir) {
     t <- tiles[[i]]
     td <- dt[t$idx]
     # Sorting by species then newest-first improves compression (dictionary
-    # runs) and matches the order the app wants.
+    # runs) and matches the order the app wants. Sort on the full timestamp
+    # before dropping the time, so records from the same day keep a
+    # deterministic order.
     setorder(td, Species, -`Collection Date`)
+    td[, `Collection Date` := as.Date(`Collection Date`, tz = "UTC")]
     file <- paste0(t$key, ".parquet")
     tbl <- arrow::Table$create(td, schema = tile_schema)
     arrow::write_parquet(
