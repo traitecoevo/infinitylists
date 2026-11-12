@@ -272,32 +272,91 @@ const GEO_ERRORS = {
   3: 'Finding your location took too long. Press "Update my location" to try again.',
 }
 
-/** Ask the device for its location, then build the list around it. */
+// A phone's first fix usually comes from Wi-Fi or cell towers (often hundreds
+// of metres out); the GPS fix arrives a few seconds later. So we watch the
+// position for a while, keep the best fix, and stop once it is good enough.
+const GOOD_ENOUGH_M = 30          // stop watching at this accuracy
+const LOCATE_TIMEOUT_MS = 20000   // or after this long, keeping the best fix
+const REBUILD_GAIN = 0.75         // rebuild the list only when the error shrinks by 25%+
+let watch = null                  // {id, timer} while a location watch is running
+
+function stopWatching() {
+  if (!watch) return
+  navigator.geolocation.clearWatch(watch.id)
+  clearTimeout(watch.timer)
+  watch = null
+}
+
+/** Show the location in use, warning if its error is large for the radius. */
+function showLocationNote() {
+  const c = state.located
+  if (!c) return
+  const acc = Math.round(c.accuracy)
+  const radius = Number(val('#radiusCurrent'))
+  let msg = `Using your location: ${c.lat.toFixed(5)}, ${c.lon.toFixed(5)} (±${acc} m)`
+  const rough = c.accuracy > radius / 2
+  if (rough) {
+    msg += `. This is only accurate to ±${acc} m, which is large for a ${radius.toLocaleString()} m radius.` +
+      ' On a phone, turn on precise location and try outdoors, then press "Update my location";' +
+      ' on a laptop, the location is only an estimate.'
+  }
+  setNote('#currentNote', msg, rough)
+}
+
+/** Ask the device for its location, refine it for a few seconds, and build the list around it. */
 function locate() {
   if (!navigator.geolocation) {
     setNote('#currentNote', 'Your browser does not support location access.', true)
     clearOutputs('Your browser does not support location access.', true)
     return
   }
+  stopWatching()
   state.locating = true
   $('#relocate').hidden = true
   setNote('#currentNote', 'Finding your location…')
   if (!state.located) clearOutputs('Finding your location…')
-  navigator.geolocation.getCurrentPosition((pos) => {
-    state.locating = false
-    $('#relocate').hidden = false
-    const { latitude, longitude, accuracy } = pos.coords
-    state.located = { lat: latitude, lon: longitude, accuracy }
-    setNote('#currentNote',
-      `Using your location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)} m)`)
+
+  let best = null      // most accurate fix from this request
+  let adopted = null   // the fix the list was last built from in this request
+
+  const adopt = (fix) => {
+    adopted = fix
+    state.located = fix
     if (state.mode === 'current') refreshPlace()
-  }, (err) => {
+  }
+  const finish = () => {
+    stopWatching()
     state.locating = false
     $('#relocate').hidden = false
-    const msg = GEO_ERRORS[err.code] ?? `Could not get your location (${err.message}).`
+    if (best !== adopted) adopt(best)
+    showLocationNote()
+  }
+  const fail = (msg) => {
+    stopWatching()
+    state.locating = false
+    $('#relocate').hidden = false
     setNote('#currentNote', msg, true)
     if (state.mode === 'current' && !state.located) clearOutputs(msg, true)
-  }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 })
+  }
+
+  const id = navigator.geolocation.watchPosition((pos) => {
+    if (!watch) return
+    const { latitude, longitude, accuracy } = pos.coords
+    if (best && accuracy >= best.accuracy) return
+    best = { lat: latitude, lon: longitude, accuracy }
+    if (accuracy <= GOOD_ENOUGH_M) return finish()
+    if (!adopted || accuracy <= adopted.accuracy * REBUILD_GAIN) adopt(best)
+    setNote('#currentNote', `Refining your location… ±${Math.round(accuracy)} m so far`)
+  }, (err) => {
+    if (!watch) return
+    if (best && err.code !== 1) return finish() // keep the fix we have
+    fail(GEO_ERRORS[err.code] ?? `Could not get your location (${err.message}).`)
+  }, { enableHighAccuracy: true, maximumAge: 0 })
+
+  watch = {
+    id,
+    timer: setTimeout(() => (best ? finish() : fail(GEO_ERRORS[3])), LOCATE_TIMEOUT_MS),
+  }
 }
 
 /** Read the lat/long inputs; update the list if they are valid. */
@@ -343,6 +402,7 @@ function wire() {
   // every keystroke, so half-typed coordinates don't trigger a query.
   for (const id of ['#latitude', '#longitude']) $(id).addEventListener('change', readChosenPoint)
   for (const id of ['#radiusCurrent', '#radiusChoose']) $(id).addEventListener('change', () => refreshPlace())
+  $('#radiusCurrent').addEventListener('change', () => { if (!state.locating) showLocationNote() })
   $('#buffer').addEventListener('change', () => refreshPlace())
   $('#dataset').addEventListener('change', () => refreshPlace())
   document.querySelectorAll('input[name="taxonOfInterest"]').forEach((r) =>
