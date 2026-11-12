@@ -36,7 +36,8 @@ function toRecord(r) {
     lat: r.Lat,
     lon: r.Long,
     voucher: r['Voucher Type'],
-    repository: r.Repository,
+    // The tiles store "" when Repository equals Link (see build_tiles.R).
+    repository: r.Repository === '' ? r.Link : r.Repository,
     recordedBy: r['Recorded by'],
     link: r.Link,
     establishment: r['Establishment Means'],
