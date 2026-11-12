@@ -27,29 +27,49 @@ or to the `unsw` shinyapps.io organisation.
 
 ## Deploy
 
-From the repo root, in R, with the account connected
-(`rsconnect::setAccountInfo()` for shinyapps.io, `rsconnect::connectUser()`
-for Posit Connect):
+Needs R with the `shiny` and `rsconnect` packages, and an admin login for the
+`unsw` shinyapps.io account. You don't need the rest of the repo.
 
 ```r
-# Check it locally first: the browser should land on the new site.
+install.packages(c("shiny", "rsconnect"))
+
+# 1. Get the redirect app
+dir.create("redirect")
+download.file(
+  "https://raw.githubusercontent.com/traitecoevo/infinitylists/master/redirect/app.R",
+  "redirect/app.R"
+)
+
+# 2. Optional: check it locally. The browser should land on the new site.
 shiny::runApp("redirect")
 
-# shinyapps.io: main app (the URL in the paper)
-rsconnect::deployApp("redirect", appId = 11400862, server = "shinyapps.io",
-                     account = "fontikar", appFiles = "app.R", forceUpdate = TRUE)
+# 3. Connect R to the shinyapps.io account. In the dashboard
+#    (https://www.shinyapps.io/admin/#/tokens, signed in to the unsw account):
+#    Account > Tokens > Show > Copy to clipboard. Paste and run the line it
+#    gives you, which looks like:
+#    rsconnect::setAccountInfo(name = "unsw", token = "...", secret = "...")
+rsconnect::accounts()  # note the account name it lists (expected: "unsw")
 
-# shinyapps.io: current-location variant
-rsconnect::deployApp("redirect", appId = 12113944, server = "shinyapps.io",
-                     account = "fontikar", appFiles = "app.R", forceUpdate = TRUE)
-
-# UNSW Posit Connect
-rsconnect::deployApp("redirect", appId = 1,
-                     server = "posit-connect-unsw.intersect.org.au",
-                     account = "fontikar", appFiles = "app.R", forceUpdate = TRUE)
+# 4. Deploy over the old apps. appId pins the exact app, so the URLs stay
+#    the same. Change `account` if accounts() showed a different name.
+rsconnect::deployApp("redirect", appId = 11400862, account = "unsw",
+                     server = "shinyapps.io", appFiles = "app.R",
+                     forceUpdate = TRUE, launch.browser = FALSE)  # the paper's URL
+rsconnect::deployApp("redirect", appId = 12113944, account = "unsw",
+                     server = "shinyapps.io", appFiles = "app.R",
+                     forceUpdate = TRUE, launch.browser = FALSE)  # current-location variant
 ```
 
-Then open each URL and check it lands on the new site.
+Then open <https://unsw.shinyapps.io/infinitylists/> and
+<https://unsw.shinyapps.io/infinitylists-current-location/>. Each should land
+on the new app within a few seconds.
+
+The UNSW Posit Connect copy
+(<https://posit-connect-unsw.intersect.org.au/infinitylists/>, app ID 1) isn't
+in the paper. If someone has an account on that server, deploy the same way
+(`rsconnect::connectUser(server = "posit-connect-unsw.intersect.org.au")`,
+then `deployApp("redirect", appId = 1, server = "posit-connect-unsw.intersect.org.au", appFiles = "app.R", forceUpdate = TRUE)`).
+Otherwise, ask the server's admins to remove it.
 
 ## The chain of addresses
 
