@@ -230,11 +230,11 @@ ui <- function(){
           tabPanel("About",
                    h2("Frequently Asked Questions"),
                    
-                   h4("1. What does this Shiny app do?"),
+                   h4("1. What does this app do?"),
                    p("This app allows users to explore biodiversity across the world. After selecting a location and taxonomic group, the app will generate a species list."),
                    
                    h4("2. Which taxonomic groups can I generate lists for?"),
-                   p("You can generate lists for demo taxon-country combinations in the browser-based Shiny app (e.g., plants in Australia or butterflies and moths in Peru), or download our R package (see below) and choose any taxon-country combination by using our app via R."),
+                   p("You can generate lists for demo taxon-country combinations in the web app at ", tags$a(href = "https://w3id.org/infinitylists/", "w3id.org/infinitylists"), " (e.g., plants in Australia or butterflies and moths in Peru), or download our R package (see below) and choose any taxon-country combination by using our app via R."),
                    
                    h4("3. What is a KML file?"),
                    p("KML stands for Keyhole Markup Language. A KML file stores geographic data and features, and allows these features to be displayed on a map in geospatial software such as ", tags$a(href = "https://earth.google.com/", "Google Earth ")),
@@ -248,7 +248,7 @@ ui <- function(){
                    h4("6. Can I search for any location in the world?"),
                    p("Yes. You can search anywhere in the world via the GBIF node. The" , tags$a(href = "https://living-atlases.gbif.org", "Living Atlas countries "), "(including Australia) are likely to be faster than the GBIF node, but anywhere is possible."),
                    
-                   h4("7. Can I search for locations or taxa not included in the browser-based Shiny app?"),
+                   h4("7. Can I search for locations or taxa not included in the web app?"),
                    p("Yes you can! The best way to adapt infinitylists for other specific country-taxa combinations is to install and run a local version of infinitylists. See the README at https://github.com/traitecoevo/infinitylists for more guidance."),
                    
                    h4("8. Where do the data come from?"),
