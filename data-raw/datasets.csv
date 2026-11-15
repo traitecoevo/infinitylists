@@ -4,8 +4,8 @@ Odonata,ala,AU,true
 Marsupialia,ala,AU,true
 Cicadoidea,ala,AU,true
 Plantae,ala,AU,true
-Gekkonidae,gbif,MG,false
-Lepidoptera,gbif,PE,false
-Cephalopoda,gbif,PH,false
-Arachnida,gbif,FR,false
-Squamata,gbif,ES,false
+Gekkonidae,gbif,MG,true
+Lepidoptera,gbif,PE,true
+Cephalopoda,gbif,PH,true
+Arachnida,gbif,FR,true
+Squamata,gbif,ES,true
