@@ -18,14 +18,18 @@ download_gbif_obs <- function(taxon,
                               country_code= NULL,
                               save_raw_data = FALSE,
                               output_dir = file.path(system.file(package = "infinitylists"), "data/")){
-  # 1. Data retrieval
-  gbif_obs <-
-    retrieve_gbif_data(taxon, min_year, max_year, country_code, save_raw_data, output_dir)
-  
-  # 2. Filtering and processing
-  gbif_cleaned <- suppressWarnings(gbif_process_data(gbif_obs))
-  
-  # 4. Save processed data
+  # galah's field list doesn't include hasGeospatialIssue (see
+  # query_gbif_global()), so skip its field check, then restore the setting.
+  run_checks <- galah::galah_config()$package$run_checks
+  galah::galah_config(run_checks = FALSE)
+  on.exit(galah::galah_config(run_checks = run_checks), add = TRUE)
+
+  # 1 + 2. Data retrieval, filtering and processing (chunk by chunk)
+  gbif_cleaned <-
+    retrieve_gbif_data(taxon, min_year, max_year, country_code, save_raw_data, output_dir,
+                       process = function(d) suppressWarnings(gbif_process_data(d)))
+
+  # 3. Save processed data
   save_gbif_data(gbif_cleaned, taxon, country_code, output_dir)
 }
 
@@ -38,26 +42,32 @@ download_gbif_obs <- function(taxon,
 #' @param country_code character, code for country
 #' @export
 
-query_gbif_global<- function(taxon, 
-                             min_year,
-                             max_year,
-                             country_code = NULL){
-  if(is.null(country_code))
-    query  <- galah::galah_call() |>
-      galah::galah_identify(taxon) |> 
+query_gbif_global <- function(taxon,
+                              min_year,
+                              max_year,
+                              country_code = NULL){
+  # GBIF's key is HAS_GEOSPATIAL_ISSUE, but galah >= 2.2 lists the field as
+  # hasGeospatialIssues (which GBIF rejects), so its field check refuses
+  # hasGeospatialIssue. download_gbif_obs() turns that check off while it
+  # runs; do the same (galah_config(run_checks = FALSE)) to use this alone.
+  # Keep each query as one pipe from galah_call(): galah_filter() doesn't
+  # recognise a request stored in a variable and returns bare filters.
+  if (is.null(country_code)) {
+    query <- galah::galah_call() |>
+      galah::galah_identify(taxon) |>
       galah::galah_filter(
         hasGeospatialIssue == "false",
         year >= min_year,
         year <= max_year)
-  else(
+  } else {
     query <- galah::galah_call() |>
-      galah::galah_identify(taxon) |> 
+      galah::galah_identify(taxon) |>
       galah::galah_filter(
         country == country_code,
         hasGeospatialIssue == "false",
         year >= min_year,
         year <= max_year)
-  )
+  }
   return(query)
 }
 
@@ -99,57 +109,106 @@ format_date_as_character <- function(data){
 }
 
 
-#' Retrieve GBIF records 
+#' Retrieve and process GBIF records
 #'
-#' @param taxon 
-#' @param min_year 
-#' @param max_year 
-#' @param country_code 
-#' @param save_raw_data 
-#' @param output_dir 
+#' Downloads in chunks of consecutive years of at most `max_records` records
+#' (by record count, as for ALA), retrying each chunk and failing loudly
+#' rather than silently dropping one. Each chunk is processed as soon as it
+#' downloads, so only the kept rows stay in memory.
+#'
+#' @param process function applied to each downloaded chunk
+#' @param max_records largest number of records requested from GBIF at once
+#' @param min_fraction a chunk with fewer than this fraction of the records
+#'   GBIF counted for it is treated as a failed download
 #' @noRd
 #' @keywords internal
 
 retrieve_gbif_data <- function(taxon, min_year, max_year,
                                country_code = NULL,
                                save_raw_data = FALSE,
-                               output_dir = file.path(system.file(package = "infinitylists"), "data/")
-                               ){
-  
-  n_obs <- query_gbif_global(taxon, min_year, max_year, country_code) |> 
-    galah::atlas_counts() |> 
+                               output_dir = file.path(system.file(package = "infinitylists"), "data/"),
+                               process = identity,
+                               max_records = 1000000,
+                               min_fraction = 0.95){
+
+  n_obs <- query_gbif_global(taxon, min_year, max_year, country_code) |>
+    galah::atlas_counts() |>
     dplyr::pull(count)
-  
-  # If less than 1 mil records
-  if (n_obs < 1000000){
-    download <- retrieve_gbif_data_by_year_range(taxon, 
-                                     min_year, max_year,
-                                     country_code,
-                                     save_raw_data,
-                                     # output_dir = file.path(system.file(package = "infinitylists"), "data/")
-                                     output_dir)
-  } else {
-    
-    years <- seq(min_year, max_year)
-    length(years)
-    
-    # Split years
-    year_chunks <- split(years, ceiling(seq_along(years) / 10))
-  
-    # Map this
-    download <-  purrr::map(year_chunks,
-                            purrr::possibly(
-                              ~ retrieve_gbif_data_by_year_range(taxon,
-                                                                 min_year = range(.x)[1], max_year = range(.x)[2],
-                                                                 country_code,
-                                                                 save_raw_data,
-                                                                 # output_dir = file.path(system.file(package = "infinitylists"), "data/")
-                                                                 output_dir))
-                            ) |> 
-      purrr::list_rbind()
-                            
+
+  # Split by halving year ranges using total counts only. (galah returns at
+  # most 10 years from a grouped GBIF count, so chunk_years() would miss
+  # years here.)
+  count_years <- function(from, to) {
+    query_gbif_global(taxon, from, to, country_code) |>
+      galah::atlas_counts() |>
+      dplyr::pull(count)
   }
- return(download)
+  year_chunks <- merge_year_ranges(
+    split_year_range(min_year, max_year, n_obs, count_years, max_records),
+    max_records)
+
+  output <- purrr::imap(year_chunks, function(chunk, i) {
+    what <- sprintf("%s-%s %d-%d (chunk %d of %d)", taxon, country_code,
+                    chunk$from, chunk$to, i, length(year_chunks))
+    message("Downloading ", what)
+    download <- with_retries(function() {
+      d <- retrieve_gbif_data_by_year_range(taxon, chunk$from, chunk$to,
+                                            country_code, save_raw_data,
+                                            output_dir)
+      # A truncated download would otherwise go unnoticed.
+      if (nrow(d) < min_fraction * chunk$count) {
+        stop(sprintf("got %s records, expected about %s",
+                     format(nrow(d), big.mark = ","),
+                     format(chunk$count, big.mark = ",")), call. = FALSE)
+      }
+      d
+    }, what)
+    processed <- process(download)
+    message(sprintf("  %s raw -> %s kept",
+                    format(nrow(download), big.mark = ","),
+                    format(nrow(processed), big.mark = ",")))
+    rm(download)
+    gc()
+    processed
+  })
+
+  dplyr::bind_rows(output)
+}
+
+#' Split `from:to` into consecutive year ranges of at most `max_records`
+#' records, halving ranges that are too big (a single year stays whole)
+#'
+#' @param n number of records in `from:to`
+#' @param count_years function(from, to) returning the record count
+#' @return list of `list(from, to, count)`
+#' @noRd
+#' @keywords internal
+split_year_range <- function(from, to, n, count_years, max_records) {
+  if (n <= max_records || from == to) {
+    return(list(list(from = from, to = to, count = n)))
+  }
+  mid <- (from + to) %/% 2
+  n_low <- count_years(from, mid)
+  c(split_year_range(from, mid, n_low, count_years, max_records),
+    split_year_range(mid + 1, to, n - n_low, count_years, max_records))
+}
+
+#' Join neighbouring ranges from split_year_range() while they stay within
+#' `max_records`
+#' @noRd
+#' @keywords internal
+merge_year_ranges <- function(chunks, max_records) {
+  out <- list()
+  for (x in chunks) {
+    last <- length(out)
+    if (last > 0 && out[[last]]$count + x$count <= max_records) {
+      out[[last]]$to <- x$to
+      out[[last]]$count <- out[[last]]$count + x$count
+    } else {
+      out[[last + 1]] <- x
+    }
+  }
+  out
 }
 
 #' Process downloaded data from Atlas of Living Australia 
@@ -190,6 +249,9 @@ gbif_process_data <- function(data){
       ),
       lat = decimalLatitude,
       long = decimalLongitude,
+      # Always a string: when every value is NA it would otherwise be
+      # written as bool, and the type would change from one refresh to the next.
+      establishmentMeans = as.character(establishmentMeans)
     ) |> 
     dplyr::mutate(lat=as.numeric(lat),long=as.numeric(long))|>
     dplyr::select(

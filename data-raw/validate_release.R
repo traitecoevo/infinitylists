@@ -15,9 +15,9 @@
 #                                     types as the previous file (the live
 #                                     Shiny app and build_tiles.R rely on it),
 #                                     and must not have shrunk by > max_drop.
-#                                     Large falls usually mean a download chunk
-#                                     failed silently (purrr::possibly in the
-#                                     download functions).
+#                                     A large fall usually means records went
+#                                     missing upstream (the downloads now stop
+#                                     on a failed chunk rather than skip it).
 # Exits non-zero if any check fails, so nothing gets published.
 
 suppressPackageStartupMessages(library(arrow))
@@ -77,6 +77,10 @@ for (i in seq_len(nrow(datasets))) {
     change <- sprintf("%+.1f%%", 100 * pct)
     new_s <- schema_of(new_f)
     prev_s <- schema_of(prev_f)
+    # Older GBIF files store an all-NA Establishment Means as bool; new ones
+    # always write a string (build_tiles.R converts it to a string anyway).
+    em <- "Establishment Means"
+    if (isTRUE(prev_s[em] == "bool") && isTRUE(new_s[em] == "string")) prev_s[em] <- "string"
     if (!identical(new_s, prev_s)) {
       diff <- paste(
         sprintf("previous: %s", paste(names(prev_s), prev_s, sep = " <", collapse = ">, ")),
